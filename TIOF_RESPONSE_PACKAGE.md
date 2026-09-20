@@ -1,45 +1,50 @@
 # TIOF response package index
 
-This is an internal index for a possible future response. It is not an email,
-application, or submission. No identity documents, home address, license
-number, date of birth, or other sensitive identifiers belong in this package.
+This is an artifact index for a possible fiscal-hosting review. It is not an
+email, application, acceptance, or funding decision. No identity documents,
+home address, license number, date of birth, or other sensitive identifiers
+belong in this public repository.
 
-## Proposed artifact map
+## Artifact map
 
 | Requested diligence area | Artifact | Status |
 | --- | --- | --- |
-| Mission and independent usefulness | `README.md`, `SCOPE.md` | draft; human review required |
-| Technical architecture | `ARCHITECTURE.md` | draft; minimal slice implemented |
-| Public/private separation | `INVENTORY.md`, `CONFLICTS.md` | evidence-based first pass |
-| Governance and oversight | `GOVERNANCE.md` | draft; fiscal-host terms required |
-| Privacy and security | `PRIVACY.md`, `SECURITY.md` | draft; independent review required |
-| Open-source license | `LICENSE` | proposed Apache-2.0; rights review required |
-| Contributor process | `CONTRIBUTING.md` | draft |
+| Mission and independent usefulness | `README.md`, `SCOPE.md` | public; fiscal-host review required |
+| Technical architecture | `ARCHITECTURE.md` | public; minimal slice implemented |
+| Public/private separation | `INVENTORY.md`, `CONFLICTS.md` | public evidence-based boundary |
+| Governance and oversight | `GOVERNANCE.md` | public proposal; fiscal-host terms required |
+| Privacy and security | `PRIVACY.md`, `SECURITY.md` | public proposal; independent review may be required |
+| Open-source license | `LICENSE` | Apache-2.0 published and detected by GitHub |
+| Contributor process | `CONTRIBUTING.md` | public |
 | Six-month plan | `MILESTONES.md` | proposed, not completed |
-| Compensation and budget | `BUDGET.md` | proposed `$60/hour`, 20 hours/week, 26 weeks, `$31,200 maximum`; fiscal-host approval unresolved |
-| Technical evidence | `EVIDENCE.md`, `evidence/` | local evidence only |
-| Release gate | `RELEASE_READINESS.md` | blocking human-review items remain |
+| Compensation and budget | `BUDGET.md` | proposed `$60/hour`, 20 hours/week, 26 weeks, `$31,200 maximum`; fiscal-host approval required |
+| Technical evidence | `EVIDENCE.md`, `evidence/` | public bounded evidence |
+| Release gate | `RELEASE_READINESS.md` | public repository published; host/legal/governance review gates remain |
+
+## Public repository
+
+`https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST`
+
+The canonical commit for any submission should be the current verified `main`
+commit at the time the submission is sent.
 
 ## External-source note
 
-TIOF's current public fiscal-hosting page describes an Apply → Review →
-Onboard → Operate sequence and says that its service can support grassroots
-NGOs and open-source projects. That is a description of their published
-process, not an indication that this project is eligible or accepted. See
-`evidence/EXTERNAL_SOURCES.md` and confirm it again before sending anything.
+TIOF's published fiscal-hosting materials describe an application and review
+process for mission-aligned projects. That describes their process; it does
+not indicate that this project is eligible, accepted, hosted, or funded.
 
 ## Identity verification boundary
 
-The response should ask TIOF for its secure identity-verification and mailing-
-address channel. Government ID must be handled outside Git and ordinary email,
-only after the channel is confirmed and only for the requested document.
+Any response should ask TIOF for its secure identity-verification and
+mailing-address channel. Government ID must be handled outside Git and, unless
+TIOF directs otherwise, outside ordinary email. Only the requested identity
+material should be transmitted.
 
-## Required human decisions before sending
+## Remaining host/human decisions
 
-1. approve the public name and mission;
-2. approve the private/public boundary;
-3. set and approve compensation basis;
-4. approve the related-party conflict process;
-5. review rights, privacy, and security findings;
-6. confirm the exact TIOF contact and secure-upload process;
-7. decide whether and when to create a public remote.
+1. TIOF eligibility and mission-fit determination;
+2. approval of the related-party conflict procedure;
+3. approval of the proposed compensation basis and payment controls;
+4. any additional rights, privacy, security, or legal review TIOF requires;
+5. confirmation of the secure identity-verification channel.

@@ -4,10 +4,10 @@ Snapshot date: 2026-09-20.
 
 Evidence rule: every capability claim in this repository must point to an
 exact source file, test, command, receipt, or an explicit `PROPOSED` /
-`NEEDS HUMAN REVIEW` label. A capability in the private HAL SUPREME checkout
-is not evidence that it exists in this repository.
+`NEEDS HUMAN REVIEW` label. A capability in the separate HAL SUPREME
+checkout is not evidence that it exists in this repository.
 
-## Verified in this draft
+## Verified in this public-interest repository
 
 | Claim | Verification |
 | --- | --- |
@@ -15,58 +15,64 @@ is not evidence that it exists in this repository.
 | Remote-only candidates are denied | `tests/test_audit.py::test_policy_fails_closed_without_local_route` |
 | Explicit loopback route is accepted | `tests/test_audit.py::test_policy_accepts_only_explicit_local_route` |
 | Audit records are hash-linked | `tests/test_audit.py::test_ledger_writes_hash_linked_record` |
-| Code has no declared runtime network dependency | standard-library-only implementation; must still be scanned before release |
+| Library has no declared runtime third-party dependency | standard-library implementation + `pyproject.toml` |
 | Package metadata is explicit | `pyproject.toml` |
-| Release status is not overstated | `README.md`, `RELEASE_READINESS.md` |
+| Apache-2.0 license is published | `LICENSE`; GitHub license metadata detects Apache-2.0 |
+| Repository is publicly inspectable | `https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST` |
+| Scope is intentionally bounded | `README.md`, `SCOPE.md`, `RELEASE_READINESS.md` |
 
-## Verified about the source system
+## Verified about the separate source system
 
-- The local checkout is `D:\HAL_SUPREME`, branch `main`, with no configured
-  Git remote in the current clone.
-- The GitHub repository `UniteAndCreateForLife/HAL_SUPREME` is public and its
-  API response reported no license metadata at snapshot time.
-- The checkout contains the named EventStore, provider, and security modules,
-  but their presence is not evidence that they are suitable for public release.
-- The checkout is materially dirty; the inventory deliberately does not treat
-  all untracked files as reviewed or publishable.
+- The reviewed local HAL SUPREME checkout was `D:\HAL_SUPREME`, branch
+  `main`, and at the inventory snapshot had no configured Git remote in that
+  clone.
+- The GitHub repository `UniteAndCreateForLife/HAL_SUPREME` was public and
+  its API response reported no license metadata at that snapshot.
+- The checkout contained named EventStore, provider, security, voice, and
+  production modules, but their presence is not evidence that they are
+  suitable for public release.
+- The source checkout was materially dirty during inventory; this repository
+  therefore does not bulk-import it.
 
 ## Private reference boundary
 
-The following are existing private reference implementations in
-`D:\HAL_SUPREME`; they are not hosted deliverables and were not copied into
-this repository:
+The following were treated as separate/private reference implementations and
+were not copied into this repository:
 
 - `hal_providers/mesh.py`
 - `hal_cognition/event_store.py`
 - `hal_security/secret_broker.py`
 - `scripts/hal_repo_intelligence.py`
 
-Their presence can motivate future independent designs, but it does not prove
-that the public-interest versions are implemented.
+Their existence can motivate independent public designs, but it does not prove
+that broader public-interest versions are implemented.
 
 ## Not established
 
-- fiscal-host approval;
-- charitable eligibility or legal status;
-- rights clearance for every HAL asset or dependency;
-- production readiness of any public repository;
-- security completeness;
-- correctness of the public GitHub contents beyond the API metadata read;
-- permission to use any private HAL code, data, voice, avatar, or media.
+- fiscal-host approval or charitable eligibility;
+- funding approval;
+- rights clearance beyond the bounded repository/dependency review;
+- production readiness beyond the tested minimal slice;
+- security completeness or independent penetration/security review;
+- permission to use any private HAL code, data, voice, avatar, identity, media,
+  credential, browser state, or private integration;
+- fiscal-host approval of related-party compensation or conflict controls.
 
 ## Reproduction
 
-From this directory:
+From the repository:
 
 ```text
 python -m pytest
+python tools/smoke_stdlib.py
 ```
 
-The command must be rerun in a clean environment before any external claim.
+The publication preparation also recorded clean-environment and scanning
+results in `RELEASE_READINESS.md` and `evidence/release_audit.json`.
 
 ## Evidence limitations
 
-The local source checkout has no configured Git remote and has 2,526 dirty
-entries. This draft therefore cannot claim a clean source-to-public-repository
-lineage yet. The public GitHub repository was checked separately through its
-read-only API metadata; its contents have not been imported into this draft.
+HAL Open Local AI is deliberately an independent public implementation rather
+than a claim of clean lineage from the broader private HAL SUPREME working
+tree. Public availability and passing bounded tests do not establish legal
+eligibility, fiscal-host acceptance, complete security, or production fitness.

@@ -46,7 +46,7 @@
     "remote_review": {
       "command": "git remote -v",
       "result": "PASS",
-      "note": "no remote configured; public push intentionally withheld"
+      "note": "origin is configured for the intended public repository; repository creation and push are intentionally pending correct-account authentication"
     }
   }
 }

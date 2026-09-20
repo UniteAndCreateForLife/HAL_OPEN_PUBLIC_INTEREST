@@ -15,10 +15,10 @@ not authorize a push, publication, funding request, or external submission.
 | Generated-file review | PASS* | release-tree extension review recorded in `evidence/release_audit.json` | ignored virtualenv/cache files excluded from release scope |
 | Git-history review | PASS | `git log --all --oneline -5` | one deliberate local root commit; no imported HAL history |
 | Third-party rights review | NEEDS HUMAN REVIEW | `DEPENDENCY_LICENSE_INVENTORY.md` | host/legal review still required |
-| Compensation approval | NEEDS HUMAN REVIEW | `BUDGET.md` | no rate or payment authorization set |
+| Compensation approval | NEEDS HUMAN REVIEW | `BUDGET.md` | proposed `$60/hour`, 20 hours/week, 26 weeks, `$31,200 maximum`; fiscal-host approval still required |
 | Conflict approval | NEEDS HUMAN REVIEW | `CONFLICTS.md` | related-party procedure not approved |
 | Fiscal-host eligibility | NEEDS HUMAN REVIEW | `TIOF_RESPONSE_PACKAGE.md` | not submitted or accepted |
-| Public remote creation | NOT RUN | no remote configured | intentionally withheld |
+| Public remote creation | NOT RUN | `origin` configured for `https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST.git` | repository creation/push still pending correct-account authentication |
 | External message / identity upload | NOT RUN | side-effect counters in `evidence/snapshot.json` | intentionally withheld |
 
 ## Blocking interpretation

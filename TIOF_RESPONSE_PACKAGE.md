@@ -16,7 +16,7 @@ number, date of birth, or other sensitive identifiers belong in this package.
 | Open-source license | `LICENSE` | proposed Apache-2.0; rights review required |
 | Contributor process | `CONTRIBUTING.md` | draft |
 | Six-month plan | `MILESTONES.md` | proposed, not completed |
-| Compensation and budget | `BUDGET.md` | rate and host approval unresolved |
+| Compensation and budget | `BUDGET.md` | proposed `$60/hour`, 20 hours/week, 26 weeks, `$31,200 maximum`; fiscal-host approval unresolved |
 | Technical evidence | `EVIDENCE.md`, `evidence/` | local evidence only |
 | Release gate | `RELEASE_READINESS.md` | blocking human-review items remain |
 

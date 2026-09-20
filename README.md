@@ -51,8 +51,9 @@ runner. The library itself uses only the Python standard library.
 - [PRIVACY.md](PRIVACY.md) — data handling and identity-document boundary.
 - [SECURITY.md](SECURITY.md) — threat model and release requirements.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — contribution and provenance rules.
-- [BUDGET.md](BUDGET.md) — six-month budget framework; compensation rate is
-  intentionally unresolved pending human approval.
+- [BUDGET.md](BUDGET.md) — six-month budget framework with a proposed
+  communication, engineering, and coordination compensation basis pending
+  fiscal-host approval.
 - [MILESTONES.md](MILESTONES.md) — proposed six-month work plan.
 - [RELEASE_READINESS.md](RELEASE_READINESS.md) — second-pass audit status.
 - [TIOF_RESPONSE_PACKAGE.md](TIOF_RESPONSE_PACKAGE.md) — artifact index, not

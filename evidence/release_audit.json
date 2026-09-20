@@ -1,0 +1,52 @@
+{
+  "schema": "hal.public_interest.release_audit.v1",
+  "audited_at": "2026-09-20",
+  "scope": "tracked release tree; .git, .venv_audit, and __pycache__ excluded",
+  "checks": {
+    "pytest": {
+      "command": "D:/Python312/python.exe -m pytest -q",
+      "result": "PASS",
+      "passed": 3,
+      "failed": 0
+    },
+    "stdlib_smoke": {
+      "command": "D:/Python312/python.exe tools/smoke_stdlib.py",
+      "result": "PASS"
+    },
+    "clean_environment_smoke": {
+      "command": ".venv_audit/Scripts/python.exe tools/smoke_stdlib.py",
+      "result": "PASS",
+      "note": "temporary ignored environment created for the check; not a release artifact"
+    },
+    "secret_pattern_scan": {
+      "command": "rg -n -i --glob '!LICENSE' --glob '!*.json' '(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|AIza[A-Za-z0-9_-]{20,}|-----BEGIN [A-Z ]+ PRIVATE KEY-----)' .",
+      "result": "PASS",
+      "matches": 0
+    },
+    "value_shaped_personal_data_scan": {
+      "command": "rg -n -P '(?<![A-Za-z0-9])\\d{3}[-. ]\\d{2}[-. ]\\d{4}(?![A-Za-z0-9])|\\b\\d{3}[-. ]\\d{3}[-. ]\\d{4}\\b|[A-Z][a-z]+\\s+[A-Z][a-z]+,?\\s+\\d{1,5}\\s+[A-Za-z]+(?:\\s+[A-Za-z]+)*\\s+\\d{5}(?!\\d)' .",
+      "result": "PASS",
+      "matches": 0,
+      "note": "documentation references to identity handling are expected policy text"
+    },
+    "git_diff_check": {
+      "command": "git diff --check",
+      "result": "PASS"
+    },
+    "release_tree_binary_review": {
+      "command": "Get-ChildItem -Recurse -File | Where-Object { $_.FullName -notmatch '\\\\.(git|venv_audit|__pycache__)\\\\' } | rg -i '\\.(onnx|safetensors|pt|pth|ckpt|gguf|glb|blend|mp4|wav|png|jpg|jpeg|webp|pem)$'",
+      "result": "PASS",
+      "matches": 0
+    },
+    "git_history_review": {
+      "command": "git log --all --oneline -5",
+      "result": "PASS",
+      "note": "one deliberate local root commit; no imported HAL history"
+    },
+    "remote_review": {
+      "command": "git remote -v",
+      "result": "PASS",
+      "note": "no remote configured; public push intentionally withheld"
+    }
+  }
+}

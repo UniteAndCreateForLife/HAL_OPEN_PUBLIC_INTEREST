@@ -1,0 +1,17 @@
+{
+  "schema": "hal.public_interest.validation.v1",
+  "validated_at": "2026-09-20",
+  "command": "D:/Python312/python.exe -m pytest -q",
+  "working_directory": "D:/HAL_OPEN_PUBLIC_INTEREST",
+  "result": "PASS",
+  "passed": 3,
+  "failed": 0,
+  "duration_seconds": 0.06,
+  "scope": "minimal public-interest code slice only",
+  "not_established": [
+    "public release readiness",
+    "fiscal-host approval",
+    "legal eligibility",
+    "security completeness"
+  ]
+}

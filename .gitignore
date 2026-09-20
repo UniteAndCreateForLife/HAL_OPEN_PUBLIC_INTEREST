@@ -1,0 +1,13 @@
+__pycache__/
+.pytest_cache/
+.venv/
+.venv_audit/
+*.py[cod]
+.coverage
+dist/
+build/
+*.egg-info/
+.env
+secrets/
+data/private/
+*.pem

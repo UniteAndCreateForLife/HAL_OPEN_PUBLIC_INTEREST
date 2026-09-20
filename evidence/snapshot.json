@@ -1,0 +1,43 @@
+{
+  "schema": "hal.public_interest.due_diligence_snapshot.v1",
+  "snapshot_date": "2026-09-20",
+  "external_actions": {
+    "github_pushes": 0,
+    "emails_sent": 0,
+    "identity_documents_uploaded": 0,
+    "public_credentials_used": 0
+  },
+  "source_system": {
+    "local_path": "D:/HAL_SUPREME",
+    "branch": "main",
+    "configured_git_remote": false,
+    "tracked_files": 212,
+    "dirty_entries": 2526,
+    "test_files": 525,
+    "root_license_present": false,
+    "root_architecture_present": false
+  },
+  "public_github": {
+    "repository": "UniteAndCreateForLife/HAL_SUPREME",
+    "visibility": "public",
+    "default_branch": "main",
+    "license_metadata_detected": false,
+    "checked_read_only": true
+  },
+  "draft_code": {
+    "route_policy": "explicit loopback and local residency only",
+    "audit_ledger": "hash-linked JSONL",
+    "tests_passed": 3,
+    "tests_failed": 0,
+    "network_calls": 0,
+    "credential_reads": 0,
+    "public_sends": 0
+  },
+  "uncertainties": [
+    "fiscal-host requirements and eligibility",
+    "final compensation rate and related-party approval",
+    "third-party license and rights clearance",
+    "security review and clean-environment reproducibility",
+    "which HAL SUPREME modules, if any, can be migrated after review"
+  ]
+}

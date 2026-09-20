@@ -2,9 +2,9 @@
 
 Repository working name: `HAL_OPEN_PUBLIC_INTEREST`.
 
-This is a proposed, separate public-interest repository for small, inspectable
-AI infrastructure primitives. It is intentionally not a mirror of HAL
-SUPREME and it is not a release of HAL SUPREME's private, commercial, media,
+This is a separate public-interest repository for small, inspectable AI
+infrastructure primitives. It is intentionally not a mirror of HAL SUPREME
+and it is not a release of HAL SUPREME's private, commercial, media,
 credential, voice, avatar, or production systems.
 
 The first code slice demonstrates two bounded ideas:
@@ -18,18 +18,22 @@ publish anything, or claim parity with the HAL SUPREME runtime.
 
 ## Status
 
-This directory was prepared locally on 2026-09-20 as a due-diligence draft and
-second-pass release candidate.
-It has not been pushed to GitHub, submitted to a fiscal host, or approved as a
-funded project. Claims and scope remain subject to human review.
+This repository was prepared on 2026-09-20 as a due-diligence release
+candidate and is now publicly available on GitHub for inspection.
+
+Publication does **not** mean the project has been accepted by a fiscal host,
+approved for funding, found legally eligible, or reviewed as production-ready
+beyond the bounded implementation and tests documented here. Fiscal-host,
+rights, compensation, conflict, and broader security review remain explicit
+review gates.
 
 ## Why this scope
 
 The proposed public-interest work is useful independently of a commercial HAL
 product: local model selection, data-locality controls, provenance, and
 reproducible evaluation are general infrastructure concerns. HAL SUPREME
-remains the private integration and product system. The separation is a
-governance boundary, not a claim that all private code is ready for release.
+remains the separate private integration and product system. The separation is
+a governance boundary, not a claim that all private code is ready for release.
 
 ## Run the minimal slice
 
@@ -52,15 +56,15 @@ runner. The library itself uses only the Python standard library.
 - [SECURITY.md](SECURITY.md) — threat model and release requirements.
 - [CONTRIBUTING.md](CONTRIBUTING.md) — contribution and provenance rules.
 - [BUDGET.md](BUDGET.md) — six-month budget framework with a proposed
-  communication, engineering, and coordination compensation basis pending
-  fiscal-host approval.
+  engineering/coordination compensation basis pending fiscal-host approval.
 - [MILESTONES.md](MILESTONES.md) — proposed six-month work plan.
-- [RELEASE_READINESS.md](RELEASE_READINESS.md) — second-pass audit status.
+- [RELEASE_READINESS.md](RELEASE_READINESS.md) — release and diligence status.
 - [TIOF_RESPONSE_PACKAGE.md](TIOF_RESPONSE_PACKAGE.md) — artifact index, not
   an outbound message.
 
 ## License
 
-The proposed code and documentation are Apache-2.0 licensed. Third-party,
-private, or rights-restricted materials must not be copied into this tree.
+The code and documentation in this repository are published under Apache-2.0,
+subject to the repository's rights and dependency review. Third-party, private,
+or rights-restricted materials must not be copied into this tree.
 See [LICENSE](LICENSE).

@@ -22,7 +22,10 @@ def test_health():
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json()["service"] == "hal-labsight"
-    assert "opencv5_verified" in response.json()
+    body = response.json()
+    assert "opencv5_verified" in body
+    assert body["numpy"]
+    assert body["build_sha"]
 
 
 def test_analyze_png():

@@ -1,0 +1,151 @@
+{
+  "aws_deployed": false,
+  "diagnostic_claims": false,
+  "health": {
+    "build_sha": "80090cdc97a7a6b71c94cab9617f2243d52f249d",
+    "expected_cv2": "5.0.0",
+    "expected_opencv": "5.0.0.93",
+    "numpy": "2.3.5",
+    "opencv": "5.0.0",
+    "opencv5_verified": true,
+    "opencv_distribution": "5.0.0.93",
+    "opencv_distribution_version": "5.0.0.93",
+    "opencv_runtime_version": "5.0.0",
+    "service": "hal-labsight",
+    "source_sha": "80090cdc97a7a6b71c94cab9617f2243d52f249d",
+    "status": "ok",
+    "version": "0.4.0"
+  },
+  "passed": true,
+  "purpose": "image_quality_control_only",
+  "scenarios": {
+    "blurred": {
+      "metrics": {
+        "edge_density": 0.0,
+        "focus_variance": 5.324638338526711,
+        "foreground_fraction": 0.054962158203125,
+        "illumination_cv": 0.02665029727824741,
+        "object_count": 42,
+        "saturation_fraction": 0.0
+      },
+      "scenario": "blurred",
+      "status": "request_recapture_focus",
+      "trace": [
+        {
+          "decision": "request_recapture_focus",
+          "observation": {
+            "edge_density": 0.0,
+            "focus_variance": 5.324638338526711,
+            "foreground_fraction": 0.054962158203125,
+            "illumination_cv": 0.02665029727824741,
+            "object_count": 42,
+            "saturation_fraction": 0.0
+          },
+          "reason": "focus score indicates severe blur",
+          "step": 1
+        }
+      ],
+      "used_enhancement": false
+    },
+    "clean": {
+      "metrics": {
+        "edge_density": 0.01259613037109375,
+        "focus_variance": 2943.350378998657,
+        "foreground_fraction": 0.04541778564453125,
+        "illumination_cv": 0.026857976146468673,
+        "object_count": 43,
+        "saturation_fraction": 0.0
+      },
+      "scenario": "clean",
+      "status": "accept",
+      "trace": [
+        {
+          "decision": "accept",
+          "observation": {
+            "edge_density": 0.01259613037109375,
+            "focus_variance": 2943.350378998657,
+            "foreground_fraction": 0.04541778564453125,
+            "illumination_cv": 0.026857976146468673,
+            "object_count": 43,
+            "saturation_fraction": 0.0
+          },
+          "reason": "image passes deterministic microscopy QC gates",
+          "step": 1
+        }
+      ],
+      "used_enhancement": false
+    },
+    "clipped": {
+      "metrics": {
+        "edge_density": 0.013446807861328125,
+        "focus_variance": 2442.491406856905,
+        "foreground_fraction": 0.0677032470703125,
+        "illumination_cv": 0.12818020455946233,
+        "object_count": 32,
+        "saturation_fraction": 0.16796875
+      },
+      "scenario": "clipped",
+      "status": "request_recapture_exposure",
+      "trace": [
+        {
+          "decision": "request_recapture_exposure",
+          "observation": {
+            "edge_density": 0.013446807861328125,
+            "focus_variance": 2442.491406856905,
+            "foreground_fraction": 0.0677032470703125,
+            "illumination_cv": 0.12818020455946233,
+            "object_count": 32,
+            "saturation_fraction": 0.16796875
+          },
+          "reason": "too many clipped dark/bright pixels",
+          "step": 1
+        }
+      ],
+      "used_enhancement": false
+    },
+    "uneven": {
+      "metrics": {
+        "edge_density": 0.15686798095703125,
+        "focus_variance": 13458.356225075531,
+        "foreground_fraction": 0.048809051513671875,
+        "illumination_cv": 0.15819075984376713,
+        "object_count": 43,
+        "saturation_fraction": 0.0
+      },
+      "scenario": "uneven",
+      "status": "accept",
+      "trace": [
+        {
+          "decision": "enhance_and_reanalyze",
+          "observation": {
+            "edge_density": 0.0125579833984375,
+            "focus_variance": 2781.964623420834,
+            "foreground_fraction": 0.04543304443359375,
+            "illumination_cv": 0.19249234503937582,
+            "object_count": 43,
+            "saturation_fraction": 0.0
+          },
+          "reason": "illumination is uneven; run CLAHE and re-measure",
+          "step": 1
+        },
+        {
+          "decision": "accept",
+          "observation": {
+            "edge_density": 0.15686798095703125,
+            "focus_variance": 13458.356225075531,
+            "foreground_fraction": 0.048809051513671875,
+            "illumination_cv": 0.15819075984376713,
+            "object_count": 43,
+            "saturation_fraction": 0.0
+          },
+          "reason": "image passes deterministic microscopy QC gates",
+          "step": 2
+        }
+      ],
+      "used_enhancement": true
+    }
+  },
+  "schema_version": 1,
+  "scope": "local/CI container HTTP canary; NOT AWS deployment evidence",
+  "source_sha": "80090cdc97a7a6b71c94cab9617f2243d52f249d"
+}

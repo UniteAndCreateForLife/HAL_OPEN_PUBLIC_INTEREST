@@ -61,6 +61,20 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _evaluation_id(items: list[CorpusItem]) -> str:
+    """Stable ID for the exact ordered corpus/QC expectation contract."""
+    contract = [
+        {
+            "id": item.id,
+            "sha256": item.sha256.lower(),
+            "expected_qc_status": item.expected_qc_status,
+        }
+        for item in items
+    ]
+    payload = json.dumps(contract, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
 def _failure_analysis(rows: list[dict]) -> dict:
     scored = [row for row in rows if row["matches_expected"] is not None]
     failures = [row for row in scored if not row["matches_expected"]]
@@ -90,6 +104,8 @@ def _failure_analysis(rows: list[dict]) -> dict:
 def evaluate_corpus(manifest_path: Path, image_root: Path) -> dict:
     """Evaluate provenance-verified microscopy images without diagnostic inference."""
     items = load_manifest(manifest_path)
+    manifest_sha256 = _sha256(manifest_path)
+    evaluation_id = _evaluation_id(items)
     agent = LabSightAgent()
     rows: list[dict] = []
 
@@ -134,6 +150,8 @@ def evaluate_corpus(manifest_path: Path, image_root: Path) -> dict:
     return {
         "purpose": "image_quality_control_only",
         "diagnostic_claims": False,
+        "manifest_sha256": manifest_sha256,
+        "evaluation_id": evaluation_id,
         "samples": len(rows),
         "scored_samples": len(scored),
         "qc_agreement": None if not scored else sum(bool(r["matches_expected"]) for r in scored) / len(scored),

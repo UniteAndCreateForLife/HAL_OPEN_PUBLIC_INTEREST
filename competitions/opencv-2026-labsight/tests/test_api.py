@@ -1,4 +1,6 @@
 import base64
+import json
+import logging
 
 import cv2
 from fastapi.testclient import TestClient
@@ -37,6 +39,23 @@ def test_analyze_png():
     body = response.json()
     assert body["trace"]
     assert "focus_variance" in body["metrics"]
+
+
+def test_qc_decision_log_is_correlated_and_image_free(caplog):
+    caplog.set_level(logging.INFO, logger="labsight.api")
+    response = client.get("/demo/analyze/uneven", headers={"x-request-id": "evidence-123"})
+    assert response.status_code == 200
+    events = [json.loads(record.message) for record in caplog.records if record.message.startswith("{")]
+    decisions = [event for event in events if event.get("event") == "qc_decision"]
+    assert len(decisions) == 1
+    event = decisions[0]
+    assert event["request_id"] == "evidence-123"
+    assert event["source"] == "demo:uneven"
+    assert event["used_enhancement"] is True
+    assert event["agent_steps"] == 2
+    assert event["decision"] == response.json()["status"]
+    assert "image" not in event
+    assert "image_base64" not in event
 
 
 def test_demo_uneven_has_second_agent_step():

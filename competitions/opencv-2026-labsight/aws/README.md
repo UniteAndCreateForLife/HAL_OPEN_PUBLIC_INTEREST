@@ -28,3 +28,18 @@ aws ecr describe-images --repository-name hal-labsight --region "$AWS_REGION"
 ```
 
 Final `/health` evidence must show OpenCV 5, `opencv5_verified: true`, the expected NumPy version, and the Git `build_sha`. Cloud deployment cannot be claimed until those values come from the authenticated running AWS service.
+
+
+## Fail-closed deployment evidence
+
+After App Runner becomes reachable, `deploy.sh` fetches `/health` and writes
+`evaluation/aws/deployment-evidence.json`. Evidence capture aborts unless the
+running service reports OpenCV major version 5 with `opencv5_verified: true`
+and its `build_sha` exactly matches the Git SHA embedded during the container
+build. The evidence record also preserves the immutable ECR image identifier,
+App Runner service ARN/URL, region, UTC capture time, and complete health
+payload.
+
+This gate prevents a successful infrastructure deployment from being
+misrepresented as valid competition runtime evidence when the wrong OpenCV
+runtime or source revision is actually serving traffic.

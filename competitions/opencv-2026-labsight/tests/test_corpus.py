@@ -38,7 +38,10 @@ def test_provenance_verified_corpus_is_scored(tmp_path):
     assert len(report["manifest_sha256"]) == 64
     assert len(report["evaluation_id"]) == 64
     assert report["failure_analysis"]["failure_count"] == 0
-    assert report["failure_analysis"]["safety"]["unsafe_accept_count"] == 0
+    safety = report["failure_analysis"]["safety"]
+    assert safety["unsafe_accept_count"] == 0
+    assert safety["weighted_failure_points"] == 0
+    assert safety["normalized_qc_risk"] == 0.0
     assert report["failure_analysis"]["per_expected_status"]["accept"]["recall"] == 1.0
     assert report["runtime"]["opencv"]
     assert isinstance(report["runtime"]["opencv5_verified"], bool)
@@ -58,12 +61,16 @@ def test_failure_analysis_records_mismatch_without_diagnostic_inference(tmp_path
     assert analysis["failure_ids"] == ["sample-001"]
     assert analysis["confusion_matrix"]["human_review"]["accept"] == 1
     assert analysis["per_expected_status"]["human_review"]["recall"] == 0.0
-    assert analysis["safety"]["unsafe_accept_count"] == 1
-    assert analysis["safety"]["unsafe_accept_ids"] == ["sample-001"]
-    assert analysis["safety"]["false_rejection_count"] == 0
+    safety = analysis["safety"]
+    assert safety["unsafe_accept_count"] == 1
+    assert safety["unsafe_accept_ids"] == ["sample-001"]
+    assert safety["false_rejection_count"] == 0
+    assert safety["risk_weighting"] == {"unsafe_accept": 4, "false_rejection": 1}
+    assert safety["weighted_failure_points"] == 4
+    assert safety["normalized_qc_risk"] == 1.0
 
 
-def test_false_rejection_is_separate_from_unsafe_accept(tmp_path):
+def test_false_rejection_is_separate_and_lower_weight_than_unsafe_accept(tmp_path):
     path = _fixture(tmp_path)
     data = json.loads(path.read_text())
     image = cv2.imread(str(tmp_path / "sample.png"))
@@ -78,6 +85,8 @@ def test_false_rejection_is_separate_from_unsafe_accept(tmp_path):
     assert safety["unsafe_accept_count"] == 0
     assert safety["false_rejection_count"] == 1
     assert safety["false_rejection_ids"] == ["sample-001"]
+    assert safety["weighted_failure_points"] == 1
+    assert safety["normalized_qc_risk"] == 0.25
 
 
 def test_hash_mismatch_fails_closed(tmp_path):
@@ -86,8 +95,7 @@ def test_hash_mismatch_fails_closed(tmp_path):
 
 
 def test_manifest_requires_qc_only_purpose(tmp_path):
-    path = _fixture(tmp_path)
-    data = json.loads(path.read_text()); data["purpose"] = "diagnosis"; path.write_text(json.dumps(data))
+    path = _fixture(tmp_path); data = json.loads(path.read_text()); data["purpose"] = "diagnosis"; path.write_text(json.dumps(data))
     with pytest.raises(ValueError, match="image_quality_control_only"): load_manifest(path)
 
 

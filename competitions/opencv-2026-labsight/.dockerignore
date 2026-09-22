@@ -1,0 +1,6 @@
+# Explicit allowlist: never send datasets, evidence, credentials, or local helpers.
+**
+!Dockerfile
+!requirements-competition.txt
+!labsight/
+!labsight/*.py

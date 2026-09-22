@@ -43,3 +43,30 @@ payload. The generated JSON is a readiness-compatible AWS evidence fragment; `cl
 This gate prevents a successful infrastructure deployment from being
 misrepresented as valid competition runtime evidence when the wrong OpenCV
 runtime or source revision is actually serving traffic.
+
+## Production-container regression gate
+
+The 2026-09-22 Docker canary reproduced an import failure (`libxcb.so.1`);
+`ldd` also found missing GL and GLib libraries. The production Dockerfile now
+pins the observed Python/Debian base digest, installs `libxcb1`, `libgl1`, and
+`libglib2.0-0t64`, checks dependency consistency, and imports/verifies the exact
+OpenCV distribution/core during the build. It does not substitute a headless
+or contrib wheel for the required `opencv-python==5.0.0.93` distribution.
+The service runs as UID/GID 65532. The build context uses an explicit allowlist.
+
+CI's `container-runtime-evidence` job starts the actual production image with
+no external network, a read-only root filesystem, a writable `/tmp`, dropped
+capabilities, and two CPU / 2 GiB limits. `tools/container_probe.py` exercises
+real loopback HTTP, checks source SHA and exact runtime, tests four QC cases,
+and requires the uneven-illumination case to contain visual observations plus
+`enhance_and_reanalyze` followed by acceptance. Request correlation and latency
+headers must be present. A build-only success cannot satisfy this canary.
+
+Artifacts include the probe, image metadata, service logs, Python/OS package
+inventories, a 100-sample benchmark, and SHA-256 checksums. Inspect the job
+conclusion as well as artifacts: failed jobs also upload troubleshooting files.
+These are **container execution evidence, not authenticated AWS evidence**.
+The local image ID is not an ECR registry digest. Final delivery still requires
+ECR/App Runner, deployed source/runtime matching, and real CloudWatch evidence.
+The pinned base plus captured inventories improve traceability; apt packages
+and transitive Python dependencies are not yet a bit-for-bit build lock.

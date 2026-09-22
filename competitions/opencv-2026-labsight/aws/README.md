@@ -27,18 +27,18 @@ aws apprunner list-services --region "$AWS_REGION"
 aws ecr describe-images --repository-name hal-labsight --region "$AWS_REGION"
 ```
 
-Final `/health` evidence must show OpenCV 5, `opencv5_verified: true`, the expected NumPy version, and the Git `build_sha`. Cloud deployment cannot be claimed until those values come from the authenticated running AWS service.
+Final `/health` evidence must show the exact `opencv-python==5.0.0.93` distribution, `cv2.__version__==5.0.0`, `opencv5_verified: true`, the expected NumPy version, and matching Git `source_sha`/`build_sha` provenance. Cloud deployment cannot be claimed until those values come from the authenticated running AWS service.
 
 
 ## Fail-closed deployment evidence
 
 After App Runner becomes reachable, `deploy.sh` fetches `/health` and writes
 `evaluation/aws/deployment-evidence.json`. Evidence capture aborts unless the
-running service reports OpenCV major version 5 with `opencv5_verified: true`
-and its `build_sha` exactly matches the Git SHA embedded during the container
-build. The evidence record also preserves the immutable ECR image identifier,
+running service reports the exact competition distribution/runtime pair with
+`opencv5_verified: true` and its `source_sha` exactly matches the Git SHA
+embedded during the container build. The evidence record also preserves the immutable ECR image identifier,
 App Runner service ARN/URL, region, UTC capture time, and complete health
-payload.
+payload. The generated JSON is a readiness-compatible AWS evidence fragment; `cloudwatch_evidence` remains false until actual CloudWatch/App Runner telemetry has separately been captured.
 
 This gate prevents a successful infrastructure deployment from being
 misrepresented as valid competition runtime evidence when the wrong OpenCV

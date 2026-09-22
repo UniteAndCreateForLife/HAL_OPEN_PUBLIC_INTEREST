@@ -75,6 +75,7 @@ def health() -> dict[str, str | bool | None]:
         "service": "hal-labsight",
         "version": "0.4.0",
         "build_sha": os.environ.get("LABSIGHT_BUILD_SHA", "unknown"),
+        "source_sha": os.environ.get("LABSIGHT_BUILD_SHA", "unknown"),
         "opencv": str(runtime["opencv_runtime"]),
         "opencv_runtime_version": str(runtime["opencv_runtime"]),
         "opencv_distribution": runtime["opencv_distribution"],

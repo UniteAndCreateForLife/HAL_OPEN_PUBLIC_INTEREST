@@ -39,37 +39,13 @@ EVIDENCE_DIR="${LABSIGHT_EVIDENCE_DIR:-evaluation/aws}"
 mkdir -p "$EVIDENCE_DIR"
 
 HEALTH_JSON="$(curl --fail --silent --show-error --retry 12 --retry-delay 5 "https://$SERVICE_URL/health")"
-export HEALTH_JSON GIT_SHA IMAGE_IDENTIFIER SERVICE_URL SERVICE_ARN REGION
-python - "$EVIDENCE_DIR/deployment-evidence.json" <<'PY'
-import json
-import os
-import sys
-from datetime import datetime, timezone
-
-health = json.loads(os.environ["HEALTH_JSON"])
-opencv = str(health.get("opencv", ""))
-verified = bool(health.get("opencv5_verified")) and opencv.split(".", 1)[0] == "5"
-if not verified:
-    raise SystemExit(f"refusing evidence: deployed runtime is not verified OpenCV 5: {opencv!r}")
-if health.get("build_sha") != os.environ["GIT_SHA"]:
-    raise SystemExit(
-        "refusing evidence: /health build_sha does not match the source Git SHA "
-        f"({health.get('build_sha')!r} != {os.environ['GIT_SHA']!r})"
-    )
-
-record = {
-    "captured_at_utc": datetime.now(timezone.utc).isoformat(),
-    "source_git_sha": os.environ["GIT_SHA"],
-    "region": os.environ["REGION"],
-    "image_identifier": os.environ["IMAGE_IDENTIFIER"],
-    "service_arn": os.environ["SERVICE_ARN"],
-    "service_url": "https://" + os.environ["SERVICE_URL"],
-    "health": health,
-}
-with open(sys.argv[1], "w", encoding="utf-8") as handle:
-    json.dump(record, handle, indent=2, sort_keys=True)
-    handle.write("\n")
-PY
+printf '%s' "$HEALTH_JSON" | python tools/deployment_evidence.py \
+  --source-sha "$GIT_SHA" \
+  --image-identifier "$IMAGE_IDENTIFIER" \
+  --service-url "$SERVICE_URL" \
+  --service-arn "$SERVICE_ARN" \
+  --region "$REGION" \
+  --output "$EVIDENCE_DIR/deployment-evidence.json" >/dev/null
 
 cat <<OUT
 HAL LabSight deployed.

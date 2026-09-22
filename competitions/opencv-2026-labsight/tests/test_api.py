@@ -32,6 +32,7 @@ def test_health():
     assert isinstance(body["opencv5_verified"], bool)
     assert body["numpy"]
     assert body["build_sha"]
+    assert body["source_sha"] == body["build_sha"]
 
 
 def test_competition_runtime_verification_is_exact():

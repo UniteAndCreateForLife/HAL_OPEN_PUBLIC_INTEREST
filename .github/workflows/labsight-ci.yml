@@ -126,7 +126,9 @@ jobs:
           docker exec labsight-ci python -m pip freeze > evaluation/ci-container/pip-freeze.txt
           docker exec labsight-ci sh -c 'dpkg-query -W' > evaluation/ci-container/os-packages.txt
           docker exec labsight-ci python -m labsight.evaluation --seeds 25 --output /tmp/benchmark
-          docker cp labsight-ci:/tmp/benchmark evaluation/ci-container/benchmark
+          mkdir -p evaluation/ci-container/benchmark
+          docker exec labsight-ci cat /tmp/benchmark/summary.json > evaluation/ci-container/benchmark/summary.json
+          docker exec labsight-ci cat /tmp/benchmark/samples.csv > evaluation/ci-container/benchmark/samples.csv
           sha256sum evaluation/ci-container/http-probe.json evaluation/ci-container/image-inspect.json evaluation/ci-container/pip-freeze.txt evaluation/ci-container/os-packages.txt evaluation/ci-container/benchmark/* > evaluation/ci-container/SHA256SUMS
       - name: Upload container evidence (never AWS evidence)
         if: always()

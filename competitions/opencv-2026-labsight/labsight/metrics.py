@@ -40,6 +40,11 @@ def _validate(image: np.ndarray) -> np.ndarray:
     return image
 
 
+def _normalize_focus_contrast(gray: np.ndarray) -> np.ndarray:
+    """Normalize local contrast before measuring focus sharpness."""
+    return cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(gray)
+
+
 def compute_metrics(image: np.ndarray) -> ImageMetrics:
     """Compute deterministic microscopy QC metrics using OpenCV primitives.
 
@@ -50,7 +55,10 @@ def compute_metrics(image: np.ndarray) -> ImageMetrics:
     image = _validate(image)
     gray = _to_gray(image)
 
-    focus_variance = float(cv2.Laplacian(gray, cv2.CV_64F).var())
+    # Focus should describe spatial detail rather than global illumination.
+    # CLAHE reduces sensitivity to smooth shading while severe blur still collapses the score.
+    focus_gray = _normalize_focus_contrast(gray)
+    focus_variance = float(cv2.Laplacian(focus_gray, cv2.CV_64F).var())
 
     sigma = max(3.0, min(gray.shape[:2]) / 18.0)
     illumination = cv2.GaussianBlur(gray, (0, 0), sigmaX=sigma, sigmaY=sigma)

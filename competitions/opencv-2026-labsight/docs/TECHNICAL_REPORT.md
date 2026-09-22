@@ -6,7 +6,7 @@ Microscopy workflows can fail before analysis begins: blur, clipping, uneven ill
 ## Agentic vision loop
 LabSight is deliberately auditable:
 
-1. **Perceive** — OpenCV measures focus, illumination coefficient of variation, clipping, edge density, segmentation occupancy, and connected objects.
+1. **Perceive** — OpenCV measures CLAHE-normalized Laplacian focus, illumination coefficient of variation, clipping, edge density, segmentation occupancy, and connected objects.
 2. **Decide** — deterministic policy maps those observations to a QC action.
 3. **Act** — accept, request focus recapture, request exposure recapture, escalate to human review, or call an OpenCV CLAHE enhancement tool.
 4. **Re-perceive** — when CLAHE is selected, LabSight performs a second vision pass and makes the final action from the new observation.

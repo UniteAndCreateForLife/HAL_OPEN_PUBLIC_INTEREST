@@ -59,6 +59,14 @@ The complete deterministic suite passes **52/52 tests** in that isolated runtime
 
 These artifacts are genuine local OpenCV 5 execution evidence, but they are **not** Docker or authenticated AWS evidence. Final competition proof still requires the same pinned runtime in the immutable ECR/App Runner deployment.
 
+## Focus/illumination disentanglement — 2026-09-22
+
+The first container run preserved five genuine Agentic Vision failures: every uneven-illumination derivative was routed to focus recapture before CLAHE. Root-cause inspection showed raw Laplacian variance was confounded by smooth intensity gradients. LabSight now computes the focus score after local CLAHE contrast normalization and uses a two-level focus policy: severe blur still forces immediate recapture, while moderate focus scores permit illumination correction before the final focus gate.
+
+On the same explicitly development-only BBBC038-derived corpus, the corrected policy reaches final QC agreement **1.000**, first-action agreement **1.000**, enhancement agreement **1.000**, and combined expectation agreement **1.000**, with **0 unsafe accepts** among scored final-state samples. This is a development-set calibration result, not held-out generalization evidence; the earlier 0.667 result remains preserved in the versioned container evidence rather than being overwritten.
+
+The local machine used for this tuning is still a mixed OpenCV installation and therefore reports `opencv5_verified: false`. Exact-runtime confirmation must come from the pinned competition container/clean runner, and final claims still require authenticated AWS execution.
+
 ## Required final validation
 
 Before competition submission:

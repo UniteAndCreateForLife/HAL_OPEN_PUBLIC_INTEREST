@@ -37,6 +37,14 @@ def test_uneven_stressor_drives_second_opencv_pass():
     assert len(result.trace) == 2
 
 
+def test_severe_blur_still_wins_over_illumination_enhancement():
+    blurred = microscopy_scene(blur_sigma=5)
+    uneven_blurred = apply_qc_stressor(blurred, "uneven_illumination")
+    result = LabSightAgent().analyze(uneven_blurred)
+    assert result.trace[0].decision == "request_recapture_focus"
+    assert result.used_enhancement is False
+
+
 def test_dynamic_range_normalization_avoids_artificial_clipping():
     normalized = normalize_dynamic_range(microscopy_scene())
     assert normalized.min() >= 50

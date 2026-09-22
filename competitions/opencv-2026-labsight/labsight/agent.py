@@ -19,6 +19,7 @@ Action = Literal[
 @dataclass(frozen=True)
 class AgentConfig:
     min_focus_variance: float = 85.0
+    critical_focus_variance: float = 25.0
     max_illumination_cv: float = 0.18
     max_saturation_fraction: float = 0.08
     min_foreground_fraction: float = 0.002
@@ -60,10 +61,12 @@ class LabSightAgent:
         c = self.config
         if metrics.saturation_fraction > c.max_saturation_fraction:
             return "request_recapture_exposure", "too many clipped dark/bright pixels"
-        if metrics.focus_variance < c.min_focus_variance:
-            return "request_recapture_focus", "focus score is below acceptance threshold"
+        if metrics.focus_variance < c.critical_focus_variance:
+            return "request_recapture_focus", "focus score indicates severe blur"
         if metrics.illumination_cv > c.max_illumination_cv and allow_enhance:
             return "enhance_and_reanalyze", "illumination is uneven; run CLAHE and re-measure"
+        if metrics.focus_variance < c.min_focus_variance:
+            return ("request_recapture_focus", "focus score remains below acceptance threshold after illumination triage")
         if metrics.illumination_cv > c.max_illumination_cv:
             return "request_recapture_exposure", "illumination remains uneven after correction"
         if not (c.min_foreground_fraction <= metrics.foreground_fraction <= c.max_foreground_fraction):

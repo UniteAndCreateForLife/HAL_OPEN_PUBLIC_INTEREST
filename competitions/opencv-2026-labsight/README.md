@@ -30,14 +30,14 @@ Open `http://127.0.0.1:8080/` for the judge-facing demo.
 
 Development evidence is deliberately separated from authenticated AWS evidence. The established OpenCV 4.13 baseline remains under `evaluation/baselines/`. A clean local Python 3.12 competition environment now also verifies the exact `opencv-python==5.0.0.93` distribution with `cv2.__version__ == 5.0.0`:
 
-- 52/52 deterministic tests pass
+- 77/77 deterministic tests pass
 - 100 synthetic benchmark samples
 - 100% final-decision accuracy
 - 100% synthetic agent action/tool-call accuracy
 - local OpenCV 5 median latency 52.939 ms
 - local OpenCV 5 P95 latency 110.717 ms
 - 20-item provenance-locked BBBC038-derived development corpus
-- real-corpus final QC agreement 1.000; first-action/enhancement agreement 0.667
+- current development-corpus final QC / first-action / enhancement agreement 1.000 / 1.000 / 1.000
 - 0 unsafe accepts among scored real-corpus final-state samples
 - local exact-runtime `opencv5_verified: true`
 
@@ -49,7 +49,7 @@ The final AWS image pins `opencv-python==5.0.0.93` from `requirements-competitio
 
 ## Agentic Vision trace
 
-Visual evidence alters a later action. Excessive illumination variation triggers `enhance_and_reanalyze`, which calls OpenCV CLAHE and performs a second QC pass. The second measurement determines acceptance, recapture, or human review. Every step is serialized into the API response.
+Visual evidence alters a later action. Focus is measured after local CLAHE contrast normalization so smooth shading does not masquerade as optical blur; a separate severe-blur floor still forces recapture before enhancement. Excessive illumination variation triggers `enhance_and_reanalyze`, which calls OpenCV CLAHE and performs a second QC pass. The second measurement determines acceptance, recapture, or human review. Every step is serialized into the API response.
 
 ## Responsible operation
 

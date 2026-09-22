@@ -1,0 +1,30 @@
+name: HAL LabSight CI
+
+on:
+  push:
+    branches: [opencv-2026-labsight]
+    paths:
+      - "competitions/opencv-2026-labsight/**"
+      - ".github/workflows/labsight-ci.yml"
+  pull_request:
+    paths:
+      - "competitions/opencv-2026-labsight/**"
+      - ".github/workflows/labsight-ci.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: competitions/opencv-2026-labsight
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: python -m pip install -e '.[test]'
+      - name: Tests
+        run: pytest -q
+      - name: Regression benchmark
+        run: python -m labsight.evaluation --seeds 10 --output evaluation/ci

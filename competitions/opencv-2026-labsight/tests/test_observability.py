@@ -1,11 +1,10 @@
 import json
-import logging
 
 from labsight.observability import emit_qc_metrics
 
 
-def test_emf_metrics_have_bounded_dimensions_and_no_sensitive_identifiers(caplog):
-    caplog.set_level(logging.INFO, logger="labsight.metrics")
+def test_emf_metrics_are_raw_source_bound_json_without_sensitive_identifiers(capsys, monkeypatch):
+    monkeypatch.setenv("LABSIGHT_BUILD_SHA", "a" * 40)
     event = emit_qc_metrics(
         decision="accept",
         source="demo:clean",
@@ -13,9 +12,14 @@ def test_emf_metrics_have_bounded_dimensions_and_no_sensitive_identifiers(caplog
         agent_steps=1,
         analysis_ms=12.3456,
     )
+    stdout = capsys.readouterr().out.strip()
+    assert json.loads(stdout) == event
+    assert stdout.startswith("{")
     assert event["Service"] == "hal-labsight"
     assert event["Decision"] == "accept"
     assert event["SourceClass"] == "demo"
+    assert event["build_sha"] == "a" * 40
+    assert event["opencv"]
     assert event["AnalysisLatency"] == 12.346
     assert event["AgentSteps"] == 1
     assert event["EnhancementUsed"] == 0
@@ -26,7 +30,7 @@ def test_emf_metrics_have_bounded_dimensions_and_no_sensitive_identifiers(caplog
         assert forbidden not in serialized
 
 
-def test_upload_source_is_collapsed_to_bounded_source_class():
+def test_upload_source_is_collapsed_to_bounded_source_class(capsys):
     event = emit_qc_metrics(
         decision="human_review",
         source="upload",
@@ -34,5 +38,6 @@ def test_upload_source_is_collapsed_to_bounded_source_class():
         agent_steps=2,
         analysis_ms=1,
     )
+    capsys.readouterr()
     assert event["SourceClass"] == "upload"
     assert event["EnhancementUsed"] == 1

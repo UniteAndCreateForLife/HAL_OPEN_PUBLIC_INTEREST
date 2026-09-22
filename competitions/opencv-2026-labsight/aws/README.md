@@ -70,3 +70,15 @@ The local image ID is not an ECR registry digest. Final delivery still requires
 ECR/App Runner, deployed source/runtime matching, and real CloudWatch evidence.
 The pinned base plus captured inventories improve traceability; apt packages
 and transitive Python dependencies are not yet a bit-for-bit build lock.
+
+## CloudWatch/App Runner observability capture
+
+After authenticated App Runner deployment and `deployment-evidence.json` creation, run:
+
+```bash
+./aws/capture_observability.sh evaluation/aws/deployment-evidence.json evaluation/aws/cloudwatch
+```
+
+The script generates deterministic demo traffic, resolves the AWS-documented App Runner service/application log groups from the service ARN, and captures CloudWatch events for the evidence window. `tools/aws_observability_evidence.py` fails closed unless the logs contain both source-bound OpenCV 5 QC decisions and source-bound `HAL/LabSight` Embedded Metric Format events. EMF is emitted as raw JSON on stdout so CloudWatch can parse it rather than receiving a logger-prefixed line.
+
+The validator also rejects raw-image payload markers in captured application logs. Successful output enriches the deployment evidence with log-group names, event counts, capture timestamps, and `cloudwatch_evidence: true`. This proves telemetry from the deployed source revision; it does not infer AWS evidence from local or CI logs.

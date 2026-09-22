@@ -22,6 +22,8 @@ jobs:
         working-directory: competitions/opencv-2026-labsight
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -41,6 +43,8 @@ jobs:
         working-directory: competitions/opencv-2026-labsight
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -52,7 +56,7 @@ jobs:
           python -m pip check
       - name: Prove exact OpenCV 5 runtime
         env:
-          SOURCE_SHA: ${{ github.sha }}
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           mkdir -p evaluation/ci-opencv5
           python - <<'PY'
@@ -86,7 +90,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: labsight-opencv5-${{ github.sha }}
+          name: labsight-opencv5-${{ github.event.pull_request.head.sha || github.sha }}
           path: competitions/opencv-2026-labsight/evaluation/ci-opencv5
           if-no-files-found: error
           retention-days: 30

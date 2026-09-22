@@ -26,5 +26,7 @@ jobs:
         run: python -m pip install -e '.[test]'
       - name: Tests
         run: pytest -q
+      - name: Static submission-readiness gate
+        run: labsight-readiness --static-only --output evaluation/ci/readiness-static.json
       - name: Regression benchmark
         run: python -m labsight.evaluation --seeds 10 --output evaluation/ci

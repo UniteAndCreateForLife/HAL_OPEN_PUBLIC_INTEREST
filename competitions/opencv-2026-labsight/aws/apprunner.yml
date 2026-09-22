@@ -17,6 +17,12 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess
+  ObservabilityConfiguration:
+    Type: AWS::AppRunner::ObservabilityConfiguration
+    Properties:
+      ObservabilityConfigurationName: hal-labsight-runtime
+      TraceConfiguration:
+        Vendor: AWSXRAY
   Service:
     Type: AWS::AppRunner::Service
     Properties:
@@ -33,6 +39,9 @@ Resources:
       InstanceConfiguration:
         Cpu: '1 vCPU'
         Memory: '2 GB'
+      ObservabilityConfiguration:
+        ObservabilityEnabled: true
+        ObservabilityConfigurationArn: !GetAtt ObservabilityConfiguration.ObservabilityConfigurationArn
       HealthCheckConfiguration:
         Protocol: HTTP
         Path: /health
@@ -45,3 +54,5 @@ Outputs:
     Value: !GetAtt Service.ServiceUrl
   ServiceArn:
     Value: !GetAtt Service.ServiceArn
+  ObservabilityConfigurationArn:
+    Value: !GetAtt ObservabilityConfiguration.ObservabilityConfigurationArn

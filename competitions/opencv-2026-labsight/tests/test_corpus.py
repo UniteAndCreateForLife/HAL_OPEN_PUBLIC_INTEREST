@@ -38,6 +38,26 @@ def test_provenance_verified_corpus_is_scored(tmp_path):
     assert report["samples"] == 1
     assert report["qc_agreement"] == 1.0
     assert report["items"][0]["sha256"]
+    assert report["failure_analysis"]["failure_count"] == 0
+    assert report["failure_analysis"]["per_expected_status"]["accept"]["recall"] == 1.0
+    assert report["runtime"]["opencv"]
+    assert isinstance(report["runtime"]["opencv5_verified"], bool)
+    assert report["latency_ms"]["p95"] >= 0
+
+
+def test_failure_analysis_records_mismatch_without_diagnostic_inference(tmp_path):
+    path = _fixture(tmp_path)
+    data = json.loads(path.read_text())
+    data["items"][0]["expected_qc_status"] = "human_review"
+    path.write_text(json.dumps(data))
+    report = evaluate_corpus(path, tmp_path)
+    analysis = report["failure_analysis"]
+    assert report["diagnostic_claims"] is False
+    assert report["qc_agreement"] == 0.0
+    assert analysis["failure_count"] == 1
+    assert analysis["failure_ids"] == ["sample-001"]
+    assert analysis["confusion_matrix"]["human_review"]["accept"] == 1
+    assert analysis["per_expected_status"]["human_review"]["recall"] == 0.0
 
 
 def test_hash_mismatch_fails_closed(tmp_path):
@@ -60,4 +80,31 @@ def test_manifest_requires_license_and_attribution(tmp_path):
     data["items"][0]["license"] = ""
     path.write_text(json.dumps(data))
     with pytest.raises(ValueError, match="license and attribution"):
+        load_manifest(path)
+
+
+def test_manifest_rejects_invalid_expected_status(tmp_path):
+    path = _fixture(tmp_path)
+    data = json.loads(path.read_text())
+    data["items"][0]["expected_qc_status"] = "diagnose_cancer"
+    path.write_text(json.dumps(data))
+    with pytest.raises(ValueError, match="unsupported expected_qc_status"):
+        load_manifest(path)
+
+
+def test_manifest_rejects_non_hex_digest(tmp_path):
+    path = _fixture(tmp_path)
+    data = json.loads(path.read_text())
+    data["items"][0]["sha256"] = "z" * 64
+    path.write_text(json.dumps(data))
+    with pytest.raises(ValueError, match="hexadecimal digest"):
+        load_manifest(path)
+
+
+def test_manifest_rejects_duplicate_ids(tmp_path):
+    path = _fixture(tmp_path)
+    data = json.loads(path.read_text())
+    data["items"].append(dict(data["items"][0]))
+    path.write_text(json.dumps(data))
+    with pytest.raises(ValueError, match="duplicate or empty corpus id"):
         load_manifest(path)

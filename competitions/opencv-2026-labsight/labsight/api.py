@@ -18,6 +18,8 @@ from .observability import emit_qc_metrics
 from .synthetic import microscopy_scene
 from .web import DEMO_HTML
 
+EXPECTED_OPENCV_VERSION = "5.0.0.93"
+
 app = FastAPI(title="HAL LabSight", version="0.4.0")
 agent = LabSightAgent()
 logger = logging.getLogger("labsight.api")
@@ -52,17 +54,22 @@ def demo_page() -> str:
     return DEMO_HTML
 
 
+def _competition_runtime_verified(opencv_version: str) -> bool:
+    """True only for the exact OpenCV wheel pinned by the competition image."""
+    return opencv_version == EXPECTED_OPENCV_VERSION
+
+
 @app.get("/health")
 def health() -> dict[str, str | bool]:
-    major = int(cv2.__version__.split(".")[0])
     return {
         "status": "ok",
         "service": "hal-labsight",
         "version": "0.4.0",
         "build_sha": os.environ.get("LABSIGHT_BUILD_SHA", "unknown"),
         "opencv": cv2.__version__,
+        "expected_opencv": EXPECTED_OPENCV_VERSION,
         "numpy": np.__version__,
-        "opencv5_verified": major >= 5,
+        "opencv5_verified": _competition_runtime_verified(cv2.__version__),
     }
 
 

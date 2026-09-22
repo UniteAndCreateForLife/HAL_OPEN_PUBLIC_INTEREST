@@ -14,10 +14,11 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from .agent import LabSightAgent
+from .observability import emit_qc_metrics
 from .synthetic import microscopy_scene
 from .web import DEMO_HTML
 
-app = FastAPI(title="HAL LabSight", version="0.3.0")
+app = FastAPI(title="HAL LabSight", version="0.4.0")
 agent = LabSightAgent()
 logger = logging.getLogger("labsight.api")
 
@@ -57,7 +58,7 @@ def health() -> dict[str, str | bool]:
     return {
         "status": "ok",
         "service": "hal-labsight",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "build_sha": os.environ.get("LABSIGHT_BUILD_SHA", "unknown"),
         "opencv": cv2.__version__,
         "numpy": np.__version__,
@@ -81,6 +82,13 @@ def _analyze_image(image: np.ndarray, *, request_id: str = "unknown", source: st
         "opencv": cv2.__version__,
         "build_sha": os.environ.get("LABSIGHT_BUILD_SHA", "unknown"),
     }, separators=(",", ":")))
+    emit_qc_metrics(
+        decision=str(result.get("status")),
+        source=source,
+        used_enhancement=bool(result.get("used_enhancement")),
+        agent_steps=len(trace),
+        analysis_ms=elapsed_ms,
+    )
     return result
 
 

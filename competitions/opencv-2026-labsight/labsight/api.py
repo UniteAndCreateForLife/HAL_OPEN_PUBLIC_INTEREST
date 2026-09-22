@@ -17,7 +17,7 @@ from .agent import LabSightAgent
 from .synthetic import microscopy_scene
 from .web import DEMO_HTML
 
-app = FastAPI(title="HAL LabSight", version="0.2.0")
+app = FastAPI(title="HAL LabSight", version="0.3.0")
 agent = LabSightAgent()
 logger = logging.getLogger("labsight.api")
 
@@ -29,24 +29,20 @@ class AnalyzeRequest(BaseModel):
 @app.middleware("http")
 async def trace_requests(request: Request, call_next):
     request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
+    request.state.request_id = request_id
     started = time.perf_counter()
     response: Response = await call_next(request)
     elapsed_ms = (time.perf_counter() - started) * 1000.0
     response.headers["x-labsight-request-id"] = request_id
     response.headers["server-timing"] = f"labsight;dur={elapsed_ms:.3f}"
-    logger.info(
-        json.dumps(
-            {
-                "event": "http_request",
-                "request_id": request_id,
-                "method": request.method,
-                "path": request.url.path,
-                "status": response.status_code,
-                "elapsed_ms": round(elapsed_ms, 3),
-            },
-            separators=(",", ":"),
-        )
-    )
+    logger.info(json.dumps({
+        "event": "http_request",
+        "request_id": request_id,
+        "method": request.method,
+        "path": request.url.path,
+        "status": response.status_code,
+        "elapsed_ms": round(elapsed_ms, 3),
+    }, separators=(",", ":")))
     return response
 
 
@@ -61,7 +57,7 @@ def health() -> dict[str, str | bool]:
     return {
         "status": "ok",
         "service": "hal-labsight",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "build_sha": os.environ.get("LABSIGHT_BUILD_SHA", "unknown"),
         "opencv": cv2.__version__,
         "numpy": np.__version__,
@@ -69,12 +65,27 @@ def health() -> dict[str, str | bool]:
     }
 
 
-def _analyze_image(image: np.ndarray) -> dict:
-    return agent.analyze(image).to_dict()
+def _analyze_image(image: np.ndarray, *, request_id: str = "unknown", source: str = "upload") -> dict:
+    started = time.perf_counter()
+    result = agent.analyze(image).to_dict()
+    elapsed_ms = (time.perf_counter() - started) * 1000.0
+    trace = result.get("trace", [])
+    logger.info(json.dumps({
+        "event": "qc_decision",
+        "request_id": request_id,
+        "source": source,
+        "decision": result.get("status"),
+        "used_enhancement": bool(result.get("used_enhancement")),
+        "agent_steps": len(trace),
+        "analysis_ms": round(elapsed_ms, 3),
+        "opencv": cv2.__version__,
+        "build_sha": os.environ.get("LABSIGHT_BUILD_SHA", "unknown"),
+    }, separators=(",", ":")))
+    return result
 
 
 @app.post("/analyze")
-def analyze(req: AnalyzeRequest) -> dict:
+def analyze(req: AnalyzeRequest, request: Request) -> dict:
     try:
         raw = base64.b64decode(req.image_base64, validate=True)
     except Exception as exc:
@@ -83,11 +94,11 @@ def analyze(req: AnalyzeRequest) -> dict:
     image = cv2.imdecode(array, cv2.IMREAD_UNCHANGED)
     if image is None:
         raise HTTPException(status_code=400, detail="payload is not a decodable image")
-    return _analyze_image(image)
+    return _analyze_image(image, request_id=request.state.request_id, source="upload")
 
 
 @app.get("/demo/analyze/{scenario}")
-def analyze_demo(scenario: str) -> dict:
+def analyze_demo(scenario: str, request: Request) -> dict:
     params = {
         "clean": {},
         "blurred": {"blur_sigma": 5.0},
@@ -97,4 +108,8 @@ def analyze_demo(scenario: str) -> dict:
     if scenario not in params:
         raise HTTPException(status_code=404, detail="unknown demo scenario")
     image = microscopy_scene(**params[scenario])
-    return {"scenario": scenario, **_analyze_image(image)}
+    return {"scenario": scenario, **_analyze_image(
+        image,
+        request_id=request.state.request_id,
+        source=f"demo:{scenario}",
+    )}

@@ -1,0 +1,48 @@
+{
+  "purpose": "image_quality_control_only",
+  "dataset": "BBBC038v1",
+  "source_page_url": "https://bbbc.broadinstitute.org/BBBC038",
+  "license_evidence": "BBBC038v1 is CC0; the Broad Institute page states contributors waived copyright and related rights to the extent possible under law.",
+  "sources": [
+    {
+      "id": "bbbc038-example-1",
+      "url": "https://data.broadinstitute.org/bbbc/BBBC038/BBBC038exampleimage1.png",
+      "source_page_url": "https://bbbc.broadinstitute.org/BBBC038",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attribution": "BBBC038v1 contributors; Broad Institute Imaging Platform; Caicedo et al., Nature Methods (2019)"
+    },
+    {
+      "id": "bbbc038-example-2",
+      "url": "https://data.broadinstitute.org/bbbc/BBBC038/BBBC038exampleimage2.png",
+      "source_page_url": "https://bbbc.broadinstitute.org/BBBC038",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attribution": "BBBC038v1 contributors; Broad Institute Imaging Platform; Caicedo et al., Nature Methods (2019)"
+    },
+    {
+      "id": "bbbc038-example-3",
+      "url": "https://data.broadinstitute.org/bbbc/BBBC038/BBBC038exampleimage3.png",
+      "source_page_url": "https://bbbc.broadinstitute.org/BBBC038",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attribution": "BBBC038v1 contributors; Broad Institute Imaging Platform; Caicedo et al., Nature Methods (2019)"
+    },
+    {
+      "id": "bbbc038-example-4",
+      "url": "https://data.broadinstitute.org/bbbc/BBBC038/BBBC038exampleimage4.png",
+      "source_page_url": "https://bbbc.broadinstitute.org/BBBC038",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attribution": "BBBC038v1 contributors; Broad Institute Imaging Platform; Caicedo et al., Nature Methods (2019)"
+    },
+    {
+      "id": "bbbc038-example-5",
+      "url": "https://data.broadinstitute.org/bbbc/BBBC038/BBBC038exampleimage5.png",
+      "source_page_url": "https://bbbc.broadinstitute.org/BBBC038",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attribution": "BBBC038v1 contributors; Broad Institute Imaging Platform; Caicedo et al., Nature Methods (2019)"
+    }
+  ]
+}

@@ -125,7 +125,13 @@ def _categorical_failure_analysis(rows: list[dict], expected_key: str, actual_ke
 
 
 def _safety_failure_analysis(rows: list[dict]) -> dict:
-    """Separate unsafe accepts from conservative recapture/review failures."""
+    """Separate unsafe accepts from conservative recapture/review failures.
+
+    The risk score is intentionally asymmetric: accepting a capture that was
+    expected to be rejected/reviewed costs 4 points, while conservatively
+    rejecting an expected-good capture costs 1. This is an operational QC
+    metric, not a clinical-risk or diagnostic score.
+    """
     scored = [row for row in rows if row["matches_expected"] is not None]
     unsafe_accepts = [
         row for row in scored
@@ -135,6 +141,8 @@ def _safety_failure_analysis(rows: list[dict]) -> dict:
         row for row in scored
         if row["expected_qc_status"] == "accept" and row["actual_qc_status"] != "accept"
     ]
+    weighted_points = 4 * len(unsafe_accepts) + len(false_rejections)
+    max_points = 4 * len(scored)
     return {
         "unsafe_accept_count": len(unsafe_accepts),
         "unsafe_accept_rate": None if not scored else len(unsafe_accepts) / len(scored),
@@ -142,6 +150,9 @@ def _safety_failure_analysis(rows: list[dict]) -> dict:
         "false_rejection_count": len(false_rejections),
         "false_rejection_rate": None if not scored else len(false_rejections) / len(scored),
         "false_rejection_ids": [str(row["id"]) for row in false_rejections],
+        "risk_weighting": {"unsafe_accept": 4, "false_rejection": 1},
+        "weighted_failure_points": weighted_points,
+        "normalized_qc_risk": None if not scored else weighted_points / max_points,
     }
 
 

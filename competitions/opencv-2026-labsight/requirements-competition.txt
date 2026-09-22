@@ -1,5 +1,5 @@
-# Final competition/AWS image must resolve OpenCV 5.x.
+# Direct runtime pins for the competition/AWS image.
 opencv-python==5.0.0.93
-numpy>=2,<3
-fastapi>=0.115,<1
-uvicorn[standard]>=0.30,<1
+numpy==2.3.5
+fastapi==0.128.2
+uvicorn[standard]==0.48.0

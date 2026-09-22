@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 EXPECTED_OPENCV = "5.0.0.93"
+EXPECTED_CV2 = "5.0.0"
 _SHA40 = re.compile(r"^[0-9a-f]{40}$")
 _DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
 
@@ -61,12 +62,16 @@ def evaluate_submission_readiness(
         demo = evidence.get("demo") or {}
         responsible = evidence.get("responsible_use") or {}
 
-        runtime_ok = opencv.get("version") == EXPECTED_OPENCV and opencv.get("verified") is True
+        runtime_ok = (
+            opencv.get("distribution_version") == EXPECTED_OPENCV
+            and opencv.get("runtime_version") == EXPECTED_CV2
+            and opencv.get("verified") is True
+        )
         _check(
             checks,
             "opencv5_runtime",
             runtime_ok,
-            f"requires executed cv2.__version__ == {EXPECTED_OPENCV}; recorded={opencv.get('version')!r}",
+            f"requires opencv-python=={EXPECTED_OPENCV} and cv2.__version__=={EXPECTED_CV2}",
         )
 
         source_ok = bool(_SHA40.fullmatch(source_sha))
@@ -81,7 +86,8 @@ def evaluate_submission_readiness(
         health_ok = (
             source_ok
             and str(health.get("source_sha", "")).lower() == source_sha
-            and health.get("opencv_version") == EXPECTED_OPENCV
+            and health.get("opencv_distribution_version") == EXPECTED_OPENCV
+            and health.get("opencv_runtime_version") == EXPECTED_CV2
             and health.get("opencv5_verified") is True
         )
         _check(
@@ -159,6 +165,7 @@ def evaluate_submission_readiness(
         "failed_checks": failed,
         "checks": checks,
         "expected_opencv": EXPECTED_OPENCV,
+        "expected_cv2": EXPECTED_CV2,
         "diagnostic_claims": False,
     }
 

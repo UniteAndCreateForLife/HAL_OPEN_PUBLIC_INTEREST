@@ -28,20 +28,24 @@ Open `http://127.0.0.1:8080/` for the judge-facing demo.
 
 ## Current validation
 
-The local sandbox baseline is deliberately separate from competition evidence:
+Development evidence is deliberately separated from authenticated AWS evidence. The established OpenCV 4.13 baseline remains under `evaluation/baselines/`. A clean local Python 3.12 competition environment now also verifies the exact `opencv-python==5.0.0.93` distribution with `cv2.__version__ == 5.0.0`:
 
-- OpenCV 4.13.0
-- 14/14 tests pass
-- 100 benchmark samples
+- 52/52 deterministic tests pass
+- 100 synthetic benchmark samples
 - 100% final-decision accuracy
-- 100% agent action/tool-call accuracy
-- median latency 35.109 ms
-- P95 latency 71.827 ms
-- `opencv5_verified: false`
+- 100% synthetic agent action/tool-call accuracy
+- local OpenCV 5 median latency 52.939 ms
+- local OpenCV 5 P95 latency 110.717 ms
+- 20-item provenance-locked BBBC038-derived development corpus
+- real-corpus final QC agreement 1.000; first-action/enhancement agreement 0.667
+- 0 unsafe accepts among scored real-corpus final-state samples
+- local exact-runtime `opencv5_verified: true`
+
+This is genuine local OpenCV 5 execution evidence, not Docker/App Runner competition completion.
 
 ## OpenCV 5 competition requirement
 
-The final AWS image pins `opencv-python==5.0.0.93` from `requirements-competition.txt`. Final evidence must record the exact OpenCV 5 runtime, immutable container digest, AWS deployment revision, benchmark output, and service logs. Local OpenCV 4.x results must never be presented as OpenCV 5 validation.
+The final AWS image pins `opencv-python==5.0.0.93` from `requirements-competition.txt`. Verification records both the Python distribution revision (`5.0.0.93`) and the OpenCV core reported by `cv2.__version__` (`5.0.0`) so a shadowed or mixed installation cannot be mistaken for competition evidence. Final evidence must also record the immutable container digest, AWS deployment revision, benchmark output, and service logs. Local or mixed-runtime results must never be presented as OpenCV 5 competition validation.
 
 ## Agentic Vision trace
 

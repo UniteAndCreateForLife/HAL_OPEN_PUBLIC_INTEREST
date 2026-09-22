@@ -7,3 +7,5 @@ venv/
 dist/
 build/
 evaluation/latest/
+evaluation/real/generated/
+evaluation/real/generated-locked/

@@ -6,6 +6,7 @@ import cv2
 from fastapi.testclient import TestClient
 
 from labsight.api import EXPECTED_OPENCV_VERSION, _competition_runtime_verified, app
+from labsight.runtime import EXPECTED_CV2_VERSION
 from labsight.synthetic import microscopy_scene
 
 client = TestClient(app)
@@ -26,17 +27,19 @@ def test_health():
     assert response.json()["service"] == "hal-labsight"
     body = response.json()
     assert body["expected_opencv"] == EXPECTED_OPENCV_VERSION
-    assert body["opencv5_verified"] is (body["opencv"] == EXPECTED_OPENCV_VERSION)
+    assert body["opencv_distribution"]
+    assert body["expected_cv2"] == EXPECTED_CV2_VERSION
+    assert isinstance(body["opencv5_verified"], bool)
     assert body["numpy"]
     assert body["build_sha"]
 
 
 def test_competition_runtime_verification_is_exact():
-    assert _competition_runtime_verified("5.0.0.93") is True
-    assert _competition_runtime_verified("4.13.0") is False
-    assert _competition_runtime_verified("5.0.0.92") is False
-    assert _competition_runtime_verified("5.1.0") is False
-    assert _competition_runtime_verified("6.0.0") is False
+    assert _competition_runtime_verified("5.0.0.93", "5.0.0") is True
+    assert _competition_runtime_verified("4.13.0.92", "5.0.0") is False
+    assert _competition_runtime_verified("5.0.0.92", "5.0.0") is False
+    assert _competition_runtime_verified("5.0.0.93", "5.1.0") is False
+    assert _competition_runtime_verified(None, "5.0.0") is False
 
 
 def test_analyze_png():

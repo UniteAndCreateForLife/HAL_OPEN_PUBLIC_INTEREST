@@ -32,6 +32,23 @@ class OpenImageSource:
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
+def verify_source_sha256(
+    data: bytes,
+    expected_sha256: str,
+    source_id: str,
+) -> str:
+    """Fail closed if a downloaded source differs from its frozen lock."""
+    if len(expected_sha256) != 64 or any(
+        c not in "0123456789abcdefABCDEF" for c in expected_sha256
+    ):
+        raise ValueError(f"{source_id}: expected_sha256 must be a 64-character hexadecimal digest")
+    actual = sha256_bytes(data)
+    if actual.lower() != expected_sha256.lower():
+        raise ValueError(
+            f"{source_id}: source SHA256 drift; expected {expected_sha256.lower()}, got {actual}"
+        )
+    return actual
+
 
 def normalize_dynamic_range(
     image: np.ndarray,

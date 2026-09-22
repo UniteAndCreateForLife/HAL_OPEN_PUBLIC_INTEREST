@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -9,7 +8,7 @@ from urllib.request import Request, urlopen
 import cv2
 import numpy as np
 
-from labsight.real_corpus import apply_qc_stressor, write_png
+from labsight.real_corpus import apply_qc_stressor, verify_source_sha256, write_png
 
 USER_AGENT = "HAL-LabSight/0.1 (+OpenCV-AI-Competition-2026)"
 STRESSORS = (
@@ -73,7 +72,9 @@ def build(catalog_path: Path, output_root: Path) -> dict:
                 f"{source['id']}: only HTTPS source URLs are accepted"
             )
         payload = _download(url)
-        source_sha256 = hashlib.sha256(payload).hexdigest()
+        source_sha256 = verify_source_sha256(
+            payload, str(source.get("expected_sha256", "")), str(source["id"])
+        )
         image = _decode(payload, str(source["id"]))
         source_locks.append(
             {

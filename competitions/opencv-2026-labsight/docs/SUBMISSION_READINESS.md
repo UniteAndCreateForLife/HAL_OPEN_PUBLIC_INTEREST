@@ -22,10 +22,10 @@ labsight-readiness --root . --evidence evidence/final.json --output evidence/rea
 
 The gate requires all of the following before returning success:
 
-- executed OpenCV runtime exactly `5.0.0.93`; local OpenCV 4.x is rejected
+- installed `opencv-python` distribution exactly `5.0.0.93` **and** `cv2.__version__` exactly `5.0.0`; local, shadowed, or mixed installations are rejected
 - immutable ECR `sha256` image digest
 - HTTPS AWS App Runner endpoint
-- deployed `/health` provenance matching the source Git SHA and exact OpenCV runtime
+- deployed `/health` provenance matching the source Git SHA, wheel revision, and OpenCV core runtime
 - CloudWatch/App Runner observability evidence
 - frozen, provenance-verified non-empty microscopy corpus and an on-disk evaluation report
 - documented failure cases and Agentic Vision trace evidence

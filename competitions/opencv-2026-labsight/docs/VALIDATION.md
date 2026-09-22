@@ -45,7 +45,19 @@ Added a provenance-first real-image path around BBBC038v1:
 
 Focused local tests for the new transformation and agentic-scoring logic: **8 passed**.
 
-The sandbox cannot reach the Broad image host directly, so the actual BBBC038 bytes and generated frozen manifest have **not** been fabricated or claimed here. They must be built in an environment with network access, after which the recorded hashes become the reproducibility lock.
+A networked local run on 2026-09-22 successfully downloaded all five official BBBC038 example images and froze their raw-source SHA-256 digests in `source_catalog.json`. Rebuilding the 20-item derived corpus now fails closed if any upstream source bytes drift from those locks.
+
+That development run scored 20 derived items (10 with final-state labels): final QC agreement **1.000**, first-action agreement **0.667**, enhancement agreement **0.667**, and combined expectation agreement **0.667**. All five uneven-illumination derivatives were conservatively classified as focus recapture before the enhancement branch, so those failures remain visible rather than being relabeled. There were **0 unsafe accepts** among scored final-state samples.
+
+The same run exposed an environment-integrity issue: installed distribution metadata reported `opencv-python==4.13.0.92` while the imported `cv2` module reported `5.0.0`. LabSight now records both values and marks that mixed environment `opencv5_verified: false`. It is development evidence only, not competition OpenCV 5 evidence.
+
+## Exact local OpenCV 5 validation — 2026-09-22
+
+A clean Python 3.12 virtual environment was created independently of the mixed development environment and installed directly from `requirements-competition.txt`. Package metadata reports `opencv-python==5.0.0.93`; the imported OpenCV core reports `cv2.__version__ == 5.0.0`; LabSight therefore reports `opencv5_verified: true`.
+
+The complete deterministic suite passes **52/52 tests** in that isolated runtime. The 100-sample synthetic benchmark reports **1.000 final-decision accuracy**, **1.000 agent action/tool-call accuracy**, median latency **52.939 ms**, and P95 latency **110.717 ms**. The frozen 20-item BBBC038-derived development corpus reports final QC agreement **1.000**, first-action agreement **0.667**, enhancement agreement **0.667**, combined agreement **0.667**, and **0 unsafe accepts** among scored final-state samples.
+
+These artifacts are genuine local OpenCV 5 execution evidence, but they are **not** Docker or authenticated AWS evidence. Final competition proof still requires the same pinned runtime in the immutable ECR/App Runner deployment.
 
 ## Required final validation
 

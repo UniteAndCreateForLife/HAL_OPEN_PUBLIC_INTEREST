@@ -10,6 +10,7 @@ from pathlib import Path
 import cv2
 
 from .agent import LabSightAgent
+from .runtime import competition_runtime_info
 
 ALLOWED_QC_STATUSES = {
     "accept",
@@ -234,7 +235,6 @@ def evaluate_corpus(manifest_path: Path, image_root: Path) -> dict:
     latencies = [float(row["latency_ms"]) for row in rows]
     sorted_latency = sorted(latencies)
     p95_index = min(len(sorted_latency) - 1, max(0, int(len(sorted_latency) * 0.95) - 1))
-    major = int(cv2.__version__.split(".")[0])
     return {
         "purpose": "image_quality_control_only",
         "diagnostic_claims": False,
@@ -251,7 +251,7 @@ def evaluate_corpus(manifest_path: Path, image_root: Path) -> dict:
             "p95": round(sorted_latency[p95_index], 3),
             "max": round(max(latencies), 3),
         },
-        "runtime": {"opencv": cv2.__version__, "opencv5_verified": major >= 5},
+        "runtime": competition_runtime_info(),
         "failure_analysis": _failure_analysis(rows),
         "items": rows,
     }

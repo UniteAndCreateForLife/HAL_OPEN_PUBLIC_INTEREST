@@ -15,10 +15,15 @@ from pydantic import BaseModel, Field
 
 from .agent import LabSightAgent
 from .observability import emit_qc_metrics
+from .runtime import (
+    EXPECTED_CV2_VERSION,
+    EXPECTED_OPENCV_DISTRIBUTION,
+    competition_runtime_info,
+)
 from .synthetic import microscopy_scene
 from .web import DEMO_HTML
 
-EXPECTED_OPENCV_VERSION = "5.0.0.93"
+EXPECTED_OPENCV_VERSION = EXPECTED_OPENCV_DISTRIBUTION
 
 app = FastAPI(title="HAL LabSight", version="0.4.0")
 agent = LabSightAgent()
@@ -54,22 +59,30 @@ def demo_page() -> str:
     return DEMO_HTML
 
 
-def _competition_runtime_verified(opencv_version: str) -> bool:
-    """True only for the exact OpenCV wheel pinned by the competition image."""
-    return opencv_version == EXPECTED_OPENCV_VERSION
+def _competition_runtime_verified(distribution_version: str | None, runtime_version: str) -> bool:
+    """Verify both wheel revision and OpenCV core version."""
+    return (
+        distribution_version == EXPECTED_OPENCV_DISTRIBUTION
+        and runtime_version == EXPECTED_CV2_VERSION
+    )
 
 
 @app.get("/health")
-def health() -> dict[str, str | bool]:
+def health() -> dict[str, str | bool | None]:
+    runtime = competition_runtime_info()
     return {
         "status": "ok",
         "service": "hal-labsight",
         "version": "0.4.0",
         "build_sha": os.environ.get("LABSIGHT_BUILD_SHA", "unknown"),
-        "opencv": cv2.__version__,
+        "opencv": str(runtime["opencv_runtime"]),
+        "opencv_runtime_version": str(runtime["opencv_runtime"]),
+        "opencv_distribution": runtime["opencv_distribution"],
+        "opencv_distribution_version": runtime["opencv_distribution"],
         "expected_opencv": EXPECTED_OPENCV_VERSION,
+        "expected_cv2": EXPECTED_CV2_VERSION,
         "numpy": np.__version__,
-        "opencv5_verified": _competition_runtime_verified(cv2.__version__),
+        "opencv5_verified": bool(runtime["opencv5_verified"]),
     }
 
 

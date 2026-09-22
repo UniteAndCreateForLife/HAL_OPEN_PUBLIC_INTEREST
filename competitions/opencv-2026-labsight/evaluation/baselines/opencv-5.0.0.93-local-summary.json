@@ -1,0 +1,20 @@
+{
+  "samples": 100,
+  "decision_accuracy": 1.0,
+  "agent_action_accuracy": 1.0,
+  "latency_ms": {
+    "mean": 65.817,
+    "median": 52.939,
+    "p95": 110.717,
+    "max": 117.992
+  },
+  "runtime": {
+    "python": "3.12.10",
+    "opencv_distribution": "5.0.0.93",
+    "opencv_runtime": "5.0.0",
+    "expected_opencv_distribution": "5.0.0.93",
+    "expected_opencv_runtime": "5.0.0",
+    "opencv5_verified": true
+  },
+  "scope": "synthetic microscopy QC regression corpus; not diagnostic validation"
+}

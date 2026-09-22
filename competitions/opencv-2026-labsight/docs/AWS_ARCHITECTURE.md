@@ -21,7 +21,7 @@ The first production slice intentionally does not send images to a general-purpo
 
 - App Runner service URL and service ARN
 - immutable ECR image digest
-- `/health` response proving OpenCV 5.x, build SHA, and dependency versions
+- `/health` response proving source build SHA plus both `opencv-python==5.0.0.93` and `cv2.__version__==5.0.0`
 - correlated CloudWatch `http_request` + `qc_decision` events
 - P50/P95 cloud latency on the frozen evaluation corpus
 - deployment timestamp and region

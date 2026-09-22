@@ -6,7 +6,7 @@ This directory holds the provenance catalog, generated manifest, and judge-facin
 
 The initial real-image source set is **BBBC038v1** from the Broad Bioimage Benchmark Collection. The official BBBC page describes the images as a diverse microscopy/histology nuclei collection and states that BBBC038v1 is released under **CC0**.
 
-The checked-in `source_catalog.json` records five official BBBC038 example-image URLs, the dataset page, license identifier, license URL, and citation string. The source catalog is not itself the frozen evaluation result.
+The checked-in `source_catalog.json` records five official BBBC038 example-image URLs, the dataset page, license identifier, license URL, citation string, and frozen raw-source SHA-256 locks. The builder fails closed if any upstream source bytes drift from those locks. The source catalog is not itself the frozen evaluation result.
 
 ## Reproducible build
 

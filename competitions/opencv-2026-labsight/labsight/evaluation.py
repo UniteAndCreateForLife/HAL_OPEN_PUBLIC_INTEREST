@@ -13,6 +13,7 @@ import cv2
 
 from .agent import LabSightAgent
 from .synthetic import microscopy_scene
+from .runtime import competition_runtime_info
 
 
 @dataclass(frozen=True)
@@ -72,7 +73,6 @@ def evaluate(seeds: int = 10) -> tuple[dict, list[dict]]:
     enhancement_correct = sum(bool(row["enhancement_correct"]) for row in rows)
     sorted_latency = sorted(latencies)
     p95_index = min(len(sorted_latency) - 1, max(0, int(len(sorted_latency) * 0.95) - 1))
-    major = int(cv2.__version__.split(".")[0])
     summary = {
         "samples": len(rows),
         "decision_accuracy": correct / len(rows),
@@ -83,11 +83,7 @@ def evaluate(seeds: int = 10) -> tuple[dict, list[dict]]:
             "p95": round(sorted_latency[p95_index], 3),
             "max": round(max(latencies), 3),
         },
-        "runtime": {
-            "python": platform.python_version(),
-            "opencv": cv2.__version__,
-            "opencv5_verified": major >= 5,
-        },
+        "runtime": {"python": platform.python_version(), **competition_runtime_info()},
         "scope": "synthetic microscopy QC regression corpus; not diagnostic validation",
     }
     return summary, rows

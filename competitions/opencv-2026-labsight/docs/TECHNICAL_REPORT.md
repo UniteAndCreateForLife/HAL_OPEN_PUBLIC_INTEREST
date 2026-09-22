@@ -16,7 +16,7 @@ This means the visual result changes a later tool call and subsequent plan; the 
 ## Evaluation design
 The regression corpus generates four deterministic capture classes across multiple random seeds: clean, blurred, uneven illumination, and clipped exposure. The benchmark records decision accuracy, action/tool-call accuracy, median/P95/max latency, per-sample QC metrics, OpenCV runtime version, and whether OpenCV 5 has actually been verified.
 
-Synthetic evaluation is engineering regression evidence only. It is not clinical validation. Before final submission, add a consented/open microscopy corpus with documented provenance and failure analysis.
+Synthetic evaluation is engineering regression evidence only. It is not clinical validation. The real-image path uses five CC0 BBBC038 example images, frozen source SHA-256 locks, deterministic QC stressors, and separate final-state/action/enhancement failure analysis. Final scoring still must be repeated on the authenticated AWS/OpenCV 5 competition image.
 
 ## Cloud target
 The competition container pins `opencv-python==5.0.0.93` (OpenCV 5) and is intended for AWS App Runner from an immutable ECR image, with S3 reserved for evaluation fixtures/evidence and CloudWatch/App Runner logs for request/latency/decision observability.
@@ -30,4 +30,4 @@ labsight-evaluate --seeds 25 --output evaluation/latest
 uvicorn labsight.api:app --host 0.0.0.0 --port 8080
 ```
 
-Final AWS evidence must record the container digest, OpenCV 5.x runtime, exact dependency lock, benchmark output, deployment URL/live-demo procedure, and known failures.
+Final AWS evidence must record the container digest, `opencv-python==5.0.0.93`, `cv2.__version__==5.0.0`, benchmark output, deployment URL/live-demo procedure, and known failures.

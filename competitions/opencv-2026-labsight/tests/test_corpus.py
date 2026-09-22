@@ -43,7 +43,8 @@ def test_provenance_verified_corpus_is_scored(tmp_path):
     assert safety["weighted_failure_points"] == 0
     assert safety["normalized_qc_risk"] == 0.0
     assert report["failure_analysis"]["per_expected_status"]["accept"]["recall"] == 1.0
-    assert report["runtime"]["opencv"]
+    assert report["runtime"]["opencv_runtime"]
+    assert report["runtime"]["opencv_distribution"]
     assert isinstance(report["runtime"]["opencv5_verified"], bool)
     assert report["latency_ms"]["p95"] >= 0
 

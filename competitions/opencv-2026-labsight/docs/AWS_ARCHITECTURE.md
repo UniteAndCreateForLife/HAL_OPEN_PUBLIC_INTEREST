@@ -1,17 +1,20 @@
 # AWS deployment architecture
 
-Target competition deployment:
+Final competition deployment target:
 
-1. Browser/demo client submits microscopy imagery.
-2. API Gateway or an Application Load Balancer routes to ECS Fargate.
-3. The container runs OpenCV 5 and LabSight's deterministic QC toolchain.
-4. S3 stores evaluation fixtures and generated evidence.
-5. CloudWatch records latency, tool decisions, failure reasons, and QC outcomes.
-6. Visual evidence determines a later action: accept, CLAHE plus re-analysis, recapture request, or human review.
+1. Browser/demo client uploads a microscopy image to the LabSight API.
+2. AWS App Runner serves an immutable Amazon ECR container over managed HTTPS.
+3. The container pins OpenCV 5.0.0.93 and runs the deterministic QC toolchain.
+4. Evaluation artifacts can be stored in Amazon S3; uploaded demo images are processed in memory by default.
+5. App Runner/CloudWatch logs record request latency, tool decisions, failure reasons, and QC outcomes.
+6. The agent loop uses vision evidence to choose one of: accept, re-run illumination correction, request recapture, or request human review.
 
-Competition evidence still required:
-- OpenCV runtime version showing 5.x
-- pinned dependency lock and container digest
-- P50/P95 latency on a fixed corpus
-- decision accuracy on synthetically degraded and consented/open microscopy images
-- trace showing vision output changing a later tool call/action
+The first production slice intentionally does not send images to a general-purpose external LLM. This minimizes privacy exposure and makes the perception/action trace reproducible. A later optional reasoning layer may consume metrics only, not raw imagery.
+
+## Competition evidence to capture on AWS
+
+- OpenCV runtime version showing 5.x.
+- Container image digest and pinned Python dependency lock.
+- P50/P95 API latency on a fixed evaluation corpus.
+- Accuracy of accept/recapture decisions on synthetically degraded and real consented microscopy images.
+- CloudWatch trace demonstrating that visual metrics change a later tool call/action.

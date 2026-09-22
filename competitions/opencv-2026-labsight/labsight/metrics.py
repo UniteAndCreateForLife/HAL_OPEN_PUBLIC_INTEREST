@@ -35,12 +35,18 @@ def _validate(image: np.ndarray) -> np.ndarray:
     if image.size == 0:
         raise ValueError("image must not be empty")
     if image.dtype != np.uint8:
-        image = np.clip(image, 0, 255).astype(np.uint8)
+        clipped = np.clip(image, 0, 255)
+        image = clipped.astype(np.uint8)
     return image
 
 
 def compute_metrics(image: np.ndarray) -> ImageMetrics:
-    """Compute deterministic microscopy QC metrics using OpenCV primitives."""
+    """Compute deterministic microscopy QC metrics using OpenCV primitives.
+
+    The metrics are deliberately model-independent so they remain reproducible
+    across local and AWS deployments and can be used as evidence in the
+    perception -> decision -> action trace.
+    """
     image = _validate(image)
     gray = _to_gray(image)
 
@@ -58,9 +64,18 @@ def compute_metrics(image: np.ndarray) -> ImageMetrics:
     edges = cv2.Canny(gray, 50, 140)
     edge_density = float(np.mean(edges > 0))
 
-    _, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    if np.mean(mask > 0) > 0.65:
-        mask = cv2.bitwise_not(mask)
+    # A global threshold turns illumination gradients into false specimen
+    # occupancy. Local thresholding keeps segmentation stable after CLAHE.
+    block_size = min(51, min(gray.shape[:2]) // 2 * 2 - 1)
+    block_size = max(3, block_size)
+    mask = cv2.adaptiveThreshold(
+        gray,
+        255,
+        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv2.THRESH_BINARY_INV,
+        block_size,
+        8,
+    )
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
@@ -93,6 +108,8 @@ def improve_illumination(image: np.ndarray) -> np.ndarray:
         l, a, b = cv2.split(lab)
         l = clahe.apply(l)
         return cv2.cvtColor(cv2.merge((l, a, b)), cv2.COLOR_LAB2BGR)
-    bgr = cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
+    bgra = image
+    bgr = cv2.cvtColor(bgra, cv2.COLOR_BGRA2BGR)
     enhanced = improve_illumination(bgr)
-    return np.dstack((enhanced, image[:, :, 3]))
+    alpha = bgra[:, :, 3]
+    return np.dstack((enhanced, alpha))

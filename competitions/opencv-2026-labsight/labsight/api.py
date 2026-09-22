@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import json
 import logging
+import os
 import time
 import uuid
 
@@ -60,7 +61,10 @@ def health() -> dict[str, str | bool]:
     return {
         "status": "ok",
         "service": "hal-labsight",
+        "version": "0.2.0",
+        "build_sha": os.environ.get("LABSIGHT_BUILD_SHA", "unknown"),
         "opencv": cv2.__version__,
+        "numpy": np.__version__,
         "opencv5_verified": major >= 5,
     }
 

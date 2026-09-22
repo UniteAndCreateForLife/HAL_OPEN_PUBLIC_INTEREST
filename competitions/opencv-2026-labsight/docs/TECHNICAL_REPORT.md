@@ -14,22 +14,14 @@ LabSight is deliberately auditable:
 This means the visual result changes a later tool call and subsequent plan; the trace is serialized for inspection.
 
 ## Evaluation design
-The regression corpus generates four deterministic capture classes across multiple random seeds:
-
-- clean → accept
-- blurred → request focus recapture
-- uneven illumination → run CLAHE + second visual pass, then accept when corrected
-- clipped exposure → request exposure recapture
-
-The benchmark records decision accuracy, action/tool-call accuracy, median/P95/max latency, every per-sample QC metric, OpenCV runtime version, and whether OpenCV 5 has actually been verified.
+The regression corpus generates four deterministic capture classes across multiple random seeds: clean, blurred, uneven illumination, and clipped exposure. The benchmark records decision accuracy, action/tool-call accuracy, median/P95/max latency, per-sample QC metrics, OpenCV runtime version, and whether OpenCV 5 has actually been verified.
 
 Synthetic evaluation is engineering regression evidence only. It is not clinical validation. Before final submission, add a consented/open microscopy corpus with documented provenance and failure analysis.
 
 ## Cloud target
-The competition container pins OpenCV 5 and is intended for AWS ECS/Fargate behind an ALB/API endpoint, with S3 for evaluation fixtures/evidence and CloudWatch for request/latency/decision logs.
+The competition container pins `opencv-python==5.0.0.93` (OpenCV 5) and is intended for AWS App Runner from an immutable ECR image, with S3 reserved for evaluation fixtures/evidence and CloudWatch/App Runner logs for request/latency/decision observability.
 
 ## Reproducibility
-A clean clone should support:
 
 ```bash
 python -m pip install -e '.[test]'

@@ -38,6 +38,8 @@ def test_provenance_verified_corpus_is_scored(tmp_path):
     assert report["samples"] == 1
     assert report["qc_agreement"] == 1.0
     assert report["items"][0]["sha256"]
+    assert len(report["manifest_sha256"]) == 64
+    assert len(report["evaluation_id"]) == 64
     assert report["failure_analysis"]["failure_count"] == 0
     assert report["failure_analysis"]["per_expected_status"]["accept"]["recall"] == 1.0
     assert report["runtime"]["opencv"]
@@ -108,3 +110,23 @@ def test_manifest_rejects_duplicate_ids(tmp_path):
     path.write_text(json.dumps(data))
     with pytest.raises(ValueError, match="duplicate or empty corpus id"):
         load_manifest(path)
+
+
+def test_evaluation_id_is_stable_across_manifest_formatting(tmp_path):
+    path = _fixture(tmp_path)
+    first = evaluate_corpus(path, tmp_path)
+    data = json.loads(path.read_text())
+    path.write_text(json.dumps(data, indent=4, sort_keys=True))
+    second = evaluate_corpus(path, tmp_path)
+    assert first["evaluation_id"] == second["evaluation_id"]
+    assert first["manifest_sha256"] != second["manifest_sha256"]
+
+
+def test_evaluation_id_changes_when_qc_expectation_changes(tmp_path):
+    path = _fixture(tmp_path)
+    first = evaluate_corpus(path, tmp_path)
+    data = json.loads(path.read_text())
+    data["items"][0]["expected_qc_status"] = "human_review"
+    path.write_text(json.dumps(data))
+    second = evaluate_corpus(path, tmp_path)
+    assert first["evaluation_id"] != second["evaluation_id"]

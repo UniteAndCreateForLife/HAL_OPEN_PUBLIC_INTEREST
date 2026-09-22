@@ -5,7 +5,7 @@ import logging
 import cv2
 from fastapi.testclient import TestClient
 
-from labsight.api import app
+from labsight.api import EXPECTED_OPENCV_VERSION, _competition_runtime_verified, app
 from labsight.synthetic import microscopy_scene
 
 client = TestClient(app)
@@ -25,9 +25,18 @@ def test_health():
     assert response.status_code == 200
     assert response.json()["service"] == "hal-labsight"
     body = response.json()
-    assert "opencv5_verified" in body
+    assert body["expected_opencv"] == EXPECTED_OPENCV_VERSION
+    assert body["opencv5_verified"] is (body["opencv"] == EXPECTED_OPENCV_VERSION)
     assert body["numpy"]
     assert body["build_sha"]
+
+
+def test_competition_runtime_verification_is_exact():
+    assert _competition_runtime_verified("5.0.0.93") is True
+    assert _competition_runtime_verified("4.13.0") is False
+    assert _competition_runtime_verified("5.0.0.92") is False
+    assert _competition_runtime_verified("5.1.0") is False
+    assert _competition_runtime_verified("6.0.0") is False
 
 
 def test_analyze_png():

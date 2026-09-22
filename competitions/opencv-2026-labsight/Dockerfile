@@ -1,5 +1,9 @@
 FROM python:3.12-slim
 WORKDIR /app
+ARG LABSIGHT_BUILD_SHA=unknown
+ENV LABSIGHT_BUILD_SHA=${LABSIGHT_BUILD_SHA} \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 COPY requirements-competition.txt .
 RUN python -m pip install --no-cache-dir -r requirements-competition.txt
 COPY labsight ./labsight

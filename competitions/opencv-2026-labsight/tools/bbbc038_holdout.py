@@ -29,10 +29,16 @@ MEMBER = re.compile(r"([0-9a-f]{64})/images/\1\.png")
 MAX_ARCHIVE = 64 * 1024 * 1024
 MAX_MEMBER = 8 * 1024 * 1024
 MAX_EXPANDED = 128 * 1024 * 1024
+TEXT_HASH_SCHEME = "utf8_lf"
 
 
 def digest(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
+
+
+def text_digest(path: Path) -> str:
+    """Hash UTF-8 text after universal-newline normalization to LF."""
+    return digest(path.read_text(encoding="utf-8").encode("utf-8"))
 
 
 def pixel_digest(image: np.ndarray) -> str:
@@ -96,7 +102,7 @@ def read_archive(path: Path) -> tuple[str, list[dict]]:
 
 def policy_hashes() -> dict[str, str]:
     # Canonical UTF-8/LF policy text is reproducible across Windows and Linux.
-    return {path: digest((PROJECT_ROOT / path).read_text(encoding="utf-8").encode("utf-8")) for path in POLICY_FILES}
+    return {path: text_digest(PROJECT_ROOT / path) for path in POLICY_FILES}
 
 
 def development_fingerprints(manifest: Path, root: Path) -> dict:
@@ -145,7 +151,7 @@ def freeze(archive: Path, development_manifest: Path, development_root: Path) ->
             "attribution": "BBBC038v1 contributors; Broad Institute Imaging Platform; Caicedo et al., Nature Methods (2019)",
             "selection": "all_image_members_lexicographic_without_policy_scoring",
             "excluded_development": excluded, "candidate_sources": len(sources),
-            "sources": selected, "rejected": rejected, "policy_hash_scheme": "utf8_lf", "policy_sha256": policy_hashes(),
+            "sources": selected, "rejected": rejected, "policy_hash_scheme": TEXT_HASH_SCHEME, "policy_sha256": policy_hashes(),
             "stressors": [list(s) for s in STRESSORS],
             "scope": "source_disjoint_stress_challenge_not_clinical_or_acquisition_independence"}
 
@@ -158,7 +164,7 @@ def build(archive: Path, lock_path: Path, output: Path) -> dict:
         raise ValueError("invalid QC-only selection lock")
     if lock.get("archive_url") != ARCHIVE_URL or lock.get("license") != "CC0-1.0":
         raise ValueError("invalid source provenance")
-    if lock.get("policy_hash_scheme") != "utf8_lf" or lock.get("policy_sha256") != policy_hashes() or lock.get("stressors") != [list(s) for s in STRESSORS]:
+    if lock.get("policy_hash_scheme") != TEXT_HASH_SCHEME or lock.get("policy_sha256") != policy_hashes() or lock.get("stressors") != [list(s) for s in STRESSORS]:
         raise ValueError("frozen policy or stressors changed; do not reuse as first-pass holdout")
     archive_sha, sources = read_archive(archive)
     if archive_sha != lock.get("archive_sha256"):
@@ -184,8 +190,9 @@ def build(archive: Path, lock_path: Path, output: Path) -> dict:
                               "expected_qc_status": final, "expected_first_action": first,
                               "expected_enhancement": enhancement})
         manifest = {"purpose": PURPOSE, "diagnostic_claims": False, "dataset": "BBBC038v1",
-                    "split": "source_disjoint_challenge_v1", "selection_lock_sha256": digest(lock_path.read_bytes()),
-                    "archive_sha256": archive_sha, "policy_hash_scheme": "utf8_lf", "policy_sha256": lock["policy_sha256"],
+                    "split": "source_disjoint_challenge_v1", "selection_lock_hash_scheme": TEXT_HASH_SCHEME,
+                    "selection_lock_sha256": text_digest(lock_path),
+                    "archive_sha256": archive_sha, "policy_hash_scheme": TEXT_HASH_SCHEME, "policy_sha256": lock["policy_sha256"],
                     "source_count": len(selected), "excluded_source_count": len(rejected),
                     "source_locks": selected, "build_runtime": competition_runtime_info(), "items": items}
         (stage / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
@@ -200,13 +207,16 @@ def evaluate(manifest: Path, root: Path, source_sha: str) -> dict:
     if competition_runtime_info()["opencv5_verified"] is not True:
         raise ValueError("exact OpenCV 5 competition runtime required")
     metadata = json.loads(manifest.read_text(encoding="utf-8"))
-    if metadata.get("policy_hash_scheme") != "utf8_lf" or metadata.get("policy_sha256") != policy_hashes() or metadata.get("split") != "source_disjoint_challenge_v1":
+    if metadata.get("selection_lock_hash_scheme") != TEXT_HASH_SCHEME:
+        raise ValueError("selection lock hash scheme mismatch")
+    if metadata.get("policy_hash_scheme") != TEXT_HASH_SCHEME or metadata.get("policy_sha256") != policy_hashes() or metadata.get("split") != "source_disjoint_challenge_v1":
         raise ValueError("frozen policy or split mismatch")
     report = evaluate_corpus(manifest, root)
     report.update({"source_sha": source_sha, "evidence_scope": "local_container_challenge_not_aws",
                    "source_count": len({i["parent_sha256"] for i in metadata["items"]}),
                    "selection_lock_sha256": metadata["selection_lock_sha256"],
-                   "policy_sha256": metadata["policy_sha256"], "policy_hash_scheme": "utf8_lf", "archive_sha256": metadata["archive_sha256"],
+                   "selection_lock_hash_scheme": metadata["selection_lock_hash_scheme"],
+                   "policy_sha256": metadata["policy_sha256"], "policy_hash_scheme": TEXT_HASH_SCHEME, "archive_sha256": metadata["archive_sha256"],
                    "limitations": ["Controlled stressor expectations, not expert QC ground truth.",
                                    "Native images and final uneven-illumination outcomes are unscored.",
                                    "Exact source/pixel disjointness does not prove acquisition or perceptual independence.",

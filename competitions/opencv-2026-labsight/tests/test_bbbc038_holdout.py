@@ -66,7 +66,8 @@ def test_build_seals_ancestry_and_keeps_native_unscored(tmp_path):
     manifest = h.build(archive, lock_path, output)
     assert manifest["source_count"] == 1
     assert len(load_manifest(output / "manifest.json")) == 4
-    assert manifest["selection_lock_sha256"] == h.digest(lock_path.read_bytes())
+    assert manifest["selection_lock_hash_scheme"] == h.TEXT_HASH_SCHEME
+    assert manifest["selection_lock_sha256"] == h.text_digest(lock_path)
     native = next(i for i in manifest["items"] if i["derivation"] == "native")
     assert native["expected_qc_status"] is None
     assert native["expected_first_action"] is None
@@ -208,3 +209,14 @@ def test_policy_lock_is_cross_platform_but_detects_content_change(tmp_path, monk
     assert h.policy_hashes() == linux
     (tmp_path / h.POLICY_FILES[0]).write_bytes(b"# policy\nthreshold = 43\n")
     assert h.policy_hashes() != linux
+
+
+def test_selection_lock_hash_is_cross_platform(tmp_path: Path):
+    lock_path = tmp_path / "lock.json"
+    lock_path.write_bytes(b'{"schema": 1}\n')
+    linux = h.text_digest(lock_path)
+    assert linux == hashlib.sha256(b'{"schema": 1}\n').hexdigest()
+    lock_path.write_bytes(b'{"schema": 1}\r\n')
+    assert h.text_digest(lock_path) == linux
+    lock_path.write_bytes(b'{"schema": 2}\n')
+    assert h.text_digest(lock_path) != linux

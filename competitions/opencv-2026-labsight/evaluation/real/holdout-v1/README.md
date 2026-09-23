@@ -25,6 +25,7 @@ synthetic local fixtures and do not download or score this challenge.
 - Archive bytes: 9,545,388
 - Archive SHA-256: `c097954151884341448a5c77aab21f581815ad9cad203ff2ff38d6947c9f0733`
 - Selection-lock SHA-256: `1d3fbb5778fcde3aeaa31c126642423f4cc4dc829ba38bf21b832adbd785c92c`
+- Selection-lock hash scheme: canonical UTF-8 text with LF newlines (`utf8_lf`)
 - Rights: CC0-1.0, https://creativecommons.org/publicdomain/zero/1.0/
 - Attribution: BBBC038v1 contributors; Broad Institute Imaging Platform;
   Caicedo et al., Nature Methods (2019), as requested by the dataset page.

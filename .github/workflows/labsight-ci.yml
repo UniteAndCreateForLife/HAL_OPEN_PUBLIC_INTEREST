@@ -138,3 +138,50 @@ jobs:
           path: competitions/opencv-2026-labsight/evaluation/ci-container
           if-no-files-found: error
           retention-days: 60
+
+  judge-demo-recording:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: competitions/opencv-2026-labsight
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned recording tools
+        run: |
+          python -m pip install playwright==1.55.0
+          python -m playwright install --with-deps chromium
+          ffmpeg -version | head -n 1
+      - name: Record real production-container judge demo
+        run: tools/judge_video_capture.sh evaluation/ci-judge-recording 0.12
+      - name: Verify source-bound recording receipt
+        env:
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          receipt = json.loads(Path("evaluation/ci-judge-recording/recording-receipt.json").read_text())
+          assert receipt["source_sha"] == os.environ["SOURCE_SHA"]
+          assert receipt["judge_suite_passed"] is True
+          assert receipt["runtime_before"]["opencv5_verified"] is True
+          assert receipt["runtime_after"]["opencv5_verified"] is True
+          assert receipt["video_duration_seconds"] <= 300
+          assert receipt["diagnostic_claims"] is False
+          assert receipt["submission_status"] == "draft_recording_requires_human_narration_and_review"
+          PY
+          (cd evaluation/ci-judge-recording && sha256sum --check SHA256SUMS)
+      - name: Upload captioned demo package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: labsight-judge-demo-${{ github.event.pull_request.head.sha }}
+          path: competitions/opencv-2026-labsight/evaluation/ci-judge-recording
+          if-no-files-found: error
+          retention-days: 30

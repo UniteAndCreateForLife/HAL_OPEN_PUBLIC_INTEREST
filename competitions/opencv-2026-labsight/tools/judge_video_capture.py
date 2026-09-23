@@ -1,9 +1,9 @@
-"""Capture a source-bound, captioned local LabSight judge rehearsal video.
+"""Record a source-bound LabSight judge demo from a real owned endpoint.
 
-This tool records only an authorized LabSight URL. The resulting MP4 is local
-presentation evidence, never AWS or final-submission evidence by itself.
+Playwright drives the shipped UI; the recorder never injects successful
+responses.  The resulting package is local/CI demonstration evidence, not AWS
+deployment or competition-submission evidence.
 """
-
 from __future__ import annotations
 
 import argparse
@@ -12,6 +12,7 @@ import json
 import shutil
 import subprocess
 import time
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -19,229 +20,141 @@ from urllib.parse import urlparse
 
 EXPECTED_DISTRIBUTION = "5.0.0.93"
 EXPECTED_RUNTIME = "5.0.0"
-MAX_VIDEO_SECONDS = 300.0
+EXPECTED_ACTIONS = {
+    "clean": ("accept", "accept"),
+    "blurred": ("request_recapture_focus", "request_recapture_focus"),
+    "clipped": ("request_recapture_exposure", "request_recapture_exposure"),
+    "uneven": ("enhance_and_reanalyze", "accept"),
+}
 
 
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+@dataclass(frozen=True)
+class Caption:
+    start: float
+    end: float
+    title: str
+    body: str
 
 
-def _authorized_local_url(url: str) -> None:
-    parsed = urlparse(url)
-    if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost"}:
-        raise ValueError("--url must be an authorized local HTTP LabSight service")
-
-
-def _validate_runtime(health: dict[str, Any], expected_source_sha: str) -> None:
-    source_sha = str(health.get("source_sha", "")).lower()
-    if source_sha != expected_source_sha.lower():
-        raise ValueError(
-            f"source SHA mismatch: {source_sha!r} != {expected_source_sha!r}"
-        )
-    if str(health.get("opencv_distribution_version", "")) != EXPECTED_DISTRIBUTION:
-        raise ValueError(
-            "demo server does not use the exact competition OpenCV distribution"
-        )
-    if str(health.get("opencv_runtime_version", "")) != EXPECTED_RUNTIME:
-        raise ValueError(
-            "demo server does not use the exact competition OpenCV core runtime"
-        )
+def validate_health(health: dict[str, Any], source_sha: str) -> None:
+    if health.get("source_sha") != source_sha or health.get("build_sha") != source_sha:
+        raise ValueError("live source/build SHA does not match --source-sha")
+    if health.get("opencv_distribution_version") != EXPECTED_DISTRIBUTION:
+        raise ValueError("live opencv-python distribution is not exactly 5.0.0.93")
+    if health.get("opencv_runtime_version") != EXPECTED_RUNTIME:
+        raise ValueError("live cv2 runtime is not exactly 5.0.0")
     if health.get("opencv5_verified") is not True:
-        raise ValueError("demo server did not verify OpenCV 5")
+        raise ValueError("live service did not verify the exact OpenCV 5 runtime")
 
 
-def _probe_duration(ffprobe: str, path: Path) -> float:
-    proc = subprocess.run(
-        [
-            ffprobe,
-            "-v",
-            "error",
-            "-show_entries",
-            "format=duration",
-            "-of",
-            "default=nk=1:nw=1",
-            str(path),
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    duration = float(proc.stdout.strip())
-    if not 0 < duration <= MAX_VIDEO_SECONDS:
+def validate_analysis(name: str, result: dict[str, Any]) -> dict[str, Any]:
+    expected_first, expected_final = EXPECTED_ACTIONS[name]
+    trace = result.get("trace")
+    if not isinstance(trace, list) or not trace:
+        raise ValueError(f"{name}: missing perception-decision-action trace")
+    first = trace[0].get("decision")
+    final = result.get("status")
+    if (first, final) != (expected_first, expected_final):
         raise ValueError(
-            f"video duration {duration:.3f}s is outside the <=5 minute gate"
+            f"{name}: expected {(expected_first, expected_final)}, observed {(first, final)}"
         )
-    return duration
+    if name == "uneven":
+        if len(trace) != 2 or result.get("used_enhancement") is not True:
+            raise ValueError("uneven: CLAHE and a second visual pass were not observed")
+        if trace[1].get("decision") != final:
+            raise ValueError("uneven: second visual pass did not determine the final action")
+    return {
+        "scenario": name,
+        "expected_first_action": expected_first,
+        "observed_first_action": first,
+        "expected_final_action": expected_final,
+        "observed_final_action": final,
+        "trace_steps": len(trace),
+        "used_enhancement": bool(result.get("used_enhancement")),
+        "passed": True,
+    }
 
 
-def _overlay(page: Any, title: str, detail: str) -> None:
-    page.evaluate(
-        """([title, detail]) => {
-          let box = document.getElementById('hal-capture-overlay');
-          if (!box) {
-            box = document.createElement('section');
-            box.id = 'hal-capture-overlay';
-            box.style.cssText = 'position:fixed;z-index:99999;left:24px;right:24px;top:18px;padding:14px 18px;border-radius:12px;background:rgba(8,15,24,.92);color:white;font:16px/1.35 system-ui;box-shadow:0 8px 30px #0008;pointer-events:none';
-            document.body.appendChild(box);
-          }
-          box.innerHTML = `<strong style="font-size:20px">${title}</strong><br><span>${detail}</span>`;
-        }""",
-        [title, detail],
+def _vtt_time(seconds: float) -> str:
+    milliseconds = max(0, round(seconds * 1000))
+    hours, milliseconds = divmod(milliseconds, 3_600_000)
+    minutes, milliseconds = divmod(milliseconds, 60_000)
+    whole, milliseconds = divmod(milliseconds, 1000)
+    return f"{hours:02d}:{minutes:02d}:{whole:02d}.{milliseconds:03d}"
+
+
+def write_captions(
+    path: Path, captions: list[Caption], *, max_duration: float | None = None
+) -> None:
+    lines = ["WEBVTT", ""]
+    for index, item in enumerate(captions, 1):
+        if max_duration is not None and item.start >= max_duration:
+            raise ValueError("caption starts after the recorded video ends")
+        end = max(item.end, item.start + 0.25)
+        if max_duration is not None:
+            end = min(end, max_duration)
+        lines.extend(
+            [
+                str(index),
+                f"{_vtt_time(item.start)} --> {_vtt_time(end)}",
+                f"{item.title}: {item.body}",
+                "",
+            ]
+        )
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def write_manifest(output: Path) -> dict[str, str]:
+    excluded = {"SHA256SUMS"}
+    files = sorted(path for path in output.rglob("*") if path.is_file() and path.name not in excluded)
+    hashes = {path.relative_to(output).as_posix(): sha256_file(path) for path in files}
+    (output / "SHA256SUMS").write_text(
+        "".join(f"{digest}  {name}\n" for name, digest in hashes.items()), encoding="utf-8"
     )
+    return hashes
 
 
-def _pause(page: Any, seconds: float = 2.0) -> None:
-    page.wait_for_timeout(int(seconds * 1000))
+def load_holdout_receipt(path: Path) -> dict[str, Any]:
+    receipt = json.loads(path.read_text(encoding="utf-8"))
+    required = {
+        "source_sha",
+        "samples",
+        "scored_samples",
+        "qc_agreement",
+        "final_failure_count",
+        "unsafe_accept_count",
+        "limitations",
+    }
+    missing = sorted(required - receipt.keys())
+    if missing:
+        raise ValueError(f"holdout receipt missing fields: {', '.join(missing)}")
+    if receipt.get("diagnostic_claims") is not False:
+        raise ValueError("holdout receipt must explicitly reject diagnostic claims")
+    return receipt
 
 
-def _click_and_wait(page: Any, name: str, status_text: str | None = None) -> None:
-    page.get_by_role("button", name=name, exact=True).click()
-    if status_text:
-        page.locator("#status").get_by_text(status_text, exact=False).wait_for(
-            timeout=15000
-        )
-    page.wait_for_timeout(900)
+def _run(command: list[str]) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(command, check=True, text=True, capture_output=True)
 
 
-def capture(
-    *,
-    url: str,
-    output: Path,
-    expected_source_sha: str,
-    executable: str,
-    ffmpeg: str,
-    ffprobe: str,
-) -> dict[str, Any]:
-    from playwright.sync_api import sync_playwright
-
-    _authorized_local_url(url)
-    output.mkdir(parents=True, exist_ok=True)
-    raw_dir = output / "raw-video"
-    raw_dir.mkdir(exist_ok=True)
-    stages: list[dict[str, Any]] = []
-    started = time.monotonic()
-
-    with sync_playwright() as p:
-        browser = p.chromium.launch(
-            headless=True, executable_path=executable, args=["--disable-gpu"]
-        )
-        context = browser.new_context(
-            viewport={"width": 1280, "height": 720},
-            record_video_dir=str(raw_dir),
-            record_video_size={"width": 1280, "height": 720},
-        )
-        page = context.new_page()
-        page.set_default_timeout(15000)
-        video = page.video
-        page.goto(url, wait_until="networkidle")
-        health_response = context.request.get(url.rstrip("/") + "/health")
-        if not health_response.ok:
-            raise RuntimeError(f"health endpoint failed: HTTP {health_response.status}")
-        health = health_response.json()
-        _validate_runtime(health, expected_source_sha)
-
-        _overlay(
-            page,
-            "HAL LabSight",
-            "Microscopy image-quality control only — local exact OpenCV 5 judge rehearsal",
-        )
-        _pause(page, 3.0)
-        stages.append(
-            {"stage": "runtime", "elapsed_seconds": time.monotonic() - started}
-        )
-
-        _overlay(
-            page,
-            "Clean capture",
-            "Measured focus, exposure and illumination signals lead to ACCEPT",
-        )
-        _click_and_wait(page, "Analyze clean")
-        if page.locator("#decision").inner_text().strip() != "Accept capture":
-            raise RuntimeError("clean scenario did not produce the expected decision")
-        _pause(page, 3.0)
-        stages.append({"stage": "clean", "elapsed_seconds": time.monotonic() - started})
-
-        _overlay(
-            page,
-            "Blurred capture",
-            "The QC policy requests recapture for focus instead of hiding the defect",
-        )
-        _click_and_wait(page, "Analyze blurred")
-        if "focus" not in page.locator("#decision").inner_text().lower():
-            raise RuntimeError("blurred scenario did not request focus recapture")
-        _pause(page, 3.0)
-        stages.append(
-            {"stage": "blurred", "elapsed_seconds": time.monotonic() - started}
-        )
-        _overlay(
-            page,
-            "Clipped exposure",
-            "The same policy separates exposure failure from blur and requests a new capture",
-        )
-        _click_and_wait(page, "Analyze clipped")
-        if "exposure" not in page.locator("#decision").inner_text().lower():
-            raise RuntimeError("clipped scenario did not request exposure recapture")
-        _pause(page, 3.0)
-        stages.append(
-            {"stage": "clipped", "elapsed_seconds": time.monotonic() - started}
-        )
-
-        _overlay(
-            page,
-            "Agentic Vision",
-            "Uneven illumination triggers CLAHE, a second visual pass, then a new action",
-        )
-        _click_and_wait(page, "Analyze uneven")
-        if "2 perception passes" not in page.locator("#status").inner_text():
-            raise RuntimeError("uneven scenario did not execute two perception passes")
-        if "Run CLAHE and re-analyze" not in page.locator("#trace").inner_text():
-            raise RuntimeError("uneven scenario did not expose the CLAHE tool action")
-        _pause(page, 4.0)
-        stages.append(
-            {"stage": "agentic_vision", "elapsed_seconds": time.monotonic() - started}
-        )
-
-        _overlay(
-            page,
-            "Four-scenario judge suite",
-            "Expected and observed actions are checked live; synthetic cases are not an accuracy claim",
-        )
-        _click_and_wait(page, "Run judge suite")
-        status = page.locator("#status").inner_text()
-        if (
-            "Judge suite: PASS" not in status
-            or "Agentic Vision demonstrated" not in status
-        ):
-            raise RuntimeError("judge suite did not prove the expected live behavior")
-        _pause(page, 5.0)
-        stages.append(
-            {"stage": "judge_suite", "elapsed_seconds": time.monotonic() - started}
-        )
-        _overlay(
-            page,
-            "Evidence boundary",
-            "Source-bound local demo only — not AWS, not clinical validation, not a final submission receipt",
-        )
-        _pause(page, 4.0)
-        stages.append(
-            {"stage": "limitations", "elapsed_seconds": time.monotonic() - started}
-        )
-        context.close()
-        browser.close()
-        if video is None:
-            raise RuntimeError("Playwright did not create a video handle")
-        raw_path = Path(video.path())
-
-    mp4 = output / "HAL_LABSIGHT_JUDGE_REHEARSAL.mp4"
-    subprocess.run(
+def transcode(webm: Path, mp4: Path) -> float:
+    if not shutil.which("ffmpeg") or not shutil.which("ffprobe"):
+        raise RuntimeError("ffmpeg and ffprobe are required to create and verify the MP4")
+    _run(
         [
-            ffmpeg,
-            "-hide_banner",
-            "-loglevel",
-            "error",
+            "ffmpeg",
             "-y",
             "-i",
-            str(raw_path),
+            str(webm),
+            "-an",
             "-c:v",
             "libx264",
             "-preset",
@@ -253,62 +166,247 @@ def capture(
             "-movflags",
             "+faststart",
             str(mp4),
-        ],
-        check=True,
+        ]
     )
-    duration = _probe_duration(ffprobe, mp4)
+    probe = _run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            str(mp4),
+        ]
+    )
+    duration = float(probe.stdout.strip())
+    if duration <= 0 or duration > 300:
+        raise ValueError(f"recorded MP4 duration {duration:.3f}s is outside (0, 300]")
+    return duration
+
+
+def record(
+    url: str,
+    output: Path,
+    source_sha: str,
+    holdout_path: Path,
+    *,
+    executable: str | None = None,
+    pace: float = 1.0,
+) -> dict[str, Any]:
+    from playwright.sync_api import expect, sync_playwright
+
+    parsed = urlparse(url)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        raise ValueError("--url must identify an authorized HTTP(S) LabSight instance")
+    if pace <= 0:
+        raise ValueError("--pace must be greater than zero")
+    if len(source_sha) != 40 or any(c not in "0123456789abcdef" for c in source_sha.lower()):
+        raise ValueError("--source-sha must be a full 40-character Git SHA")
+    holdout = load_holdout_receipt(holdout_path)
+    output.mkdir(parents=True, exist_ok=True)
+    screenshots = output / "screenshots"
+    screenshots.mkdir(exist_ok=True)
+    captions: list[Caption] = []
+    observations: list[dict[str, Any]] = []
+    started = time.monotonic()
+
+    def elapsed() -> float:
+        return time.monotonic() - started
+
+    def pause(page: Any, seconds: float) -> None:
+        page.wait_for_timeout(round(seconds * pace * 1000))
+
+    def scene(page: Any, title: str, body: str, seconds: float = 4.0) -> None:
+        start = elapsed()
+        page.evaluate(
+            """([title, body]) => {
+                let card = document.getElementById('labsight-recording-card');
+                if (!card) {
+                    card = document.createElement('aside');
+                    card.id = 'labsight-recording-card';
+                    card.setAttribute('aria-hidden', 'true');
+                    Object.assign(card.style, {
+                        position: 'fixed', zIndex: '2147483647', right: '24px', top: '20px',
+                        maxWidth: '440px', padding: '16px 18px', borderRadius: '12px',
+                        color: '#f8fafc', background: 'rgba(15,23,42,.94)',
+                        border: '1px solid #38bdf8', boxShadow: '0 12px 34px rgba(0,0,0,.4)',
+                        font: '16px/1.42 system-ui, sans-serif', pointerEvents: 'none'
+                    });
+                    document.body.appendChild(card);
+                }
+                card.replaceChildren();
+                const heading = document.createElement('strong');
+                heading.textContent = title;
+                heading.style.display = 'block';
+                heading.style.color = '#7dd3fc';
+                heading.style.fontSize = '20px';
+                heading.style.marginBottom = '6px';
+                const copy = document.createElement('span');
+                copy.textContent = body;
+                card.append(heading, copy);
+            }""",
+            [title, body],
+        )
+        pause(page, seconds)
+        captions.append(Caption(start, elapsed(), title, body))
+
+    def analyze(page: Any, name: str, label: str) -> None:
+        scene(page, label, "The shipped UI requests a live OpenCV analysis; no response is injected.", 2.2)
+        page.get_by_role("button", name=f"Analyze {name}", exact=True).click()
+        expect(page.locator("#status")).to_have_attribute("data-state", "complete")
+        expect(page.locator("#download")).to_be_enabled()
+        ui_receipt = json.loads(page.locator("#result").text_content() or "")
+        result = ui_receipt["response"]
+        observations.append(validate_analysis(name, result))
+        scene(
+            page,
+            "Observed action",
+            f"First: {observations[-1]['observed_first_action']}; final: {observations[-1]['observed_final_action']}.",
+            3.0,
+        )
+        page.screenshot(path=str(screenshots / f"{name}.png"), full_page=True)
+
+    browser_version = "unknown"
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True, executable_path=executable)
+        browser_version = browser.version
+        context = browser.new_context(
+            viewport={"width": 1280, "height": 720},
+            accept_downloads=True,
+            record_video_dir=str(output / "raw-video"),
+            record_video_size={"width": 1280, "height": 720},
+        )
+        page = context.new_page()
+        # Playwright starts recording with the page, so caption zero must share
+        # that origin rather than include browser-launch time.
+        started = time.monotonic()
+        page.set_default_timeout(20_000)
+        video = page.video
+        page.goto(url, wait_until="networkidle")
+        before = context.request.get(url.rstrip("/") + "/health")
+        if not before.ok:
+            raise RuntimeError("pre-recording /health request failed")
+        health_before = before.json()
+        validate_health(health_before, source_sha)
+
+        scene(page, "HAL LabSight", "Microscopy image-quality control only — not diagnosis or biological identification.", 4.0)
+        scene(page, "Architecture", "OpenCV perception → policy decision → action or human recapture request; every step is traceable.", 5.0)
+        analyze(page, "clean", "Clean capture")
+        analyze(page, "blurred", "Focus failure")
+        analyze(page, "clipped", "Exposure failure")
+        analyze(page, "uneven", "Agentic illumination recovery")
+
+        page.get_by_role("button", name="Run judge suite", exact=True).click()
+        expect(page.locator("#status")).to_contain_text("Judge suite: PASS")
+        if page.locator("#suite article").count() != 4:
+            raise ValueError("judge suite did not render all four scenarios")
+        scene(page, "Judge suite: PASS", "Four deterministic cases verify accept, two recapture actions, and CLAHE re-analysis.", 6.0)
+        page.screenshot(path=str(screenshots / "judge-suite.png"), full_page=True)
+
+        raw = context.request.get(url.rstrip("/") + "/demo/image/clean").body()
+        page.locator("#file").set_input_files(
+            {"name": "synthetic-demo-input.png", "mimeType": "image/png", "buffer": raw}
+        )
+        page.get_by_role("button", name="Analyze uploaded image", exact=True).click()
+        expect(page.locator("#status")).to_have_attribute("data-state", "complete")
+        expect(page.locator("#decision")).to_have_text("Accept capture")
+        with page.expect_download() as transfer:
+            page.get_by_role("button", name="Download evidence JSON", exact=True).click()
+        downloaded = output / "observed-ui-evidence.json"
+        transfer.value.save_as(downloaded)
+        download_payload = json.loads(downloaded.read_text(encoding="utf-8"))
+        serialized = json.dumps(download_payload)
+        if "image_base64" in serialized or "synthetic-demo-input" in serialized:
+            raise ValueError("downloaded evidence leaked image bytes or the local filename")
+        scene(page, "Evidence export", "A real upload and evidence download preserve request/runtime metadata without image bytes or filenames.", 5.0)
+
+        scene(
+            page,
+            "Independent-source challenge",
+            f"{holdout['scored_samples']} scored stressor samples: {holdout['qc_agreement']:.1%} QC agreement, "
+            f"{holdout['final_failure_count']} failures, {holdout['unsafe_accept_count']} unsafe accepts.",
+            7.0,
+        )
+        scene(page, "Limits and human control", "Controlled stressors are not expert ground truth or clinical validation. Review failures; recapture when requested.", 6.0)
+        scene(page, "Reproducible evidence", "Source-bound OpenCV 5 container, deterministic tests, receipts and hashes. This recording is not AWS evidence.", 4.0)
+
+        after = context.request.get(url.rstrip("/") + "/health")
+        if not after.ok:
+            raise RuntimeError("post-recording /health request failed")
+        health_after = after.json()
+        validate_health(health_after, source_sha)
+        context.close()
+        webm_source = Path(video.path())
+        browser.close()
+
+    webm = output / "labsight-judge-demo.webm"
+    shutil.move(str(webm_source), webm)
+    raw_dir = output / "raw-video"
+    if raw_dir.exists():
+        shutil.rmtree(raw_dir)
+    duration = transcode(webm, output / "labsight-judge-demo.mp4")
+    write_captions(
+        output / "labsight-judge-demo.vtt", captions, max_duration=duration
+    )
     receipt = {
         "schema_version": "1.0",
         "captured_at_utc": datetime.now(timezone.utc).isoformat(),
-        "evidence_scope": "local_captioned_judge_rehearsal_not_aws_or_submission_evidence",
+        "evidence_scope": "local_or_ci_exact_opencv5_demo_not_aws_or_final_submission_by_itself",
+        "purpose": "microscopy_image_quality_control_only",
         "diagnostic_claims": False,
-        "source_git_sha": expected_source_sha,
-        "health": health,
-        "video": {
-            "path": str(mp4),
-            "sha256": _sha256(mp4),
-            "duration_seconds": duration,
-            "width": 1280,
-            "height": 720,
-            "max_allowed_seconds": MAX_VIDEO_SECONDS,
+        "source_sha": source_sha,
+        "runtime_before": health_before,
+        "runtime_after": health_after,
+        "observations": observations,
+        "judge_suite_passed": True,
+        "upload_and_download_exercised": True,
+        "holdout_receipt": {
+            "evaluated_source_sha": holdout["source_sha"],
+            "samples": holdout["samples"],
+            "scored_samples": holdout["scored_samples"],
+            "qc_agreement": holdout["qc_agreement"],
+            "final_failure_count": holdout["final_failure_count"],
+            "unsafe_accept_count": holdout["unsafe_accept_count"],
+            "limitations": holdout["limitations"],
         },
-        "stages": stages,
+        "video_duration_seconds": round(duration, 3),
+        "audio": False,
+        "captioned": True,
+        "browser_version": browser_version,
+        "ffmpeg_version": _run(["ffmpeg", "-version"]).stdout.splitlines()[0],
+        "submission_status": "draft_recording_requires_human_narration_and_review",
     }
-    (output / "judge-video-receipt.json").write_text(
+    (output / "recording-receipt.json").write_text(
         json.dumps(receipt, indent=2) + "\n", encoding="utf-8"
     )
-    narration = """# HAL LabSight judge rehearsal narration
-
-This captioned local rehearsal demonstrates microscopy image-quality control only.
-Show the exact OpenCV 5 runtime, then the clean, blur, clipped-exposure and uneven-
-illumination scenarios. Emphasize that the uneven case changes action after a CLAHE
-tool call and second visual pass. The four-case judge suite is deterministic showcase
-evidence, not a general accuracy claim. Close by stating that independent evaluation
-contains preserved failures, AWS evidence remains separate, and LabSight makes no
-diagnostic, prognostic, treatment or biological-identification claim.
-"""
-    (output / "NARRATION.md").write_text(narration, encoding="utf-8")
+    receipt["artifact_sha256"] = write_manifest(output)
     return receipt
 
 
-def main(argv: list[str] | None = None) -> int:
+def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--url", default="http://127.0.0.1:18080")
+    parser.add_argument("--url", default="http://127.0.0.1:8080")
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--expected-source-sha", required=True)
-    parser.add_argument("--executable", required=True)
-    parser.add_argument("--ffmpeg", default=shutil.which("ffmpeg") or "ffmpeg")
-    parser.add_argument("--ffprobe", default=shutil.which("ffprobe") or "ffprobe")
-    args = parser.parse_args(argv)
-    receipt = capture(
-        url=args.url,
-        output=args.output,
-        expected_source_sha=args.expected_source_sha,
-        executable=args.executable,
-        ffmpeg=args.ffmpeg,
-        ffprobe=args.ffprobe,
-    )
-    print(json.dumps(receipt, indent=2))
+    parser.add_argument("--source-sha", required=True)
+    parser.add_argument("--holdout-receipt", type=Path, required=True)
+    parser.add_argument("--executable", help="Path to an existing Chromium or Edge executable")
+    parser.add_argument("--pace", type=float, default=1.0, help="Scene timing multiplier (default: 1.0)")
+    args = parser.parse_args()
+    try:
+        report = record(
+            args.url,
+            args.output,
+            args.source_sha,
+            args.holdout_receipt,
+            executable=args.executable,
+            pace=args.pace,
+        )
+    except Exception as exc:
+        print(json.dumps({"passed": False, "error": f"{type(exc).__name__}: {exc}"}, indent=2))
+        return 1
+    print(json.dumps({"passed": True, **report}, indent=2))
     return 0
 
 

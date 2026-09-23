@@ -1,1 +1,2 @@
 competitions/opencv-2026-labsight/aws/*.sh text eol=lf
+competitions/opencv-2026-labsight/tools/*.sh text eol=lf

@@ -70,25 +70,13 @@ successful analyses use the real local service. It writes JSON results and a
 real UI screenshot. These are browser test artifacts, not AWS evidence or a
 completed competition video. The final narrated video is still a separate task.
 
-## Captioned judge-video rehearsal
+## Source-bound judge recording
 
-	ools/judge_video_capture.py records the live local UI from an exact source-bound
-OpenCV 5 service, adds visible presentation captions, and transcodes the browser
-recording to H.264 MP4. It fails closed on source/runtime mismatch and on videos
-longer than five minutes. The output also includes a SHA-256 receipt and narration
-notes. Use an existing Chromium/Edge binary and local ffmpeg/ffprobe; no upload or
-cloud account is required.
-
-`ash
-python tools/judge_video_capture.py --url http://127.0.0.1:18080 \
-  --output evaluation/latest/judge-video --expected-source-sha GIT_SHA \
-  --executable /path/to/chromium
-```
-
-The generated MP4 is a captioned **rehearsal**, not an authenticated AWS receipt or
-final Devpost submission. Before final submission, review pacing/content, add or
-approve narration if desired, verify judge accessibility, and preserve the <=5-minute
-gate. The deterministic showcase remains separate from independent evaluation.
+The production recording path is documented in [DEMO_RECORDING.md](DEMO_RECORDING.md).
+It builds the pinned container, drives the real UI, validates the Agentic Vision
+trace and evidence download, and creates MP4/WebM, captions, screenshots, receipts
+and SHA-256 hashes. The package is local/CI demonstration evidence—not AWS,
+clinical-validation, final-submission or payment evidence.
 
 ## Deferred cloud work
 

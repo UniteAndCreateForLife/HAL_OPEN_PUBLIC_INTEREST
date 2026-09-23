@@ -1,5 +1,5 @@
 {
-  "application_brief_sha256": "1a2e9cfb40702f462ecf2e0174bcbdd1c58d4ccb7813bbc80b523b4ed1cf3d53",
+  "application_brief_sha256": "e0a92a74a810858de83c1267782442faac557c22c5470dcd5ea61fad67498c07",
   "claims": {
     "awarded": false,
     "paid": false,
@@ -87,7 +87,7 @@
     }
   ],
   "mvp_source_sha256": "3624afb7a407a56230a5d27efcd1c1664de18908dbaa1759c98ac35858cdf1dc",
-  "rules_snapshot_sha256": "c3e625b140cef3d9212e859680c45a74db69cc8b275ebf2a16fcb10314e2c863",
+  "rules_snapshot_sha256": "8fb5f15e976fb0887a746c513da52aabd4b008c84afc305ec4cca649f9b37958",
   "scope": "synthetic_local_competition_mvp_not_submission_or_production_evidence",
   "startup_prize_inr": 50000,
   "test_source_sha256": "c96d6994b844c61f5272e4f6b215116d486bdbd110c349a0214f548b111b04d3"

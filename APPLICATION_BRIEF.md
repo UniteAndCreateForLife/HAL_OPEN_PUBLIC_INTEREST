@@ -64,3 +64,19 @@ Organizer email confirms the HAL project is eligible for the startup track and t
 - Users/pilots/revenue/validation where available: no verified users, pilots, or revenue; software validation only.
 - Responsible-AI considerations: evidence citation, fail-closed ambiguity handling, sensitive-case escalation, and human authorization.
 - Founder/core-team profile: founder-led HAL SUPREME / UniteAndCreateForLife project; final personal/startup attestations remain human-only.
+
+## Measurable value and evaluation plan
+The current prototype is evaluated only on synthetic, deterministic fixtures. Its present acceptance package is: facilities incidents route to the facilities workflow with policy evidence and human approval; academic-policy questions cite the controlling academic source; sensitive mental-health language escalates to human review instead of autonomous resolution; unsupported parking-policy questions fail closed rather than inventing an answer; and repeated identical requests produce the same audit receipt.
+
+The next evidence level would measure retrieval correctness, unsupported-answer rate, appropriate escalation rate, task-completion latency, and operator override rate on an institution-approved test corpus. No institutional pilot, learning-outcome gain, cost saving, or production service-level improvement is claimed yet.
+
+## Jury-criteria evidence map
+- Problem relevance and user need: fragmented campus policies and operational routing are the defined problem; the bounded MVP targets staff and student support workflows.
+- Innovation and differentiation: provenance-first routing, fail-closed uncertainty, deterministic receipts, and separation of proposed actions from authorization.
+- Feasibility and product readiness: functional local MVP, repeatable test suite, recorded demonstration, and explicit production gaps.
+- Impact and scalability: one bounded workflow can be validated before adding institution-approved policy corpora and permissioned SIS/LMS/ticketing adapters.
+- Technology, security and responsible use: evidence citation, data minimization, sensitive-case escalation, human authorization, and no high-stakes autonomous decisions.
+- Presentation and jury response: source-bound recorded demo exists; final form submission and any finalist presentation remain human-gated.
+
+## Submission-route and logistics status
+The organizer has confirmed that HAL is eligible for the startup track and that a solo U.S.-based founder with a secure campus research/operations prototype is within scope. The official challenge page exposes an Apply Now route, but the final form action remains a human/account step. A follow-up question asking whether an international finalist may present remotely is still awaiting an organizer response. No application receipt or finalist status is claimed.

@@ -1,0 +1,41 @@
+{
+  "application_brief_sha256": "e0a92a74a810858de83c1267782442faac557c22c5470dcd5ea61fad67498c07",
+  "claims": {
+    "awarded": false,
+    "finalist": false,
+    "institutional_pilot": false,
+    "paid": false,
+    "production_deployed": false,
+    "submitted": false
+  },
+  "competition": "Global Smart Campus Technology Innovation Challenge 2026",
+  "completeness": {
+    "application_topics": 15,
+    "core_requirements": 6,
+    "jury_criteria": 6
+  },
+  "deadline": "2026-10-05",
+  "human_gates": [
+    "annual turnover representation",
+    "authorization to represent startup",
+    "identity/contact attestations",
+    "final form submission"
+  ],
+  "organizer_eligibility_confirmed": true,
+  "remote_finalist_participation": "awaiting organizer response",
+  "rules_snapshot_sha256": "8fb5f15e976fb0887a746c513da52aabd4b008c84afc305ec4cca649f9b37958",
+  "scope": "local_competition_readiness_not_submission_finalist_award_or_payment",
+  "startup_prize_inr": 50000,
+  "status": "PASS",
+  "stream": "Early-Stage EdTech Startups",
+  "submission_route": "Official challenge page -> Apply Now",
+  "submission_route_status": "public Apply Now entry point verified; final form action remains a human/account step",
+  "synthetic_evaluation": {
+    "cases": 4,
+    "deterministic_replay": true,
+    "expected_behavior_passed": 4,
+    "scope": "synthetic_local_mvp_not_institutional_validation",
+    "sensitive_case_escalated": true,
+    "unknown_policy_failed_closed": true
+  }
+}

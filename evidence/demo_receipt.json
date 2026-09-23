@@ -13,12 +13,12 @@
     {
       "answer": "Relevant policy evidence: Broken elevators, lighting failures, leaks, and other facilities issues should be logged with Facilities Operations with building and room context.",
       "audit_id": "f7e67c3fd51a26ed273d",
-      "confidence": 0.0952,
+      "confidence": 0.1,
       "disposition": "evidence_response",
       "evidence": [
         {
           "doc_id": "FAC-002",
-          "score": 0.0952,
+          "score": 0.1,
           "snippet": "Broken elevators, lighting failures, leaks, and other facilities issues should be logged with Facilities Operations with building and room context.",
           "title": "Facilities incident routing"
         }
@@ -62,7 +62,7 @@
         },
         {
           "doc_id": "DATA-003",
-          "score": 0.037,
+          "score": 0.0385,
           "snippet": "Campus assistants should minimize personal data, avoid exposing student identifiers, and route sensitive cases to authorized staff with an auditable handoff.",
           "title": "Privacy and data minimization"
         }
@@ -86,9 +86,9 @@
       ]
     }
   ],
-  "mvp_source_sha256": "3624afb7a407a56230a5d27efcd1c1664de18908dbaa1759c98ac35858cdf1dc",
+  "mvp_source_sha256": "6c75d299c9f96809702e3f28140d3d9424cb5b25aa4ac3d377f66b7b7b8d9c56",
   "rules_snapshot_sha256": "96412be6fc96a10c1574bd57065528f95276ff00ab3b3474b032131e5ecc8799",
   "scope": "synthetic_local_competition_mvp_not_submission_or_production_evidence",
   "startup_prize_inr": 50000,
-  "test_source_sha256": "7ceea747ec90385fc422cd959bff08981be5062d5510faf3e7d81b34d8697e0c"
+  "test_source_sha256": "7fe5bfb4d2bdc76cc7e313c39a37e4e33b80d6e545406d69fd353ddc63359ef0"
 }

@@ -44,7 +44,7 @@ For a source-bound application package, first create the recorded demo, then run
 python submission_gate.py --demo-receipt <artifact-directory>/recorded-demo-receipt.json --output <artifact-directory>/submission-readiness.json
 ```
 
-The linked gate re-verifies the video bytes/probe, exact Git source, all four demo outcomes, package source hashes, and negative claim boundaries. This is local readiness evidence only. Organizer correspondence confirms that a pre-recorded presentation and MVP demo can serve as the official finalist presentation if selected. The gate does not submit the application, attest turnover or representation authority, establish finalist status, or imply award/payment status.
+The linked gate re-verifies the video bytes/probe, exact Git source, all four demo outcomes, package source hashes, and negative claim boundaries. Source-bound readiness receipts are generated after checkout and deliberately not committed, because committing one would immediately advance the Git source it claims to bind. This is local readiness evidence only. Organizer correspondence confirms that a pre-recorded presentation and MVP demo can serve as the official finalist presentation if selected. The gate does not submit the application, attest turnover or representation authority, establish finalist status, or imply award/payment status.
 
 ## Portable submission-evidence bundle
 

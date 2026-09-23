@@ -33,6 +33,15 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def artifact_relative_path(path: Path, artifact_root: Path) -> str:
+    """Return a portable artifact path and reject directory escape."""
+
+    try:
+        return path.resolve().relative_to(artifact_root.resolve()).as_posix()
+    except ValueError as exc:
+        raise ValueError("recorded artifact must remain inside its output directory") from exc
+
+
 def git_head() -> str:
     result = subprocess.run(
         ["git", "-C", str(ROOT), "rev-parse", "HEAD"],
@@ -165,7 +174,7 @@ def build_receipt(output_dir: Path, results: list[dict], video: Path, ffprobe: s
         "competition": "Global Smart Campus Technology Innovation Challenge 2026",
         "source_commit": git_head(),
         "source_sha256": source_hashes(),
-        "video": str(video),
+        "video": artifact_relative_path(video, output_dir),
         "video_sha256": sha256(video),
         "video_probe": probe_video(video, ffprobe),
         "demo_results": results,
@@ -190,6 +199,8 @@ def verify_receipt(path: Path, ffprobe: str) -> dict:
         if sha256(ROOT / name) != expected:
             raise ValueError(f"source hash drift: {name}")
     video = Path(receipt["video"])
+    if not video.is_absolute():
+        video = path.resolve().parent / video
     if sha256(video) != receipt["video_sha256"]:
         raise ValueError("video SHA-256 mismatch")
     if probe_video(video, ffprobe) != receipt["video_probe"]:

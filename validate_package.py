@@ -17,6 +17,15 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def repository_relative_path(path: Path) -> str:
+    """Return a portable repository-relative path or fail closed."""
+
+    try:
+        return path.resolve().relative_to(ROOT.resolve()).as_posix()
+    except ValueError as exc:
+        raise ValueError("evidence path must remain inside the repository") from exc
+
+
 def main() -> int:
     rules = json.loads(RULES.read_text(encoding="utf-8"))
     brief = BRIEF.read_text(encoding="utf-8").lower()
@@ -56,7 +65,7 @@ def main() -> int:
     OUT.write_text(rendered, encoding="utf-8")
     print(json.dumps({
         "status": "PASS",
-        "receipt": str(OUT),
+        "receipt": repository_relative_path(OUT),
         "receipt_sha256": sha256(OUT),
         "demo_cases": len(results),
         "required_topics": len(rules["required_application_topics"]),

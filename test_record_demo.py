@@ -1,6 +1,8 @@
+import tempfile
 import unittest
+from pathlib import Path
 
-from record_demo import build_story, source_hashes
+from record_demo import artifact_relative_path, build_story, source_hashes
 
 
 class RecordedDemoTests(unittest.TestCase):
@@ -20,6 +22,17 @@ class RecordedDemoTests(unittest.TestCase):
         self.assertIn("record_demo.py", hashes)
         self.assertIn("APPLICATION_BRIEF.md", hashes)
         self.assertTrue(all(len(value) == 64 for value in hashes.values()))
+
+    def test_artifact_receipt_path_is_portable_and_confined(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            video = root / "HAL_CAMPUS_EVIDENCE_DESK_DEMO.mp4"
+            self.assertEqual(
+                artifact_relative_path(video, root),
+                "HAL_CAMPUS_EVIDENCE_DESK_DEMO.mp4",
+            )
+            with self.assertRaisesRegex(ValueError, "inside its output directory"):
+                artifact_relative_path(root.parent / "outside.mp4", root)
 
 
 if __name__ == "__main__":

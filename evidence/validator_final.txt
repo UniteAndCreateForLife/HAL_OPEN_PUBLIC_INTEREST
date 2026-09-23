@@ -1,0 +1,1 @@
+{"demo_cases": 4, "receipt": "C:\\Users\\jakob101\\HAL_BOUNTY_WORKSPACE\\global-smart-campus-2026\\evidence\\demo_receipt.json", "receipt_sha256": "c6fa4751aeb179d24d558759c92237f5de2a45b1fba60badcaf269d13c5bef62", "required_topics": 15, "status": "PASS"}

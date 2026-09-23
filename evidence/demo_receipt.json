@@ -1,0 +1,94 @@
+{
+  "application_brief_sha256": "89446feac2148f1c99c56209d99fe6199136e3b83856f5dcb4c35fce22422304",
+  "claims": {
+    "awarded": false,
+    "paid": false,
+    "production_deployed": false,
+    "real_student_data_used": false,
+    "submitted": false
+  },
+  "competition": "Global Smart Campus Technology Innovation Challenge 2026",
+  "deadline": "2026-10-05",
+  "demo_results": [
+    {
+      "answer": "Relevant policy evidence: Broken elevators, lighting failures, leaks, and other facilities issues should be logged with Facilities Operations with building and room context.",
+      "audit_id": "f7e67c3fd51a26ed273d",
+      "confidence": 0.0952,
+      "disposition": "evidence_response",
+      "evidence": [
+        {
+          "doc_id": "FAC-002",
+          "score": 0.0952,
+          "snippet": "Broken elevators, lighting failures, leaks, and other facilities issues should be logged with Facilities Operations with building and room context.",
+          "title": "Facilities incident routing"
+        }
+      ],
+      "human_approval_required": true,
+      "request_id": "demo-1",
+      "suggested_actions": [
+        "route_facilities_ticket"
+      ]
+    },
+    {
+      "answer": "Relevant policy evidence: Academic policy answers should cite the controlling policy source and escalate when the available source is incomplete or ambiguous.",
+      "audit_id": "9a91527179e0e8349e22",
+      "confidence": 0.1176,
+      "disposition": "evidence_response",
+      "evidence": [
+        {
+          "doc_id": "ACADEMIC-004",
+          "score": 0.1176,
+          "snippet": "Academic policy answers should cite the controlling policy source and escalate when the available source is incomplete or ambiguous.",
+          "title": "Academic policy evidence"
+        }
+      ],
+      "human_approval_required": false,
+      "request_id": "demo-2",
+      "suggested_actions": [
+        "answer_with_sources"
+      ]
+    },
+    {
+      "answer": "This request requires a trained human reviewer; no autonomous decision was made.",
+      "audit_id": "cc909c70d76dfb28b69e",
+      "confidence": 0.0385,
+      "disposition": "human_review",
+      "evidence": [
+        {
+          "doc_id": "ACCESS-001",
+          "score": 0.0385,
+          "snippet": "Students needing accessible routes or learning accommodations should contact Accessibility Services. Urgent access barriers should be routed for staff review.",
+          "title": "Accessibility support"
+        },
+        {
+          "doc_id": "DATA-003",
+          "score": 0.037,
+          "snippet": "Campus assistants should minimize personal data, avoid exposing student identifiers, and route sensitive cases to authorized staff with an auditable handoff.",
+          "title": "Privacy and data minimization"
+        }
+      ],
+      "human_approval_required": true,
+      "request_id": "demo-3",
+      "suggested_actions": [
+        "route_human_review"
+      ]
+    },
+    {
+      "answer": "No matching policy evidence was found. Escalate rather than guess.",
+      "audit_id": "6d2a4b61f02b4623d5df",
+      "confidence": 0.0,
+      "disposition": "insufficient_evidence",
+      "evidence": [],
+      "human_approval_required": true,
+      "request_id": "demo-4",
+      "suggested_actions": [
+        "request_policy_source"
+      ]
+    }
+  ],
+  "mvp_source_sha256": "3624afb7a407a56230a5d27efcd1c1664de18908dbaa1759c98ac35858cdf1dc",
+  "rules_snapshot_sha256": "c3e625b140cef3d9212e859680c45a74db69cc8b275ebf2a16fcb10314e2c863",
+  "scope": "synthetic_local_competition_mvp_not_submission_or_production_evidence",
+  "startup_prize_inr": 50000,
+  "test_source_sha256": "c96d6994b844c61f5272e4f6b215116d486bdbd110c349a0214f548b111b04d3"
+}

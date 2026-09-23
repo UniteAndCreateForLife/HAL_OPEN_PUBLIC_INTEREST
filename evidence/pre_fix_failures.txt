@@ -1,0 +1,5 @@
+Initial regression run before retrieval hardening:
+- test_facilities_request_routes_with_evidence: expected FAC-002, got ACADEMIC-004
+- test_unknown_request_does_not_invent_policy: expected insufficient_evidence, got evidence_response
+Root cause: common stopwords created spurious lexical overlap. Fix: remove a bounded stopword set before ranking.
+Final regression result is preserved separately in the run report.

@@ -1,0 +1,25 @@
+{
+  "competition": "Global Smart Campus Technology Innovation Challenge 2026",
+  "official_url": "https://gsc2026.higheredbpo.ai/",
+  "verified_at_utc": "2026-09-23T06:33:00Z",
+  "stream": "Early-Stage EdTech Startups",
+  "deadline": "2026-10-05",
+  "final_presentations": "2026-10-27",
+  "startup_prize_inr": 50000,
+  "startup_winners": 1,
+  "submission_route": "Official challenge page -> Apply Now",
+  "organizer_contact": "innovation@higheredbpo.ai",
+  "organizer_email_eligibility": "HAL project eligible for startup track; solo founders can participate",
+  "human_gates": [
+    "annual turnover representation",
+    "authorization to represent startup",
+    "identity/contact attestations",
+    "final form submission"
+  ],
+  "required_application_topics": [
+    "problem", "target customer", "market need", "MVP description",
+    "live or recorded demonstration", "current stage", "users/pilots/revenue/validation where available",
+    "business model", "pricing approach", "technology architecture", "data privacy",
+    "security", "responsible-AI considerations", "scale-up plan", "founder/core-team profile"
+  ]
+}

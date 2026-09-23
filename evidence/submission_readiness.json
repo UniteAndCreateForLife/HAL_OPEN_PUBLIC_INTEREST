@@ -1,5 +1,5 @@
 {
-  "application_brief_sha256": "e0a92a74a810858de83c1267782442faac557c22c5470dcd5ea61fad67498c07",
+  "application_brief_sha256": "a4b1e02368d3905ecae1976afc5242ca51a435e4e86972e7441ced4779cae268",
   "claims": {
     "awarded": false,
     "finalist": false,
@@ -22,8 +22,14 @@
     "final form submission"
   ],
   "organizer_eligibility_confirmed": true,
-  "remote_finalist_participation": "awaiting organizer response",
-  "rules_snapshot_sha256": "8fb5f15e976fb0887a746c513da52aabd4b008c84afc305ec4cca649f9b37958",
+  "organizer_logistics": {
+    "confirmation_received_at_utc": "2026-09-23T08:46:58Z",
+    "finalist_status_claimed": false,
+    "live_remote_required": false,
+    "route": "pre_recorded_presentation_and_mvp_demo_if_selected"
+  },
+  "remote_finalist_participation": "pre_recorded_presentation_and_mvp_demo_if_selected",
+  "rules_snapshot_sha256": "96412be6fc96a10c1574bd57065528f95276ff00ab3b3474b032131e5ecc8799",
   "scope": "local_competition_readiness_not_submission_finalist_award_or_payment",
   "startup_prize_inr": 50000,
   "status": "PASS",

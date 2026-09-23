@@ -1,7 +1,14 @@
 import json
 import unittest
 
-from submission_gate import BRIEF, RULES, build_receipt, evaluate_demo, validate_brief_text
+from submission_gate import (
+    BRIEF,
+    RULES,
+    build_receipt,
+    evaluate_demo,
+    validate_brief_text,
+    validate_organizer_logistics,
+)
 
 
 class SubmissionGateTests(unittest.TestCase):
@@ -35,10 +42,29 @@ class SubmissionGateTests(unittest.TestCase):
     def test_receipt_preserves_human_and_claim_boundaries(self):
         receipt = build_receipt()
         self.assertTrue(receipt["organizer_eligibility_confirmed"])
-        self.assertEqual(receipt["remote_finalist_participation"], "awaiting organizer response")
+        self.assertEqual(
+            receipt["remote_finalist_participation"],
+            "pre_recorded_presentation_and_mvp_demo_if_selected",
+        )
+        self.assertFalse(receipt["organizer_logistics"]["live_remote_required"])
+        self.assertFalse(receipt["organizer_logistics"]["finalist_status_claimed"])
         self.assertTrue(receipt["human_gates"])
         self.assertTrue(all(value is False for value in receipt["claims"].values()))
         self.assertEqual(sum(self.rules["jury_criteria_percent"].values()), 100)
+
+    def test_missing_organizer_remote_route_fails_closed(self):
+        damaged = dict(self.rules)
+        damaged["remote_finalist_participation"] = "awaiting organizer response"
+        with self.assertRaisesRegex(ValueError, "presentation route"):
+            validate_organizer_logistics(damaged)
+
+    def test_logistics_confirmation_does_not_claim_finalist_status(self):
+        logistics = validate_organizer_logistics(self.rules)
+        self.assertEqual(
+            logistics["route"],
+            "pre_recorded_presentation_and_mvp_demo_if_selected",
+        )
+        self.assertFalse(logistics["finalist_status_claimed"])
 
 
 if __name__ == "__main__":

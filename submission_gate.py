@@ -67,6 +67,22 @@ def validate_brief_text(brief_text: str, rules: dict[str, Any]) -> dict[str, Any
         "jury_criteria": len(rules["jury_criteria_percent"]),
     }
 
+def validate_organizer_logistics(rules: dict[str, Any]) -> dict[str, Any]:
+    expected = "pre_recorded_presentation_and_mvp_demo_if_selected"
+    if rules.get("remote_finalist_participation") != expected:
+        raise ValueError("organizer-confirmed finalist presentation route missing or changed")
+    if not rules.get("organizer_email_logistics"):
+        raise ValueError("organizer logistics confirmation is missing")
+    if not rules.get("organizer_email_logistics_received_at_utc"):
+        raise ValueError("organizer logistics timestamp is missing")
+    return {
+        "route": expected,
+        "confirmation_received_at_utc": rules["organizer_email_logistics_received_at_utc"],
+        "live_remote_required": False,
+        "finalist_status_claimed": False,
+    }
+
+
 def evaluate_demo() -> dict[str, Any]:
     desk = default_demo_desk()
     results = {case.request_id: desk.analyze(case) for case in demo_cases()}
@@ -111,6 +127,7 @@ def build_receipt() -> dict[str, Any]:
     rules = json.loads(RULES.read_text(encoding="utf-8"))
     brief_text = BRIEF.read_text(encoding="utf-8")
     completeness = validate_brief_text(brief_text, rules)
+    logistics = validate_organizer_logistics(rules)
     evaluation = evaluate_demo()
     return {
         "status": "PASS",
@@ -123,6 +140,7 @@ def build_receipt() -> dict[str, Any]:
         "submission_route_status": rules["submission_route_status"],
         "organizer_eligibility_confirmed": True,
         "remote_finalist_participation": rules["remote_finalist_participation"],
+        "organizer_logistics": logistics,
         "human_gates": rules["human_gates"],
         "completeness": completeness,
         "synthetic_evaluation": evaluation,

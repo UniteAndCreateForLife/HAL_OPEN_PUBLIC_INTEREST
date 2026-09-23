@@ -39,4 +39,4 @@ The receipt binds the video to the exact Git commit and source hashes and fails 
 
 Run `python submission_gate.py` to verify that the application brief covers the official startup-stream topics, all six core submission elements, and the six published jury criteria while preserving human-only eligibility/submission boundaries. The gate also reruns the four deterministic MVP acceptance cases and writes `evidence/submission_readiness.json`.
 
-This gate is local readiness evidence only. It does not submit the application, attest turnover or representation authority, establish remote-finalist eligibility, or imply finalist/award/payment status.
+This gate is local readiness evidence only. Organizer correspondence now confirms that a pre-recorded presentation and MVP demo can serve as the official finalist presentation if selected. The gate does not submit the application, attest turnover or representation authority, establish finalist status, or imply award/payment status.

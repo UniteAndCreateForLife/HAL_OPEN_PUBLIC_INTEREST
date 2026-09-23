@@ -1,7 +1,7 @@
 {
   "competition": "Global Smart Campus Technology Innovation Challenge 2026",
   "official_url": "https://gsc2026.higheredbpo.ai/",
-  "verified_at_utc": "2026-09-23T08:35:00Z",
+  "verified_at_utc": "2026-09-23T08:46:58Z",
   "stream": "Early-Stage EdTech Startups",
   "deadline": "2026-10-05",
   "final_presentations": "2026-10-27",
@@ -12,7 +12,7 @@
   "submission_route_status": "public Apply Now entry point verified; final form action remains a human/account step",
   "organizer_contact": "innovation@higheredbpo.ai",
   "organizer_email_eligibility": "HAL project eligible for startup track; solo U.S.-based founder and secure campus research/operations prototype are within scope",
-  "remote_finalist_participation": "awaiting organizer response",
+  "remote_finalist_participation": "pre_recorded_presentation_and_mvp_demo_if_selected",
   "human_gates": [
     "annual turnover representation",
     "authorization to represent startup",
@@ -28,10 +28,21 @@
     "responsible implementation"
   ],
   "required_application_topics": [
-    "problem", "target customer", "market need", "MVP description",
-    "live or recorded demonstration", "current stage", "users/pilots/revenue/validation where available",
-    "business model", "pricing approach", "technology architecture", "data privacy",
-    "security", "responsible-AI considerations", "scale-up plan", "founder/core-team profile"
+    "problem",
+    "target customer",
+    "market need",
+    "MVP description",
+    "live or recorded demonstration",
+    "current stage",
+    "users/pilots/revenue/validation where available",
+    "business model",
+    "pricing approach",
+    "technology architecture",
+    "data privacy",
+    "security",
+    "responsible-AI considerations",
+    "scale-up plan",
+    "founder/core-team profile"
   ],
   "jury_criteria_percent": {
     "problem relevance and user need": 20,
@@ -40,5 +51,8 @@
     "impact and scalability": 20,
     "technology, security and responsible use": 10,
     "presentation and jury response": 10
-  }
+  },
+  "organizer_email_logistics": "Organizer confirmed that, if selected as a finalist, a pre-recorded video presentation and MVP demo can be played during the Bengaluru event and the recorded video will serve as the official finalist presentation.",
+  "organizer_email_logistics_received_at_utc": "2026-09-23T08:46:58Z",
+  "organizer_email_logistics_sender": "innovation@higheredbpo.ai"
 }

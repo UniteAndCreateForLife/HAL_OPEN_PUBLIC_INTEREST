@@ -28,9 +28,8 @@ Open `http://127.0.0.1:8080/` for the judge-facing demo. `GET /demo/judge` runs 
 
 ## Current validation
 
-Development evidence is deliberately separated from authenticated AWS evidence. The established OpenCV 4.13 baseline remains under `evaluation/baselines/`. A clean local Python 3.12 competition environment now also verifies the exact `opencv-python==5.0.0.93` distribution with `cv2.__version__ == 5.0.0`:
+Development evidence is deliberately separated from authenticated AWS evidence. The established OpenCV 4.13 baseline remains under `evaluation/baselines/`. The current authorized-worker development suite passes **87/87 deterministic tests**; because that host Python installation is mixed, this test count is not OpenCV 5 competition-runtime evidence. Separate clean/container evidence verifies the exact `opencv-python==5.0.0.93` distribution with `cv2.__version__ == 5.0.0`:
 
-- 87/87 deterministic tests pass in the current development suite
 - 100 synthetic benchmark samples
 - 100% final-decision accuracy
 - 100% synthetic agent action/tool-call accuracy

@@ -41,6 +41,8 @@ def test_received_money_requires_a_known_award():
 
     with pytest.raises(ContributionIndexError, match="unknown award"):
         validate_index(document)
+
+
 def test_public_markdown_links_every_indexed_contribution():
     document = _document()
     markdown = README_PATH.read_text(encoding="utf-8")

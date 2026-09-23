@@ -55,6 +55,8 @@ def _github_url(value: Any, field: str, *, nullable: bool = False) -> None:
         parsed.scheme == "https" and parsed.netloc == "github.com",
         f"{field} must be an https://github.com URL",
     )
+
+
 def validate_index(document: dict[str, Any]) -> dict[str, Any]:
     """Validate and return a contribution-index document."""
 

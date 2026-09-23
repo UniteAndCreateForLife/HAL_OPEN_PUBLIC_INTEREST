@@ -34,6 +34,7 @@ CLAHE enhancement and second perception pass for uneven illumination.
 - **Remaining:** human review, narration, judge-accessible hosting, and the
   separately required AWS evidence. AWS is deferred and no cloud-readiness
   claim is made.
+
 ## memanto-1852
 
 [PR #2030](https://github.com/moorcheh-ai/memanto/pull/2030) addresses
@@ -60,6 +61,7 @@ multi-network ecosystem listing updates.
   eight networks, so it is listed as a useful portfolio contribution rather
   than verified payment-eligible work.
 - **Financial state:** no verified award or payment.
+
 ## Reproduce the index check
 
 From the repository root:

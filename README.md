@@ -62,6 +62,14 @@ runner. The library itself uses only the Python standard library.
 - [TIOF_RESPONSE_PACKAGE.md](TIOF_RESPONSE_PACKAGE.md) — artifact index, not
   an outbound message.
 
+## Competition projects
+
+- [HAL Campus Evidence Desk](competitions/global-smart-campus-2026/) — bounded
+  Global Smart Campus 2026 startup-stream prototype with deterministic tests,
+  privacy-preserving evidence routing, a source-bound 49-second demonstration,
+  and an integrity-verified portable evidence bundle. Publication is not a
+  final competition submission, selection, award, or payment claim.
+
 ## License
 
 The code and documentation in this repository are published under Apache-2.0,

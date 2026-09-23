@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "as_of_utc": "2026-09-23T15:31:00Z",
+  "as_of_utc": "2026-09-23T18:35:00Z",
   "scope_note": "Public evidence only. merged records code integration; accepted records sponsor or bounty acceptance. Unknown financial values remain null.",
   "verified_cash_received_usd": 0,
   "contributions": [
@@ -113,6 +113,63 @@
         "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/blob/main/competitions/global-smart-campus-2026/evidence/public-demo-canary-receipt.json"
       ],
       "remaining_action": "Human completion of the official organizer application and its identity, contact, turnover, startup-representation, and final declarations; repository merge is not competition submission, selection, award, or payment."
+    },
+    {
+      "id": "twilio-searchlight-2026",
+      "title": "Secure Twilio-to-HAL messaging bridge",
+      "repository": "UniteAndCreateForLife/HAL_SUPREME",
+      "pull_request_url": "https://github.com/UniteAndCreateForLife/HAL_SUPREME/pull/7",
+      "issue_url": null,
+      "demo_url": null,
+      "status": "open_draft",
+      "submitted": false,
+      "merged": false,
+      "accepted": null,
+      "amount_awarded": null,
+      "amount_received": null,
+      "reward": {
+        "model": "competitive_prize",
+        "currency": null,
+        "advertised_amount": null,
+        "prize_pool_maximum": null,
+        "category_award": null,
+        "non_cash_benefits": [
+          {
+            "kind": "provider_credit",
+            "provider": "Twilio",
+            "currency": "USD",
+            "maximum_value": 10000,
+            "conditional": true
+          },
+          {
+            "kind": "provider_credit",
+            "provider": "OpenAI",
+            "currency": "USD",
+            "maximum_value": 2500,
+            "conditional": true
+          },
+          {
+            "kind": "gift_card",
+            "provider": "Ramp",
+            "currency": "USD",
+            "maximum_value": 5000,
+            "conditional": true
+          },
+          {
+            "kind": "swag",
+            "provider": "Twilio",
+            "currency": "USD",
+            "maximum_value": 300,
+            "conditional": true
+          }
+        ]
+      },
+      "evidence_urls": [
+        "https://github.com/UniteAndCreateForLife/HAL_SUPREME/pull/7",
+        "https://github.com/UniteAndCreateForLife/HAL_SUPREME/commit/fd1969df28ec35c3e992535971656cc8e663cb51",
+        "https://github.com/UniteAndCreateForLife/HAL_SUPREME/actions/runs/35899476367"
+      ],
+      "remaining_action": "Authorized real signed Twilio interaction through the canonical HAL path, human demo review, and truthful application declarations; the open draft PR and local evidence are not submission, selection, award, credits, or payment."
     }
   ]
 }

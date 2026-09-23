@@ -35,7 +35,8 @@ mkdir -p "$OUTPUT"
 
 docker build --progress=plain --build-arg LABSIGHT_BUILD_SHA="$SOURCE_SHA" -t "$IMAGE" . \
   2>&1 | tee "${OUTPUT}/build.log"
-docker run -d --name "$CONTAINER" \
+# Git Bash otherwise rewrites the Linux tmpfs target into a Windows drive path.
+MSYS_NO_PATHCONV=1 docker run -d --name "$CONTAINER" \
   -p "127.0.0.1:${PORT}:8080" --read-only --tmpfs /tmp \
   --cap-drop ALL --security-opt no-new-privileges --cpus 2 --memory 2g "$IMAGE" >/dev/null
 

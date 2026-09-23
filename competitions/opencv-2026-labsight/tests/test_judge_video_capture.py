@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+from pathlib import Path
+
 import pytest
 
 from tools.judge_video_capture import (
@@ -217,3 +219,11 @@ def test_presentation_evidence_rejects_missing_required_scene(tmp_path, missing)
     coverage = set(REQUIRED_PRESENTATION_COVERAGE) - {missing}
     with pytest.raises(ValueError, match="missing required coverage"):
         build_presentation_evidence("a" * 40, video, 30.0, coverage)
+
+
+def test_shell_wrapper_preserves_linux_tmpfs_path_under_git_bash():
+    wrapper = (
+        Path(__file__).resolve().parents[1] / "tools" / "judge_video_capture.sh"
+    ).read_text(encoding="utf-8")
+    assert "MSYS_NO_PATHCONV=1 docker run -d" in wrapper
+    assert "--tmpfs /tmp" in wrapper

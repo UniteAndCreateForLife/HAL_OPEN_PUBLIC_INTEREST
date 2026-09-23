@@ -47,13 +47,24 @@ def _is_money(value: Any) -> bool:
     )
 
 
-def _github_url(value: Any, field: str, *, nullable: bool = False) -> None:
+def _https_url(value: Any, field: str, *, nullable: bool = False) -> None:
     if value is None and nullable:
         return
     _require(isinstance(value, str) and value, f"{field} must be a URL")
     parsed = urlparse(value)
     _require(
-        parsed.scheme == "https" and parsed.netloc == "github.com",
+        parsed.scheme == "https" and bool(parsed.netloc),
+        f"{field} must be an HTTPS URL",
+    )
+
+
+def _github_url(value: Any, field: str, *, nullable: bool = False) -> None:
+    _https_url(value, field, nullable=nullable)
+    if value is None:
+        return
+    parsed = urlparse(value)
+    _require(
+        parsed.netloc == "github.com",
         f"{field} must be an https://github.com URL",
     )
 
@@ -97,6 +108,7 @@ def validate_index(document: dict[str, Any]) -> dict[str, Any]:
         _require(entry.get("accepted") in (True, False, None), f"{prefix}.accepted is invalid")
         _github_url(entry.get("pull_request_url"), f"{prefix}.pull_request_url")
         _github_url(entry.get("issue_url"), f"{prefix}.issue_url", nullable=True)
+        _https_url(entry.get("demo_url"), f"{prefix}.demo_url", nullable=True)
 
         awarded = entry.get("amount_awarded")
         received = entry.get("amount_received")

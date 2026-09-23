@@ -13,6 +13,13 @@ from hal_public_interest.contribution_index import (
 ROOT = Path(__file__).resolve().parents[1]
 INDEX_PATH = ROOT / "portfolio" / "contributions.json"
 README_PATH = ROOT / "CONTRIBUTIONS.md"
+CANARY_PATH = (
+    ROOT
+    / "competitions"
+    / "global-smart-campus-2026"
+    / "evidence"
+    / "public-demo-canary-receipt.json"
+)
 
 
 def _document() -> dict:
@@ -72,6 +79,40 @@ def test_global_smart_campus_merge_is_not_competition_submission_or_payment():
     assert campus["amount_received"] is None
     assert campus["reward"]["currency"] == "INR"
     assert campus["reward"]["advertised_amount"] == 50000
+    assert campus["demo_url"] == (
+        "https://hal-campus-evidence-desk.therealjakobhedrich.workers.dev"
+    )
+
+
+def test_demo_urls_must_use_https():
+    document = _document()
+    document["contributions"][0]["demo_url"] = "http://example.test/demo"
+
+    with pytest.raises(ContributionIndexError, match="demo_url must be an HTTPS URL"):
+        validate_index(document)
+
+
+def test_global_smart_campus_public_canary_is_source_bound_and_safe():
+    receipt = json.loads(CANARY_PATH.read_text(encoding="utf-8"))
+    document = _document()
+    campus = next(
+        entry
+        for entry in document["contributions"]
+        if entry["id"] == "global-smart-campus-2026"
+    )
+
+    assert receipt["passed"] is True
+    assert receipt["target"] == campus["demo_url"]
+    assert receipt["source_pr_head_sha"] == ("69669e09facae1a923423beb31c2bb6970fbd410")
+    assert len(receipt["checks"]) == 30
+    assert all(check["passed"] is True for check in receipt["checks"])
+
+    checks = {check["name"]: check["detail"] for check in receipt["checks"]}
+    assert checks["public_demo_true"]["public_demo"] is True
+    assert checks["live_external_false"]["live_model_external"] is False
+    assert checks["live_mode_still_review_gated"]["review_gate"]["status"] == (
+        "PENDING_HUMAN_REVIEW"
+    )
 
 
 def test_merged_flag_must_match_status():
@@ -91,6 +132,8 @@ def test_public_markdown_links_every_indexed_contribution():
         assert contribution["pull_request_url"] in markdown
         for evidence_url in contribution["evidence_urls"]:
             assert evidence_url in markdown
+        if contribution["demo_url"] is not None:
+            assert contribution["demo_url"] in markdown
 
 
 def test_public_markdown_keeps_financial_boundary_explicit():

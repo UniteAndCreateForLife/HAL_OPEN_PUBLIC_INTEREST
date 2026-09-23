@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "as_of_utc": "2026-09-23T14:34:00Z",
+  "as_of_utc": "2026-09-23T15:31:00Z",
   "scope_note": "Public evidence only. merged records code integration; accepted records sponsor or bounty acceptance. Unknown financial values remain null.",
   "verified_cash_received_usd": 0,
   "contributions": [
@@ -10,6 +10,7 @@
       "repository": "UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST",
       "pull_request_url": "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/pull/1",
       "issue_url": null,
+      "demo_url": null,
       "status": "open_draft",
       "submitted": false,
       "merged": false,
@@ -35,6 +36,7 @@
       "repository": "moorcheh-ai/memanto",
       "pull_request_url": "https://github.com/moorcheh-ai/memanto/pull/2030",
       "issue_url": "https://github.com/moorcheh-ai/memanto/issues/1852",
+      "demo_url": null,
       "status": "open_awaiting_sponsor",
       "submitted": true,
       "merged": false,
@@ -60,6 +62,7 @@
       "repository": "Chain-Love/chain-love",
       "pull_request_url": "https://github.com/Chain-Love/chain-love/pull/3925",
       "issue_url": null,
+      "demo_url": null,
       "status": "merged_portfolio_only",
       "submitted": true,
       "merged": true,
@@ -87,6 +90,7 @@
       "repository": "UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST",
       "pull_request_url": "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/pull/3",
       "issue_url": null,
+      "demo_url": "https://hal-campus-evidence-desk.therealjakobhedrich.workers.dev",
       "status": "merged",
       "submitted": false,
       "merged": true,
@@ -103,7 +107,10 @@
       "evidence_urls": [
         "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/pull/3",
         "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/commit/c47df20c2ae5b94babb5b3c7495de8f16ba98850",
-        "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/blob/main/competitions/global-smart-campus-2026/official_rules_snapshot.json"
+        "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/blob/main/competitions/global-smart-campus-2026/official_rules_snapshot.json",
+        "https://github.com/UniteAndCreateForLife/HAL_SUPREME/pull/8",
+        "https://github.com/UniteAndCreateForLife/HAL_SUPREME/commit/69669e09facae1a923423beb31c2bb6970fbd410",
+        "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/blob/main/competitions/global-smart-campus-2026/evidence/public-demo-canary-receipt.json"
       ],
       "remaining_action": "Human completion of the official organizer application and its identity, contact, turnover, startup-representation, and final declarations; repository merge is not competition submission, selection, award, or payment."
     }

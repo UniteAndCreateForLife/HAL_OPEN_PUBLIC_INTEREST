@@ -29,19 +29,37 @@ Open `http://127.0.0.1:8080/` for the judge-facing demo. `GET /demo/judge` runs 
 
 ## Current validation
 
-Development evidence is deliberately separated from authenticated AWS evidence. The established OpenCV 4.13 baseline remains under `evaluation/baselines/`. The current authorized-worker development suite passes **102/102 deterministic tests**; because that host Python installation is mixed, this test count is not OpenCV 5 competition-runtime evidence. Separate clean/container evidence verifies the exact `opencv-python==5.0.0.93` distribution with `cv2.__version__ == 5.0.0`:
+Evidence classes are kept separate. GitHub Actions run #121 passed all four jobs
+on source `9b0694299304cc46a0d5adef093543a92f9d7208`: 172 development tests and the
+static readiness gate, clean exact-OpenCV-5 tests and the 100-sample benchmark,
+the production-container HTTP/Agentic Vision probe, and the real browser-recording
+workflow. Exact-runtime jobs verify both `opencv-python==5.0.0.93` and
+`cv2.__version__==5.0.0`.
 
-- 100 synthetic benchmark samples
-- 100% final-decision accuracy
-- 100% synthetic agent action/tool-call accuracy
-- local OpenCV 5 median latency 52.939 ms
-- local OpenCV 5 P95 latency 110.717 ms
-- 20-item provenance-locked BBBC038-derived development corpus
-- current development-corpus final QC / first-action / enhancement agreement 1.000 / 1.000 / 1.000
-- 0 unsafe accepts among scored real-corpus final-state samples
-- local exact-runtime `opencv5_verified: true`
+The canonical frozen BBBC038v1 source-disjoint challenge provides the strongest
+real-image regression evidence:
 
-This is genuine local OpenCV 5 execution evidence, not Docker/App Runner competition completion.
+- 65 source images, disjoint by source bytes and decoded pixels from development
+- 260 controlled-stressor derivatives and 130 scored final-action cases
+- 114/130 final-action agreement (87.69%)
+- 168/195 first-action agreement (86.15%)
+- 184/195 enhancement agreement (94.36%)
+- 16 preserved final mismatches and zero unsafe accepts
+- exact local OpenCV 5 production container, offline and read-only
+
+All 16 final mismatches were blurred images conservatively routed to exposure
+recapture instead of focus recapture. Eleven uneven-illumination cases did not
+take the expected CLAHE first action. The challenge contains no expected-accept
+final labels, and its scripted stressor expectations are not expert microscopy
+ground truth; zero unsafe accepts therefore does not establish real-world safety.
+
+The reproducible captioned judge-video draft from source `48878f5` is 62.4 seconds
+and demonstrates the real four-scenario UI, two-pass CLAHE trace, judge suite,
+image upload and evidence download. Later source changes mean the final video must
+be regenerated from the final head and human-reviewed before submission.
+
+These are local and CI/container results, not authenticated AWS evidence. AWS
+execution is deferred by the user, and PR #1 remains draft.
 
 ## OpenCV 5 competition requirement
 

@@ -1,5 +1,50 @@
 # Validation record
 
+## Canonical source-disjoint challenge — 2026-09-23
+
+The current independent-source regression evidence is the frozen BBBC038v1
+source-disjoint challenge under `evaluation/real/holdout-v1/`. Selection occurred
+before policy evaluation and used all 65 PNG members of the official
+`stage1_test.zip`; raw-source and decoded-pixel fingerprints exclude the five
+development sources and their derivatives.
+
+The canonical rerun is bound to source commit
+`d88f18b2b16c5a1666a59614afc56be08fea83bb`, selection-lock SHA-256
+`1d3fbb5778fcde3aeaa31c126642423f4cc4dc829ba38bf21b832adbd785c92c`,
+and manifest SHA-256
+`088e91d67b57ca6c95e25f604611f620e21eddf4df6c747c03e391fc8affd86d`.
+It ran offline in the production image with `opencv-python==5.0.0.93`,
+`cv2.__version__==5.0.0`, a read-only root filesystem and workspace, all
+capabilities dropped, `no-new-privileges`, two CPUs, and 2 GiB memory.
+
+- 65 independent parent sources and 260 derived images
+- 130 scored final-action cases
+- final-action agreement: **114/130 (0.876923)**
+- first-action agreement: **168/195 (0.861538)**
+- enhancement agreement: **184/195 (0.943590)**
+- exposure-recapture recall: **65/65 (1.000000)**
+- focus-recapture recall: **49/65 (0.753846)**
+- expected CLAHE first-action recall: **54/65 (0.830769)**
+- 16 final mismatches, all blur cases routed to exposure recapture
+- 11 uneven-illumination first-action/enhancement misses: ten focus recaptures
+  and one human-review action instead of CLAHE
+- **0 unsafe accepts** among the scored final-state expectations
+- latency median / P95 / maximum: **20.764 / 133.163 / 183.667 ms**
+
+All mismatches remain preserved. The alternative actions were conservative
+recapture or human review, but the intended reason/tool action was wrong. The
+challenge has no expected-accept final labels, so it cannot estimate specificity
+or prove real-world safety. Its expectations are controlled-stressor routing
+labels, not expert microscopy ground truth. The 260 derivatives represent 65
+parent sources, and byte/pixel disjointness does not establish acquisition,
+laboratory, microscope, perceptual, or biological independence. After inspection,
+this challenge is regression evidence rather than a reusable fresh holdout.
+
+The compact machine-readable receipt is
+`evaluation/real/holdout-v1/canonical-rerun-receipt.json`; the detailed protocol
+and limitations are in `evaluation/real/holdout-v1/README.md`. This is local exact
+OpenCV 5 container evidence, not AWS, diagnostic, clinical, or expert-QC evidence.
+
 ## Local sandbox baseline — OpenCV 4.13.0
 
 This record is deliberately **not** OpenCV 5 competition evidence.

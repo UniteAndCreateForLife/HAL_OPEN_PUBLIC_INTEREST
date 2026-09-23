@@ -1,0 +1,1 @@
+{"demo_cases": 4, "receipt": "evidence/demo_receipt.json", "receipt_sha256": "3332cc80e02dab47c1ba6c5807b4087cf57b67eca63e4162d33384d5bca7ee1f", "required_topics": 15, "status": "PASS"}

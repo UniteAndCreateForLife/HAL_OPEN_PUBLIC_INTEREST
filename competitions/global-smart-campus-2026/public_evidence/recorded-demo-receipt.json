@@ -1,0 +1,110 @@
+{
+  "claims": {
+    "awarded": false,
+    "finalist": false,
+    "institutional_pilot": false,
+    "paid": false,
+    "production_deployed": false,
+    "real_student_data_used": false,
+    "submitted": false
+  },
+  "competition": "Global Smart Campus Technology Innovation Challenge 2026",
+  "demo_results": [
+    {
+      "answer": "Relevant policy evidence: Broken elevators, lighting failures, leaks, and other facilities issues should be logged with Facilities Operations with building and room context.",
+      "audit_id": "f7e67c3fd51a26ed273d",
+      "confidence": 0.1,
+      "disposition": "evidence_response",
+      "evidence": [
+        {
+          "doc_id": "FAC-002",
+          "score": 0.1,
+          "snippet": "Broken elevators, lighting failures, leaks, and other facilities issues should be logged with Facilities Operations with building and room context.",
+          "title": "Facilities incident routing"
+        }
+      ],
+      "human_approval_required": true,
+      "request_id": "demo-1",
+      "suggested_actions": [
+        "route_facilities_ticket"
+      ]
+    },
+    {
+      "answer": "Relevant policy evidence: Academic policy answers should cite the controlling policy source and escalate when the available source is incomplete or ambiguous.",
+      "audit_id": "9a91527179e0e8349e22",
+      "confidence": 0.1176,
+      "disposition": "evidence_response",
+      "evidence": [
+        {
+          "doc_id": "ACADEMIC-004",
+          "score": 0.1176,
+          "snippet": "Academic policy answers should cite the controlling policy source and escalate when the available source is incomplete or ambiguous.",
+          "title": "Academic policy evidence"
+        }
+      ],
+      "human_approval_required": false,
+      "request_id": "demo-2",
+      "suggested_actions": [
+        "answer_with_sources"
+      ]
+    },
+    {
+      "answer": "This request requires a trained human reviewer; no autonomous decision was made.",
+      "audit_id": "cc909c70d76dfb28b69e",
+      "confidence": 0.0385,
+      "disposition": "human_review",
+      "evidence": [
+        {
+          "doc_id": "ACCESS-001",
+          "score": 0.0385,
+          "snippet": "Students needing accessible routes or learning accommodations should contact Accessibility Services. Urgent access barriers should be routed for staff review.",
+          "title": "Accessibility support"
+        },
+        {
+          "doc_id": "DATA-003",
+          "score": 0.0385,
+          "snippet": "Campus assistants should minimize personal data, avoid exposing student identifiers, and route sensitive cases to authorized staff with an auditable handoff.",
+          "title": "Privacy and data minimization"
+        }
+      ],
+      "human_approval_required": true,
+      "request_id": "demo-3",
+      "suggested_actions": [
+        "route_human_review"
+      ]
+    },
+    {
+      "answer": "No matching policy evidence was found. Escalate rather than guess.",
+      "audit_id": "6d2a4b61f02b4623d5df",
+      "confidence": 0.0,
+      "disposition": "insufficient_evidence",
+      "evidence": [],
+      "human_approval_required": true,
+      "request_id": "demo-4",
+      "suggested_actions": [
+        "request_policy_source"
+      ]
+    }
+  ],
+  "scope": "synthetic_local_recorded_mvp_not_submission_or_production_evidence",
+  "source_commit": "49a82066403d76da5f793b31de37720137711bde",
+  "source_sha256": {
+    "APPLICATION_BRIEF.md": "a4b1e02368d3905ecae1976afc5242ca51a435e4e86972e7441ced4779cae268",
+    "artifact_io.py": "b0e6bc8fa3313b21f59ba03385ce31dfc551829902746ac5c0fa9db834724be1",
+    "campus_mvp.py": "6c75d299c9f96809702e3f28140d3d9424cb5b25aa4ac3d377f66b7b7b8d9c56",
+    "official_rules_snapshot.json": "96412be6fc96a10c1574bd57065528f95276ff00ab3b3474b032131e5ecc8799",
+    "record_demo.py": "bd20de645547158e4ae2491f85b157a5fc8a83c77d8834e957ac8243c3f1d5ce",
+    "test_campus_mvp.py": "7fe5bfb4d2bdc76cc7e313c39a37e4e33b80d6e545406d69fd353ddc63359ef0",
+    "test_record_demo.py": "a552392faa386a531a5664b3459d1831d3a12c4ab63fe1cc39c89af6a31b0a48",
+    "validate_package.py": "15d10b3ef6b241affe8b47447c38a67f7731038fcd3f4466a4ba66025b7f7759"
+  },
+  "video": "HAL_CAMPUS_EVIDENCE_DESK_DEMO.mp4",
+  "video_probe": {
+    "codec": "h264",
+    "duration_seconds": 49.0,
+    "height": 720,
+    "pixel_format": "yuv420p",
+    "width": 1280
+  },
+  "video_sha256": "2de1a14864c615539deffb09c904c6ce45db64e668ef60728ec4b81977c85a10"
+}

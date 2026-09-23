@@ -46,6 +46,7 @@ runner. The library itself uses only the Python standard library.
 
 ## Documents
 
+- [CONTRIBUTIONS.md](CONTRIBUTIONS.md) — evidence-bound public contribution index and financial-state boundaries.
 - [ARCHITECTURE.md](ARCHITECTURE.md) — narrow public architecture.
 - [SCOPE.md](SCOPE.md) — included and excluded work.
 - [INVENTORY.md](INVENTORY.md) — evidence-based source classification.

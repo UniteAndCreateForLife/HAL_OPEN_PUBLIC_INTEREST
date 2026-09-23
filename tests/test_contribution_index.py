@@ -1,0 +1,83 @@
+import copy
+import json
+from pathlib import Path
+
+import pytest
+
+from hal_public_interest.contribution_index import (
+    ContributionIndexError,
+    load_and_validate,
+    validate_index,
+)
+
+ROOT = Path(__file__).resolve().parents[1]
+INDEX_PATH = ROOT / "portfolio" / "contributions.json"
+README_PATH = ROOT / "CONTRIBUTIONS.md"
+
+
+def _document() -> dict:
+    return json.loads(INDEX_PATH.read_text(encoding="utf-8"))
+
+
+def test_public_contribution_index_is_valid():
+    document = load_and_validate(INDEX_PATH)
+
+    assert len(document["contributions"]) == 3
+    assert document["verified_cash_received_usd"] == 0
+
+
+def test_contribution_ids_must_be_unique():
+    document = _document()
+    duplicate = copy.deepcopy(document["contributions"][0])
+    document["contributions"].append(duplicate)
+
+    with pytest.raises(ContributionIndexError, match="duplicate contribution id"):
+        validate_index(document)
+
+
+def test_received_money_requires_a_known_award():
+    document = _document()
+    document["contributions"][0]["amount_received"] = 1
+
+    with pytest.raises(ContributionIndexError, match="unknown award"):
+        validate_index(document)
+
+
+def test_chain_love_merge_is_not_bounty_acceptance_or_payment():
+    document = _document()
+    chain_love = next(
+        entry for entry in document["contributions"] if entry["id"] == "chain-love-3925"
+    )
+
+    assert chain_love["status"] == "merged_portfolio_only"
+    assert chain_love["merged"] is True
+    assert chain_love["accepted"] is None
+    assert chain_love["amount_awarded"] is None
+    assert chain_love["amount_received"] is None
+
+
+def test_merged_flag_must_match_status():
+    document = _document()
+    document["contributions"][0]["merged"] = True
+
+    with pytest.raises(ContributionIndexError, match="merged must match status"):
+        validate_index(document)
+
+
+def test_public_markdown_links_every_indexed_contribution():
+    document = _document()
+    markdown = README_PATH.read_text(encoding="utf-8")
+
+    for contribution in document["contributions"]:
+        assert contribution["id"] in markdown
+        assert contribution["pull_request_url"] in markdown
+        for evidence_url in contribution["evidence_urls"]:
+            assert evidence_url in markdown
+
+
+def test_public_markdown_keeps_financial_boundary_explicit():
+    markdown = README_PATH.read_text(encoding="utf-8")
+
+    assert "Verified cash received: **USD 0**" in markdown
+    assert "A merged PR is not payment evidence." in markdown
+    assert "Unknown amounts remain unknown." in markdown

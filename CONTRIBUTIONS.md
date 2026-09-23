@@ -4,7 +4,7 @@ This page summarizes inspectable engineering contributions by
 UniteAndCreateForLife. It is deliberately evidence-first: implementation,
 review, submission, acceptance, award, and payment are different states.
 
-**As of:** 2026-09-23 14:34 UTC
+**As of:** 2026-09-23 15:31 UTC
 
 Verified cash received: **USD 0**
 
@@ -77,9 +77,14 @@ and service-routing prototype for the Global Smart Campus 2026 startup stream.
   [`c47df20`](https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/commit/c47df20c2ae5b94babb5b3c7495de8f16ba98850).
 - **Competition state:** the official organizer application is not submitted;
   repository publication is not selection, acceptance, award, or payment.
+- **Public demo:** [safe-mode HAL Campus Evidence Desk](https://hal-campus-evidence-desk.therealjakobhedrich.workers.dev), with external model calls disabled and every result held at `PENDING_HUMAN_REVIEW`.
+- **Deployed source:** [HAL_SUPREME PR #8](https://github.com/UniteAndCreateForLife/HAL_SUPREME/pull/8) at exact source [`69669e0`](https://github.com/UniteAndCreateForLife/HAL_SUPREME/commit/69669e09facae1a923423beb31c2bb6970fbd410).
 - **Evidence:** 38 deterministic tests, source-bound recorded demonstration,
   portable 12-file evidence bundle, privacy scan, and cross-platform integrity
-  checks. The public package contains no identity documents or payout data.
+  checks. The [public-demo canary receipt](https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/blob/main/competitions/global-smart-campus-2026/evidence/public-demo-canary-receipt.json)
+  records 30/30 passing checks, including 10 identical responses per canonical
+  case, enforced human review, fail-closed live mode, and security headers. The
+  public package contains no identity documents or payout data.
 - **Funding model:** one competitive INR 50,000 startup-stream prize recorded in
   the [dated rules snapshot](https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/blob/main/competitions/global-smart-campus-2026/official_rules_snapshot.json).
   The prize is not expected or earned income.

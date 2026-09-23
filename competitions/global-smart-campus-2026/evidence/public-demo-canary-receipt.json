@@ -1,0 +1,336 @@
+{
+  "captured_at_utc": "2026-09-23T14:58:58.669727+00:00",
+  "case_response_sha256": {
+    "energy-anomaly": "13251d2d07be31bc0aa93410316f99023719e89165e1f3f130b4126bd10c9423",
+    "policy-conflict": "0e82ed02233d23e34727c74ec786edf270cdfd467e57a72c0d08f8462b113061",
+    "research-access": "9d5d1a681bdc3dad24f7d5b1fe9cdc2a63e3dd08e5f263ebc726093d02ff9caa"
+  },
+  "checks": [
+    {
+      "detail": 200,
+      "name": "status_http_200",
+      "passed": true
+    },
+    {
+      "detail": {
+        "live_model_external": false,
+        "providers": {
+          "nvidia": {
+            "configured": false,
+            "model": "public-demo-safe-mode"
+          }
+        },
+        "public_demo": true,
+        "validation": {
+          "canonical_cases": "3/3",
+          "ci": {
+            "ubuntu_24_04": "pass",
+            "windows_2025": "pass"
+          },
+          "citation_validity": 1,
+          "human_review_gate": "PENDING_HUMAN_REVIEW",
+          "live_validation": {
+            "accepted_items_grounded": true,
+            "cases_without_provider_error": "3/3",
+            "conflict_relations_match_seeded_truth": true,
+            "total_tokens": 1409
+          },
+          "local_regression": "8/8",
+          "unsupported_material_claims": 0
+        }
+      },
+      "name": "public_demo_true",
+      "passed": true
+    },
+    {
+      "detail": {
+        "live_model_external": false,
+        "providers": {
+          "nvidia": {
+            "configured": false,
+            "model": "public-demo-safe-mode"
+          }
+        },
+        "public_demo": true,
+        "validation": {
+          "canonical_cases": "3/3",
+          "ci": {
+            "ubuntu_24_04": "pass",
+            "windows_2025": "pass"
+          },
+          "citation_validity": 1,
+          "human_review_gate": "PENDING_HUMAN_REVIEW",
+          "live_validation": {
+            "accepted_items_grounded": true,
+            "cases_without_provider_error": "3/3",
+            "conflict_relations_match_seeded_truth": true,
+            "total_tokens": 1409
+          },
+          "local_regression": "8/8",
+          "unsupported_material_claims": 0
+        }
+      },
+      "name": "live_external_false",
+      "passed": true
+    },
+    {
+      "detail": {
+        "live_model_external": false,
+        "providers": {
+          "nvidia": {
+            "configured": false,
+            "model": "public-demo-safe-mode"
+          }
+        },
+        "public_demo": true,
+        "validation": {
+          "canonical_cases": "3/3",
+          "ci": {
+            "ubuntu_24_04": "pass",
+            "windows_2025": "pass"
+          },
+          "citation_validity": 1,
+          "human_review_gate": "PENDING_HUMAN_REVIEW",
+          "live_validation": {
+            "accepted_items_grounded": true,
+            "cases_without_provider_error": "3/3",
+            "conflict_relations_match_seeded_truth": true,
+            "total_tokens": 1409
+          },
+          "local_regression": "8/8",
+          "unsupported_material_claims": 0
+        }
+      },
+      "name": "safe_mode_provider",
+      "passed": true
+    },
+    {
+      "detail": 200,
+      "name": "cases_http_200",
+      "passed": true
+    },
+    {
+      "detail": [
+        "policy-conflict",
+        "research-access",
+        "energy-anomaly"
+      ],
+      "name": "three_expected_cases",
+      "passed": true
+    },
+    {
+      "detail": 200,
+      "name": "policy-conflict_http_200",
+      "passed": true
+    },
+    {
+      "detail": {
+        "required": true,
+        "status": "PENDING_HUMAN_REVIEW"
+      },
+      "name": "policy-conflict_human_review",
+      "passed": true
+    },
+    {
+      "detail": {
+        "citation_validity": 1,
+        "conflict_detection": true,
+        "invalid_citations": [],
+        "uncited_items": [],
+        "unsupported_material_claims": 0
+      },
+      "name": "policy-conflict_citation_validity",
+      "passed": true
+    },
+    {
+      "detail": {
+        "citation_validity": 1,
+        "conflict_detection": true,
+        "invalid_citations": [],
+        "uncited_items": [],
+        "unsupported_material_claims": 0
+      },
+      "name": "policy-conflict_unsupported_zero",
+      "passed": true
+    },
+    {
+      "detail": [
+        "0e82ed02233d23e34727c74ec786edf270cdfd467e57a72c0d08f8462b113061",
+        "0e82ed02233d23e34727c74ec786edf270cdfd467e57a72c0d08f8462b113061",
+        "0e82ed02233d23e34727c74ec786edf270cdfd467e57a72c0d08f8462b113061",
+        "0e82ed02233d23e34727c74ec786edf270cdfd467e57a72c0d08f8462b113061",
+        "0e82ed02233d23e34727c74ec786edf270cdfd467e57a72c0d08f8462b113061",
+        "0e82ed02233d23e34727c74ec786edf270cdfd467e57a72c0d08f8462b113061",
+        "0e82ed02233d23e34727c74ec786edf270cdfd467e57a72c0d08f8462b113061",
+        "0e82ed02233d23e34727c74ec786edf270cdfd467e57a72c0d08f8462b113061",
+        "0e82ed02233d23e34727c74ec786edf270cdfd467e57a72c0d08f8462b113061",
+        "0e82ed02233d23e34727c74ec786edf270cdfd467e57a72c0d08f8462b113061"
+      ],
+      "name": "policy-conflict_deterministic_10x",
+      "passed": true
+    },
+    {
+      "detail": 200,
+      "name": "research-access_http_200",
+      "passed": true
+    },
+    {
+      "detail": {
+        "required": true,
+        "status": "PENDING_HUMAN_REVIEW"
+      },
+      "name": "research-access_human_review",
+      "passed": true
+    },
+    {
+      "detail": {
+        "citation_validity": 1,
+        "conflict_detection": true,
+        "invalid_citations": [],
+        "uncited_items": [],
+        "unsupported_material_claims": 0
+      },
+      "name": "research-access_citation_validity",
+      "passed": true
+    },
+    {
+      "detail": {
+        "citation_validity": 1,
+        "conflict_detection": true,
+        "invalid_citations": [],
+        "uncited_items": [],
+        "unsupported_material_claims": 0
+      },
+      "name": "research-access_unsupported_zero",
+      "passed": true
+    },
+    {
+      "detail": [
+        "9d5d1a681bdc3dad24f7d5b1fe9cdc2a63e3dd08e5f263ebc726093d02ff9caa",
+        "9d5d1a681bdc3dad24f7d5b1fe9cdc2a63e3dd08e5f263ebc726093d02ff9caa",
+        "9d5d1a681bdc3dad24f7d5b1fe9cdc2a63e3dd08e5f263ebc726093d02ff9caa",
+        "9d5d1a681bdc3dad24f7d5b1fe9cdc2a63e3dd08e5f263ebc726093d02ff9caa",
+        "9d5d1a681bdc3dad24f7d5b1fe9cdc2a63e3dd08e5f263ebc726093d02ff9caa",
+        "9d5d1a681bdc3dad24f7d5b1fe9cdc2a63e3dd08e5f263ebc726093d02ff9caa",
+        "9d5d1a681bdc3dad24f7d5b1fe9cdc2a63e3dd08e5f263ebc726093d02ff9caa",
+        "9d5d1a681bdc3dad24f7d5b1fe9cdc2a63e3dd08e5f263ebc726093d02ff9caa",
+        "9d5d1a681bdc3dad24f7d5b1fe9cdc2a63e3dd08e5f263ebc726093d02ff9caa",
+        "9d5d1a681bdc3dad24f7d5b1fe9cdc2a63e3dd08e5f263ebc726093d02ff9caa"
+      ],
+      "name": "research-access_deterministic_10x",
+      "passed": true
+    },
+    {
+      "detail": 200,
+      "name": "energy-anomaly_http_200",
+      "passed": true
+    },
+    {
+      "detail": {
+        "required": true,
+        "status": "PENDING_HUMAN_REVIEW"
+      },
+      "name": "energy-anomaly_human_review",
+      "passed": true
+    },
+    {
+      "detail": {
+        "citation_validity": 1,
+        "conflict_detection": true,
+        "invalid_citations": [],
+        "uncited_items": [],
+        "unsupported_material_claims": 0
+      },
+      "name": "energy-anomaly_citation_validity",
+      "passed": true
+    },
+    {
+      "detail": {
+        "citation_validity": 1,
+        "conflict_detection": true,
+        "invalid_citations": [],
+        "uncited_items": [],
+        "unsupported_material_claims": 0
+      },
+      "name": "energy-anomaly_unsupported_zero",
+      "passed": true
+    },
+    {
+      "detail": [
+        "13251d2d07be31bc0aa93410316f99023719e89165e1f3f130b4126bd10c9423",
+        "13251d2d07be31bc0aa93410316f99023719e89165e1f3f130b4126bd10c9423",
+        "13251d2d07be31bc0aa93410316f99023719e89165e1f3f130b4126bd10c9423",
+        "13251d2d07be31bc0aa93410316f99023719e89165e1f3f130b4126bd10c9423",
+        "13251d2d07be31bc0aa93410316f99023719e89165e1f3f130b4126bd10c9423",
+        "13251d2d07be31bc0aa93410316f99023719e89165e1f3f130b4126bd10c9423",
+        "13251d2d07be31bc0aa93410316f99023719e89165e1f3f130b4126bd10c9423",
+        "13251d2d07be31bc0aa93410316f99023719e89165e1f3f130b4126bd10c9423",
+        "13251d2d07be31bc0aa93410316f99023719e89165e1f3f130b4126bd10c9423",
+        "13251d2d07be31bc0aa93410316f99023719e89165e1f3f130b4126bd10c9423"
+      ],
+      "name": "energy-anomaly_deterministic_10x",
+      "passed": true
+    },
+    {
+      "detail": 404,
+      "name": "unknown_case_404",
+      "passed": true
+    },
+    {
+      "detail": {
+        "error": "Live model is intentionally disabled on the public demo to prevent uncontrolled external compute use. The validated live-model receipt is retained in the submission package.",
+        "review_gate": {
+          "required": true,
+          "status": "PENDING_HUMAN_REVIEW"
+        }
+      },
+      "name": "live_mode_still_review_gated",
+      "passed": true
+    },
+    {
+      "detail": {
+        "error": "Live model is intentionally disabled on the public demo to prevent uncontrolled external compute use. The validated live-model receipt is retained in the submission package.",
+        "review_gate": {
+          "required": true,
+          "status": "PENDING_HUMAN_REVIEW"
+        }
+      },
+      "name": "live_mode_disabled_message",
+      "passed": true
+    },
+    {
+      "detail": 405,
+      "name": "post_fails_closed_405",
+      "passed": true
+    },
+    {
+      "detail": 200,
+      "name": "homepage_http_200",
+      "passed": true
+    },
+    {
+      "detail": "nosniff",
+      "name": "header_x-content-type-options",
+      "passed": true
+    },
+    {
+      "detail": "DENY",
+      "name": "header_x-frame-options",
+      "passed": true
+    },
+    {
+      "detail": "no-referrer",
+      "name": "header_referrer-policy",
+      "passed": true
+    },
+    {
+      "detail": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+      "name": "csp_present",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "scope": "owned public synthetic safe-mode canary; not competition submission, finalist, award, payment, institutional deployment, or real-world validation",
+  "source_pr_head_sha": "69669e09facae1a923423beb31c2bb6970fbd410",
+  "target": "https://hal-campus-evidence-desk.therealjakobhedrich.workers.dev"
+}

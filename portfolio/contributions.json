@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "as_of_utc": "2026-09-23T11:28:00Z",
+  "as_of_utc": "2026-09-23T14:34:00Z",
   "scope_note": "Public evidence only. merged records code integration; accepted records sponsor or bounty acceptance. Unknown financial values remain null.",
   "verified_cash_received_usd": 0,
   "contributions": [
@@ -80,6 +80,32 @@
         "https://github.com/Chain-Love/chain-love/discussions/41"
       ],
       "remaining_action": "No maintainer action remains for the merged code; current reward rules do not verify this PR as payment-eligible. Sponsor acceptance, award, and payment remain unknown."
+    },
+    {
+      "id": "global-smart-campus-2026",
+      "title": "HAL Campus Evidence Desk",
+      "repository": "UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST",
+      "pull_request_url": "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/pull/3",
+      "issue_url": null,
+      "status": "merged",
+      "submitted": false,
+      "merged": true,
+      "accepted": null,
+      "amount_awarded": null,
+      "amount_received": null,
+      "reward": {
+        "model": "competitive_prize",
+        "currency": "INR",
+        "advertised_amount": 50000,
+        "prize_pool_maximum": 50000,
+        "category_award": 50000
+      },
+      "evidence_urls": [
+        "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/pull/3",
+        "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/commit/c47df20c2ae5b94babb5b3c7495de8f16ba98850",
+        "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/blob/main/competitions/global-smart-campus-2026/official_rules_snapshot.json"
+      ],
+      "remaining_action": "Human completion of the official organizer application and its identity, contact, turnover, startup-representation, and final declarations; repository merge is not competition submission, selection, award, or payment."
     }
   ]
 }

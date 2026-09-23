@@ -4,7 +4,7 @@ This page summarizes inspectable engineering contributions by
 UniteAndCreateForLife. It is deliberately evidence-first: implementation,
 review, submission, acceptance, award, and payment are different states.
 
-**As of:** 2026-09-23 11:28 UTC
+**As of:** 2026-09-23 14:34 UTC
 
 Verified cash received: **USD 0**
 
@@ -66,6 +66,25 @@ multi-network ecosystem listing updates.
 - **Financial state:** bounty acceptance, award, and payment remain unknown;
   verified cash received is USD 0.
 - **Remaining:** no maintainer action remains for the code contribution.
+
+## global-smart-campus-2026
+
+[PR #3](https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/pull/3)
+publishes HAL Campus Evidence Desk, a bounded evidence-backed campus policy
+and service-routing prototype for the Global Smart Campus 2026 startup stream.
+
+- **Repository state:** merged into `main` as
+  [`c47df20`](https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/commit/c47df20c2ae5b94babb5b3c7495de8f16ba98850).
+- **Competition state:** the official organizer application is not submitted;
+  repository publication is not selection, acceptance, award, or payment.
+- **Evidence:** 38 deterministic tests, source-bound recorded demonstration,
+  portable 12-file evidence bundle, privacy scan, and cross-platform integrity
+  checks. The public package contains no identity documents or payout data.
+- **Funding model:** one competitive INR 50,000 startup-stream prize recorded in
+  the [dated rules snapshot](https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/blob/main/competitions/global-smart-campus-2026/official_rules_snapshot.json).
+  The prize is not expected or earned income.
+- **Remaining:** human completion of identity, contact, turnover,
+  startup-representation, and final application declarations.
 
 ## Reproduce the index check
 

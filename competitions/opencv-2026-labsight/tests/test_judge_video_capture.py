@@ -185,9 +185,11 @@ def test_manifest_is_sorted_and_does_not_hash_itself(tmp_path):
     (tmp_path / "a.txt").write_text("a", encoding="utf-8")
     hashes = write_manifest(tmp_path)
     assert list(hashes) == ["a.txt", "z.txt"]
-    lines = (tmp_path / "SHA256SUMS").read_text(encoding="utf-8").splitlines()
+    manifest = tmp_path / "SHA256SUMS"
+    lines = manifest.read_text(encoding="utf-8").splitlines()
     assert lines[0].endswith("  a.txt")
     assert not any(line.endswith("  SHA256SUMS") for line in lines)
+    assert b"\r\n" not in manifest.read_bytes()
 
 
 def test_manifest_uses_relative_posix_paths(tmp_path):

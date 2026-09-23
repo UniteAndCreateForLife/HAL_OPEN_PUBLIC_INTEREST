@@ -163,6 +163,7 @@ def write_manifest(output: Path) -> dict[str, str]:
     (output / "SHA256SUMS").write_text(
         "".join(f"{digest}  {name}\n" for name, digest in hashes.items()),
         encoding="utf-8",
+        newline="\n",
     )
     return hashes
 

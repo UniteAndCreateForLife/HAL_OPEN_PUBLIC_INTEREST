@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "as_of_utc": "2026-09-23T10:45:00Z",
+  "scope_note": "Public evidence only. Unknown financial values remain null.",
+  "verified_cash_received_usd": 0,
+  "contributions": [
+    {
+      "id": "labsight-opencv-2026",
+      "title": "LabSight microscopy image-quality control",
+      "repository": "UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST",
+      "pull_request_url": "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/pull/1",
+      "issue_url": null,
+      "status": "open_draft",
+      "submitted": false,
+      "accepted": null,
+      "amount_awarded": null,
+      "amount_received": null,
+      "reward": {
+        "model": "competitive_prize",
+        "currency": "USD",
+        "advertised_amount": null,
+        "prize_pool_maximum": 12000,
+        "category_award": 1000
+      },
+      "evidence_urls": [
+        "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/commit/c87553a66289a3fa0310e1334aff09516b524df8",
+        "https://github.com/UniteAndCreateForLife/HAL_OPEN_PUBLIC_INTEREST/actions/runs/35838447465"
+      ],
+      "remaining_action": "Human review, narration, judge-accessible hosting, and the separately required AWS evidence."
+    },    {
+      "id": "memanto-1852",
+      "title": "Vapi call-start reliability and regression coverage",
+      "repository": "moorcheh-ai/memanto",
+      "pull_request_url": "https://github.com/moorcheh-ai/memanto/pull/2030",
+      "issue_url": "https://github.com/moorcheh-ai/memanto/issues/1852",
+      "status": "open_awaiting_sponsor",
+      "submitted": true,
+      "accepted": null,
+      "amount_awarded": null,
+      "amount_received": null,
+      "reward": {
+        "model": "competitive_bounty",
+        "currency": "USD",
+        "advertised_amount": 100,
+        "prize_pool_maximum": null,
+        "category_award": null
+      },
+      "evidence_urls": [
+        "https://github.com/moorcheh-ai/memanto/issues/1852#issuecomment-5787791740",
+        "https://github.com/moorcheh-ai/memanto/pull/2030"
+      ],
+      "remaining_action": "Sponsor review, acceptance decision, and any official payout step."
+    },
+    {
+      "id": "chain-love-3925",
+      "title": "Multi-network ecosystem listing updates",
+      "repository": "Chain-Love/chain-love",
+      "pull_request_url": "https://github.com/Chain-Love/chain-love/pull/3925",
+      "issue_url": null,
+      "status": "open_approved_portfolio_only",
+      "submitted": true,
+      "accepted": null,
+      "amount_awarded": null,
+      "amount_received": null,
+      "reward": {
+        "model": "not_verified_eligible",
+        "currency": null,
+        "advertised_amount": null,
+        "prize_pool_maximum": null,
+        "category_award": null
+      },      "evidence_urls": [
+        "https://github.com/Chain-Love/chain-love/pull/3925",
+        "https://github.com/Chain-Love/chain-love/discussions/41"
+      ],
+      "remaining_action": "Maintainer merge decision; current reward rules do not verify this PR as payment-eligible."
+    }
+  ]
+}

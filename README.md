@@ -45,3 +45,14 @@ python submission_gate.py --demo-receipt <artifact-directory>/recorded-demo-rece
 ```
 
 The linked gate re-verifies the video bytes/probe, exact Git source, all four demo outcomes, package source hashes, and negative claim boundaries. This is local readiness evidence only. Organizer correspondence confirms that a pre-recorded presentation and MVP demo can serve as the official finalist presentation if selected. The gate does not submit the application, attest turnover or representation authority, establish finalist status, or imply award/payment status.
+
+## Portable submission-evidence bundle
+
+After the source-bound readiness gate and recorded-demo verifier pass, package the evidence without making a competition-status claim:
+
+```bash
+python build_submission_bundle.py --demo-receipt <artifact-directory>/recorded-demo-receipt.json --readiness-receipt <artifact-directory>/submission-readiness.json --out-dir <bundle-directory>
+python build_submission_bundle.py --verify <bundle-directory>/HAL_CAMPUS_SUBMISSION_BUNDLE_<commit>.zip
+```
+
+The builder rejects stale source commits, altered demo media, unsupported positive competition-state claims, unsafe archive paths, and rules/readiness drift. The deterministic ZIP contains a SHA-256 manifest, current source/readiness evidence, the recorded-demo receipt, and the exact MP4. It is preparation evidence only; final application fields and eligibility/representation attestations remain human-only.

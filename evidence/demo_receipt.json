@@ -90,5 +90,5 @@
   "rules_snapshot_sha256": "96412be6fc96a10c1574bd57065528f95276ff00ab3b3474b032131e5ecc8799",
   "scope": "synthetic_local_competition_mvp_not_submission_or_production_evidence",
   "startup_prize_inr": 50000,
-  "test_source_sha256": "c96d6994b844c61f5272e4f6b215116d486bdbd110c349a0214f548b111b04d3"
+  "test_source_sha256": "7ceea747ec90385fc422cd959bff08981be5062d5510faf3e7d81b34d8697e0c"
 }

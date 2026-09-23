@@ -13,8 +13,10 @@ ROOT = Path(__file__).resolve().parent
 DEFAULT_FILES = (
     "APPLICATION_BRIEF.md",
     "README.md",
+    "artifact_io.py",
     "campus_mvp.py",
     "official_rules_snapshot.json",
+    "record_demo.py",
     "submission_gate.py",
     "validate_package.py",
     "evidence/demo_receipt.json",

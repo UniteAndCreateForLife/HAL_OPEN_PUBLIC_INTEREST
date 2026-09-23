@@ -5,6 +5,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
+from artifact_io import write_json_lf
 from campus_mvp import default_demo_desk, demo_cases
 
 ROOT = Path(__file__).resolve().parent
@@ -61,8 +62,7 @@ def main() -> int:
         },
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    rendered = json.dumps(receipt, indent=2, sort_keys=True) + "\n"
-    OUT.write_text(rendered, encoding="utf-8")
+    write_json_lf(OUT, receipt)
     print(json.dumps({
         "status": "PASS",
         "receipt": repository_relative_path(OUT),

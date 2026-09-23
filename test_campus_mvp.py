@@ -34,6 +34,20 @@ class CampusEvidenceDeskTests(unittest.TestCase):
         self.assertEqual(result.evidence[0].doc_id, "ACADEMIC-004")
         self.assertFalse(result.human_approval_required)
 
+    def test_unknown_campus_pool_hours_fail_closed_without_generic_campus_match(self):
+        result = self.desk.analyze(CampusRequest("r7", "What time does the campus swimming pool close?"))
+        self.assertEqual(result.disposition, "insufficient_evidence")
+        self.assertEqual(result.evidence, ())
+        self.assertEqual(result.suggested_actions, ("request_policy_source",))
+        self.assertTrue(result.human_approval_required)
+
+    def test_plural_facilities_request_routes_to_facilities_ticket(self):
+        result = self.desk.analyze(CampusRequest("r8", "Where should a facilities maintenance issue go?"))
+        self.assertEqual(result.disposition, "evidence_response")
+        self.assertEqual(result.evidence[0].doc_id, "FAC-002")
+        self.assertEqual(result.suggested_actions, ("route_facilities_ticket",))
+        self.assertTrue(result.human_approval_required)
+
     def test_same_request_has_deterministic_audit_id(self):
         request = CampusRequest("r5", "The engineering building light is broken.")
         first = self.desk.analyze(request)

@@ -8,7 +8,7 @@ from dataclasses import asdict, dataclass
 from typing import Iterable
 
 TOKEN_RE = re.compile(r"[a-z0-9]+")
-STOPWORDS = {"a", "an", "and", "are", "be", "for", "how", "is", "of", "should", "the", "to", "what", "where", "with"}
+STOPWORDS = {"a", "an", "and", "are", "be", "campus", "for", "how", "is", "of", "should", "the", "to", "what", "where", "with"}
 SENSITIVE_TERMS = {
     "medical", "diagnosis", "mental", "self-harm", "disciplinary",
     "immigration", "visa", "harassment", "assault", "accommodation denial",
@@ -85,7 +85,7 @@ class CampusEvidenceDesk:
         lowered = text.lower()
         if any(term in lowered for term in ("wheelchair", "accessible", "accessibility")):
             return "route_accessibility_request"
-        if any(term in lowered for term in ("broken", "leak", "elevator", "light", "facility")):
+        if any(term in lowered for term in ("broken", "leak", "elevator", "light", "facility", "facilities")):
             return "route_facilities_ticket"
         return "answer_with_sources"
 

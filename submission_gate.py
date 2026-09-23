@@ -1,17 +1,29 @@
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
+import shutil
+import subprocess
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
 from campus_mvp import default_demo_desk, demo_cases
+from record_demo import verify_receipt as verify_recorded_demo_receipt
 
 ROOT = Path(__file__).resolve().parent
 RULES = ROOT / "official_rules_snapshot.json"
 BRIEF = ROOT / "APPLICATION_BRIEF.md"
 OUT = ROOT / "evidence" / "submission_readiness.json"
+PACKAGE_SOURCE_FILES = (
+    "campus_mvp.py",
+    "record_demo.py",
+    "submission_gate.py",
+    "validate_package.py",
+    "APPLICATION_BRIEF.md",
+    "official_rules_snapshot.json",
+)
 
 CORE_MARKERS = {
     "clearly defined real-world campus problem": ("## problem",),
@@ -31,8 +43,66 @@ JURY_MARKERS = {
     "presentation and jury response": "presentation and jury response:",
 }
 
+
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def git_head() -> str:
+    result = subprocess.run(
+        ["git", "-C", str(ROOT), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip()
+
+
+def package_source_hashes() -> dict[str, str]:
+    return {name: sha256(ROOT / name) for name in PACKAGE_SOURCE_FILES}
+
+
+def validate_demo_binding(receipt: dict[str, Any], expected_source_commit: str) -> dict[str, Any]:
+    if receipt.get("source_commit") != expected_source_commit:
+        raise ValueError("recorded demo source commit drift")
+    claims = receipt.get("claims")
+    if not isinstance(claims, dict) or any(claims.values()):
+        raise ValueError("recorded demo contains unsupported positive claim")
+    video_sha = receipt.get("video_sha256", "")
+    if len(video_sha) != 64 or any(ch not in "0123456789abcdef" for ch in video_sha.lower()):
+        raise ValueError("recorded demo video SHA-256 is invalid")
+    expected_dispositions = {
+        "demo-1": "evidence_response",
+        "demo-2": "evidence_response",
+        "demo-3": "human_review",
+        "demo-4": "insufficient_evidence",
+    }
+    results = receipt.get("demo_results") or []
+    by_id = {item.get("request_id"): item for item in results if isinstance(item, dict)}
+    observed = {
+        key: by_id.get(key, {}).get("disposition") for key in expected_dispositions
+    }
+    if observed != expected_dispositions:
+        raise ValueError("recorded demo acceptance cases are incomplete or changed")
+    probe = receipt.get("video_probe") or {}
+    duration = float(probe.get("duration_seconds", 0.0))
+    if duration <= 0:
+        raise ValueError("recorded demo duration is invalid")
+    return {
+        "verified": True,
+        "source_commit": expected_source_commit,
+        "video_sha256": video_sha,
+        "duration_seconds": duration,
+        "demo_cases": len(expected_dispositions),
+    }
+
+
+def validate_recorded_demo(path: Path) -> dict[str, Any]:
+    ffprobe = shutil.which("ffprobe")
+    if not ffprobe:
+        raise ValueError("ffprobe is required to verify the recorded demo")
+    receipt = verify_recorded_demo_receipt(path, ffprobe)
+    return validate_demo_binding(receipt, git_head())
 
 
 def validate_brief_text(brief_text: str, rules: dict[str, Any]) -> dict[str, Any]:
@@ -66,6 +136,7 @@ def validate_brief_text(brief_text: str, rules: dict[str, Any]) -> dict[str, Any
         "core_requirements": len(rules["required_core_submission_elements"]),
         "jury_criteria": len(rules["jury_criteria_percent"]),
     }
+
 
 def validate_organizer_logistics(rules: dict[str, Any]) -> dict[str, Any]:
     expected = "pre_recorded_presentation_and_mvp_demo_if_selected"
@@ -123,15 +194,25 @@ def evaluate_demo() -> dict[str, Any]:
         "sensitive_case_escalated": checks["demo-3"],
     }
 
-def build_receipt() -> dict[str, Any]:
+
+def build_receipt(demo_receipt: Path | None = None) -> dict[str, Any]:
     rules = json.loads(RULES.read_text(encoding="utf-8"))
     brief_text = BRIEF.read_text(encoding="utf-8")
     completeness = validate_brief_text(brief_text, rules)
     logistics = validate_organizer_logistics(rules)
     evaluation = evaluate_demo()
+    source_commit = git_head()
+    recorded_demo = (
+        validate_recorded_demo(demo_receipt)
+        if demo_receipt is not None
+        else {"verified": False, "reason": "no recorded-demo receipt supplied"}
+    )
     return {
         "status": "PASS",
         "scope": "local_competition_readiness_not_submission_finalist_award_or_payment",
+        "source_commit": source_commit,
+        "package_source_sha256": package_source_hashes(),
+        "recorded_demo": recorded_demo,
         "competition": rules["competition"],
         "stream": rules["stream"],
         "deadline": rules["deadline"],
@@ -158,10 +239,28 @@ def build_receipt() -> dict[str, Any]:
 
 
 def main() -> int:
-    receipt = build_receipt()
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({"status": "PASS", "receipt": str(OUT), "sha256": sha256(OUT)}, sort_keys=True))
+    parser = argparse.ArgumentParser(
+        description="Validate the Global Smart Campus application package"
+    )
+    parser.add_argument("--demo-receipt", type=Path)
+    parser.add_argument("--output", type=Path, default=OUT)
+    args = parser.parse_args()
+    receipt = build_receipt(args.demo_receipt)
+    output = args.output.resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(
+        json.dumps(
+            {
+                "status": "PASS",
+                "receipt": str(output),
+                "sha256": sha256(output),
+                "source_commit": receipt["source_commit"],
+                "recorded_demo_verified": receipt["recorded_demo"]["verified"],
+            },
+            sort_keys=True,
+        )
+    )
     return 0
 
 

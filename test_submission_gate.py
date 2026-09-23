@@ -7,6 +7,7 @@ from submission_gate import (
     build_receipt,
     evaluate_demo,
     validate_brief_text,
+    validate_demo_binding,
     validate_organizer_logistics,
 )
 
@@ -48,6 +49,7 @@ class SubmissionGateTests(unittest.TestCase):
         )
         self.assertFalse(receipt["organizer_logistics"]["live_remote_required"])
         self.assertFalse(receipt["organizer_logistics"]["finalist_status_claimed"])
+        self.assertFalse(receipt["recorded_demo"]["verified"])
         self.assertTrue(receipt["human_gates"])
         self.assertTrue(all(value is False for value in receipt["claims"].values()))
         self.assertEqual(sum(self.rules["jury_criteria_percent"].values()), 100)
@@ -65,6 +67,43 @@ class SubmissionGateTests(unittest.TestCase):
             "pre_recorded_presentation_and_mvp_demo_if_selected",
         )
         self.assertFalse(logistics["finalist_status_claimed"])
+
+    def _demo_receipt(self):
+        return {
+            "source_commit": "abc123",
+            "video_sha256": "a" * 64,
+            "video_probe": {"duration_seconds": 49.0},
+            "claims": {
+                "submitted": False,
+                "finalist": False,
+                "awarded": False,
+                "paid": False,
+                "production_deployed": False,
+                "real_student_data_used": False,
+                "institutional_pilot": False,
+            },
+            "demo_results": [
+                {"request_id": "demo-1", "disposition": "evidence_response"},
+                {"request_id": "demo-2", "disposition": "evidence_response"},
+                {"request_id": "demo-3", "disposition": "human_review"},
+                {"request_id": "demo-4", "disposition": "insufficient_evidence"},
+            ],
+        }
+
+    def test_demo_binding_accepts_exact_source_and_cases(self):
+        result = validate_demo_binding(self._demo_receipt(), "abc123")
+        self.assertTrue(result["verified"])
+        self.assertEqual(result["demo_cases"], 4)
+
+    def test_demo_binding_rejects_source_drift(self):
+        with self.assertRaisesRegex(ValueError, "source commit drift"):
+            validate_demo_binding(self._demo_receipt(), "different")
+
+    def test_demo_binding_rejects_positive_claim(self):
+        damaged = self._demo_receipt()
+        damaged["claims"]["submitted"] = True
+        with self.assertRaisesRegex(ValueError, "unsupported positive claim"):
+            validate_demo_binding(damaged, "abc123")
 
 
 if __name__ == "__main__":

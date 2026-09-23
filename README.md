@@ -27,7 +27,6 @@ No production deployment, institutional adoption, student-data processing, regul
 ## Recorded demo candidate
 
 After tests pass, create a source-bound, silent H.264 demonstration outside the repository:
-
 ```bash
 python record_demo.py --output-dir <artifact-directory>
 python record_demo.py --verify-receipt <artifact-directory>/recorded-demo-receipt.json
@@ -37,6 +36,12 @@ The receipt binds the video to the exact Git commit and source hashes and fails 
 
 ## Competition readiness gate
 
-Run `python submission_gate.py` to verify that the application brief covers the official startup-stream topics, all six core submission elements, and the six published jury criteria while preserving human-only eligibility/submission boundaries. The gate also reruns the four deterministic MVP acceptance cases and writes `evidence/submission_readiness.json`.
+Run `python submission_gate.py` to verify that the application brief covers the official startup-stream topics, all six core submission elements, and the six published jury criteria while preserving human-only eligibility/submission boundaries.
 
-This gate is local readiness evidence only. Organizer correspondence now confirms that a pre-recorded presentation and MVP demo can serve as the official finalist presentation if selected. The gate does not submit the application, attest turnover or representation authority, establish finalist status, or imply award/payment status.
+For a source-bound application package, first create the recorded demo, then run:
+
+```bash
+python submission_gate.py --demo-receipt <artifact-directory>/recorded-demo-receipt.json --output <artifact-directory>/submission-readiness.json
+```
+
+The linked gate re-verifies the video bytes/probe, exact Git source, all four demo outcomes, package source hashes, and negative claim boundaries. This is local readiness evidence only. Organizer correspondence confirms that a pre-recorded presentation and MVP demo can serve as the official finalist presentation if selected. The gate does not submit the application, attest turnover or representation authority, establish finalist status, or imply award/payment status.

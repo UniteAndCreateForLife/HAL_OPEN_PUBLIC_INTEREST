@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_ROOT"
+
 REGION="${AWS_REGION:-us-east-1}"
 ECR_STACK="${LABSIGHT_ECR_STACK:-hal-labsight-ecr}"
 SERVICE_STACK="${LABSIGHT_SERVICE_STACK:-hal-labsight-service}"
-GIT_SHA="$(git rev-parse HEAD 2>/dev/null || echo unknown)"
-TAG="${LABSIGHT_IMAGE_TAG:-${GIT_SHA:0:12}}"
-if [[ "$TAG" == "unknown" || -z "$TAG" ]]; then TAG="$(date +%Y%m%d%H%M%S)"; fi
 
-for cmd in aws docker; do
+for cmd in aws docker curl python; do
   command -v "$cmd" >/dev/null || { echo "Missing required command: $cmd" >&2; exit 2; }
 done
+
+# The image claims this Git SHA in /health and OCI metadata. Fail closed if
+# any Docker build input differs from that commit, including untracked files.
+GIT_SHA="$(python tools/deployment_preflight.py --project-root "$PROJECT_ROOT")"
+TAG="${LABSIGHT_IMAGE_TAG:-${GIT_SHA:0:12}}"
 
 aws sts get-caller-identity --region "$REGION" >/dev/null
 aws cloudformation deploy --region "$REGION" --stack-name "$ECR_STACK" --template-file aws/ecr.yml

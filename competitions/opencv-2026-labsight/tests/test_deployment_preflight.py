@@ -20,6 +20,9 @@ def _run(root: Path, *args: str) -> str:
 def _repo(tmp_path: Path) -> Path:
     root = tmp_path / "repo"
     (root / "labsight").mkdir(parents=True)
+    (root / ".dockerignore").write_text(
+        "**\n!Dockerfile\n!labsight/\n", encoding="utf-8"
+    )
     (root / "Dockerfile").write_text("FROM scratch\n", encoding="utf-8")
     (root / "requirements-competition.txt").write_text("demo==1\n", encoding="utf-8")
     (root / "labsight" / "api.py").write_text("VALUE = 1\n", encoding="utf-8")
@@ -63,4 +66,13 @@ def test_staged_build_input_change_is_rejected(tmp_path):
     (root / "requirements-competition.txt").write_text("demo==2\n", encoding="utf-8")
     _run(root, "add", "requirements-competition.txt")
     with pytest.raises(ValueError, match="requirements-competition.txt"):
+        validate_deployment_source(root)
+
+
+def test_dockerignore_change_is_rejected(tmp_path):
+    root = _repo(tmp_path)
+    (root / ".dockerignore").write_text(
+        "**\n!Dockerfile\n!labsight/\n!local-secret.txt\n", encoding="utf-8"
+    )
+    with pytest.raises(ValueError, match=r"\.dockerignore"):
         validate_deployment_source(root)

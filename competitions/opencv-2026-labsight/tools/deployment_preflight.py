@@ -6,7 +6,12 @@ import subprocess
 from pathlib import Path
 
 _SHA40 = re.compile(r"^[0-9a-f]{40}$")
-BUILD_INPUTS = ("Dockerfile", "requirements-competition.txt", "labsight")
+BUILD_INPUTS = (
+    ".dockerignore",
+    "Dockerfile",
+    "requirements-competition.txt",
+    "labsight",
+)
 
 
 def _git(project_root: Path, *args: str) -> str:

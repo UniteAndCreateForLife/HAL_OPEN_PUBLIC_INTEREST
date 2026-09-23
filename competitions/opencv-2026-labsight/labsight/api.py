@@ -158,17 +158,29 @@ def judge_demo(request: Request) -> dict:
     return summarize_judge_suite(results, runtime=health())
 
 
+def _demo_image(scenario: str) -> np.ndarray:
+    spec = next((item for item in JUDGE_SCENARIOS if item.name == scenario), None)
+    if spec is None:
+        raise HTTPException(status_code=404, detail="unknown demo scenario")
+    return microscopy_scene(**spec.params)
+
+
+@app.get("/demo/image/{scenario}")
+def demo_image(scenario: str) -> Response:
+    """Show the exact deterministic input used by the analysis/judge scenario."""
+    ok, encoded = cv2.imencode(".png", _demo_image(scenario))
+    if not ok:
+        raise HTTPException(status_code=500, detail="could not encode demo preview")
+    return Response(
+        content=encoded.tobytes(),
+        media_type="image/png",
+        headers={"Cache-Control": "no-store"},
+    )
+
+
 @app.get("/demo/analyze/{scenario}")
 def analyze_demo(scenario: str, request: Request) -> dict:
-    params = {
-        "clean": {},
-        "blurred": {"blur_sigma": 5.0},
-        "uneven": {"illumination_gradient": 1.0},
-        "clipped": {"clip_highlights": True},
-    }
-    if scenario not in params:
-        raise HTTPException(status_code=404, detail="unknown demo scenario")
-    image = microscopy_scene(**params[scenario])
+    image = _demo_image(scenario)
     return {"scenario": scenario, **_analyze_image(
         image,
         request_id=request.state.request_id,

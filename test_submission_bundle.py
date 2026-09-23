@@ -23,7 +23,7 @@ class SubmissionBundleTests(unittest.TestCase):
         video_sha = hashlib.sha256(video.read_bytes()).hexdigest()
         demo = {
             "source_commit": "abc123",
-            "video": str(video),
+            "video": video.name,
             "video_sha256": video_sha,
             "video_probe": {
                 "duration_seconds": 49.0,
@@ -65,6 +65,10 @@ class SubmissionBundleTests(unittest.TestCase):
             with patch.object(bundle, "git_head", return_value="abc123"):
                 checked = bundle.validate_inputs(root, demo, readiness)
             self.assertEqual(checked["head"], "abc123")
+            self.assertEqual(
+                checked["video"].resolve(),
+                (root / "demo.mp4").resolve(),
+            )
 
     def test_validate_inputs_rejects_stale_demo_source_commit(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -105,7 +109,7 @@ class SubmissionBundleTests(unittest.TestCase):
             root = Path(tmp)
             demo, readiness = self.make_inputs(root)
             data = json.loads(demo.read_text(encoding="utf-8"))
-            Path(data["video"]).write_bytes(b"tampered")
+            (demo.parent / data["video"]).write_bytes(b"tampered")
             with patch.object(bundle, "git_head", return_value="abc123"):
                 with self.assertRaisesRegex(ValueError, "video SHA-256 mismatch"):
                     bundle.validate_inputs(root, demo, readiness)

@@ -49,6 +49,8 @@ def validate_inputs(
             f"demo source commit drift: {demo.get('source_commit')} != {head}"
         )
     video = Path(demo["video"])
+    if not video.is_absolute():
+        video = demo_receipt_path.resolve().parent / video
     if not video.is_file():
         raise ValueError(f"demo video missing: {video}")
     if sha256(video) != demo.get("video_sha256"):

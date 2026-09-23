@@ -10,6 +10,7 @@ EXPECTED_OPENCV = "5.0.0.93"
 EXPECTED_CV2 = "5.0.0"
 _SHA40 = re.compile(r"^[0-9a-f]{40}$")
 _DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
+_HEX64 = re.compile(r"^[0-9a-f]{64}$")
 
 REQUIRED_STATIC_PATHS = (
     "Dockerfile",
@@ -19,6 +20,7 @@ REQUIRED_STATIC_PATHS = (
     "docs/ARCHITECTURE.md",
     "docs/AWS_ARCHITECTURE.md",
     "docs/VALIDATION.md",
+    "docs/DEMO_RECORDING.md",
     "aws/apprunner.yml",
 )
 
@@ -49,7 +51,9 @@ def evaluate_submission_readiness(
         checks,
         "static_artifacts",
         not missing,
-        "all required repository artifacts present" if not missing else f"missing: {', '.join(missing)}",
+        "all required repository artifacts present"
+        if not missing
+        else f"missing: {', '.join(missing)}",
     )
 
     if not static_only:
@@ -60,6 +64,7 @@ def evaluate_submission_readiness(
         corpus = evidence.get("corpus") or {}
         evaluation = evidence.get("evaluation") or {}
         demo = evidence.get("demo") or {}
+        presentation = evidence.get("presentation") or {}
         responsible = evidence.get("responsible_use") or {}
 
         runtime_ok = (
@@ -75,13 +80,25 @@ def evaluate_submission_readiness(
         )
 
         source_ok = bool(_SHA40.fullmatch(source_sha))
-        _check(checks, "source_git_sha", source_ok, "40-character source Git SHA required")
+        _check(
+            checks, "source_git_sha", source_ok, "40-character source Git SHA required"
+        )
 
         digest = str(aws.get("ecr_image_digest", "")).lower()
-        _check(checks, "immutable_ecr_digest", bool(_DIGEST.fullmatch(digest)), "immutable sha256 ECR digest required")
+        _check(
+            checks,
+            "immutable_ecr_digest",
+            bool(_DIGEST.fullmatch(digest)),
+            "immutable sha256 ECR digest required",
+        )
 
         endpoint = str(aws.get("app_runner_url", ""))
-        _check(checks, "app_runner_endpoint", endpoint.startswith("https://"), "HTTPS App Runner endpoint required")
+        _check(
+            checks,
+            "app_runner_endpoint",
+            endpoint.startswith("https://"),
+            "HTTPS App Runner endpoint required",
+        )
 
         health_ok = (
             source_ok
@@ -146,7 +163,9 @@ def evaluate_submission_readiness(
             "source-bound live endpoint judge suite and frozen real-corpus evaluation required",
         )
 
-        endpoint_or_live = endpoint.startswith("https://") or demo.get("live_demo_arranged") is True
+        endpoint_or_live = (
+            endpoint.startswith("https://") or demo.get("live_demo_arranged") is True
+        )
         _check(
             checks,
             "judge_demo_access",
@@ -160,7 +179,35 @@ def evaluate_submission_readiness(
             and isinstance(duration, (int, float))
             and 0 < duration <= 300
         )
-        _check(checks, "demo_video", video_ok, "judge-accessible video URL with duration <= 300 seconds required")
+        _check(
+            checks,
+            "demo_video",
+            video_ok,
+            "judge-accessible video URL with duration <= 300 seconds required",
+        )
+
+        presentation_duration = presentation.get("video_duration_seconds")
+        presentation_sha = str(presentation.get("video_sha256", "")).lower()
+        presentation_ok = (
+            source_ok
+            and str(presentation.get("source_sha", "")).lower() == source_sha
+            and bool(_HEX64.fullmatch(presentation_sha))
+            and isinstance(presentation_duration, (int, float))
+            and 0 < presentation_duration <= 300
+            and presentation.get("captioned") is True
+            and presentation.get("human_reviewed") is True
+            and presentation.get("judge_accessible") is True
+            and presentation.get("shows_team") is True
+            and presentation.get("shows_application") is True
+            and presentation.get("shows_architecture") is True
+            and presentation.get("shows_principal_results") is True
+        )
+        _check(
+            checks,
+            "judge_video_package",
+            presentation_ok,
+            "source-bound <=5 minute reviewed video must be judge-accessible and show team, application, architecture, and principal results",
+        )
 
         responsible_ok = (
             responsible.get("microscopy_qc_only") is True
@@ -186,10 +233,16 @@ def evaluate_submission_readiness(
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="HAL LabSight competition submission-readiness gate")
+    parser = argparse.ArgumentParser(
+        description="HAL LabSight competition submission-readiness gate"
+    )
     parser.add_argument("--root", default=".", help="LabSight project root")
-    parser.add_argument("--evidence", help="JSON evidence document for final-submission checks")
-    parser.add_argument("--static-only", action="store_true", help="check repository artifacts only")
+    parser.add_argument(
+        "--evidence", help="JSON evidence document for final-submission checks"
+    )
+    parser.add_argument(
+        "--static-only", action="store_true", help="check repository artifacts only"
+    )
     parser.add_argument("--output", help="optional path for the JSON readiness report")
     args = parser.parse_args(argv)
 
@@ -200,7 +253,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.evidence:
         evidence = json.loads(Path(args.evidence).read_text(encoding="utf-8"))
 
-    report = evaluate_submission_readiness(args.root, evidence, static_only=args.static_only)
+    report = evaluate_submission_readiness(
+        args.root, evidence, static_only=args.static_only
+    )
     rendered = json.dumps(report, indent=2, sort_keys=True)
     print(rendered)
     if args.output:

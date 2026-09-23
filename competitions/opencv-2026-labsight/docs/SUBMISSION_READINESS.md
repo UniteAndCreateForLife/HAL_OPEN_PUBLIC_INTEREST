@@ -31,6 +31,7 @@ The gate requires all of the following before returning success:
 - documented failure cases and Agentic Vision trace evidence
 - working endpoint or arranged live demonstration
 - judge-accessible demo video no longer than five minutes
+- source-bound reviewed presentation receipt with a SHA-256 digest, captions, and explicit evidence that the video shows the team, application, architecture, and principal results
 - explicit responsible-use attestation that LabSight is microscopy image-quality control only and makes no diagnostic claims
 
 A blocked result is expected during development. Missing evidence must stay missing rather than being represented as complete.

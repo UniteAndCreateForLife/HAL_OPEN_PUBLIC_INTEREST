@@ -1,7 +1,13 @@
 import json
 from pathlib import Path
 
-from labsight.readiness import EXPECTED_CV2, EXPECTED_OPENCV, REQUIRED_STATIC_PATHS, evaluate_submission_readiness, main
+from labsight.readiness import (
+    EXPECTED_CV2,
+    EXPECTED_OPENCV,
+    REQUIRED_STATIC_PATHS,
+    evaluate_submission_readiness,
+    main,
+)
 
 
 def _make_static_tree(root: Path) -> None:
@@ -18,7 +24,11 @@ def _complete_evidence(root: Path) -> dict:
     report.write_text("{}\n", encoding="utf-8")
     return {
         "source_git_sha": source_sha,
-        "opencv": {"distribution_version": EXPECTED_OPENCV, "runtime_version": EXPECTED_CV2, "verified": True},
+        "opencv": {
+            "distribution_version": EXPECTED_OPENCV,
+            "runtime_version": EXPECTED_CV2,
+            "verified": True,
+        },
         "aws": {
             "ecr_image_digest": "sha256:" + "b" * 64,
             "app_runner_url": "https://example.awsapprunner.com",
@@ -48,6 +58,18 @@ def _complete_evidence(root: Path) -> dict:
         "demo": {
             "video_url": "https://example.test/labsight-demo",
             "video_duration_seconds": 299,
+        },
+        "presentation": {
+            "source_sha": source_sha,
+            "video_sha256": "c" * 64,
+            "video_duration_seconds": 299,
+            "captioned": True,
+            "human_reviewed": True,
+            "judge_accessible": True,
+            "shows_team": True,
+            "shows_application": True,
+            "shows_architecture": True,
+            "shows_principal_results": True,
         },
         "responsible_use": {
             "microscopy_qc_only": True,
@@ -79,14 +101,22 @@ def test_final_gate_accepts_complete_exact_evidence(tmp_path):
 def test_local_or_wrong_opencv_runtime_cannot_satisfy_competition_gate(tmp_path):
     _make_static_tree(tmp_path)
     evidence = _complete_evidence(tmp_path)
-    evidence["opencv"] = {"distribution_version": "4.13.0.92", "runtime_version": "4.13.0", "verified": True}
+    evidence["opencv"] = {
+        "distribution_version": "4.13.0.92",
+        "runtime_version": "4.13.0",
+        "verified": True,
+    }
     evidence["aws"]["health"]["opencv_distribution_version"] = "4.13.0.92"
     report = evaluate_submission_readiness(tmp_path, evidence)
     assert "opencv5_runtime" in report["failed_checks"]
     assert "deployed_health_provenance" in report["failed_checks"]
 
     evidence = _complete_evidence(tmp_path)
-    evidence["opencv"] = {"distribution_version": EXPECTED_OPENCV, "runtime_version": "5.1.0", "verified": True}
+    evidence["opencv"] = {
+        "distribution_version": EXPECTED_OPENCV,
+        "runtime_version": "5.1.0",
+        "verified": True,
+    }
     report = evaluate_submission_readiness(tmp_path, evidence)
     assert "opencv5_runtime" in report["failed_checks"]
 
@@ -105,7 +135,19 @@ def test_cli_writes_machine_readable_report(tmp_path, capsys):
     evidence_path.write_text(json.dumps(_complete_evidence(tmp_path)), encoding="utf-8")
     output = tmp_path / "readiness.json"
 
-    assert main(["--root", str(tmp_path), "--evidence", str(evidence_path), "--output", str(output)]) == 0
+    assert (
+        main(
+            [
+                "--root",
+                str(tmp_path),
+                "--evidence",
+                str(evidence_path),
+                "--output",
+                str(output),
+            ]
+        )
+        == 0
+    )
     payload = json.loads(output.read_text(encoding="utf-8"))
     assert payload["ready"] is True
     assert json.loads(capsys.readouterr().out)["expected_opencv"] == EXPECTED_OPENCV
@@ -122,3 +164,29 @@ def test_final_gate_requires_source_bound_deployed_evaluation(tmp_path):
     evidence["evaluation"]["deployed_source_sha"] = "c" * 40
     report = evaluate_submission_readiness(tmp_path, evidence)
     assert "deployed_evaluation" in report["failed_checks"]
+
+
+def test_final_gate_requires_source_bound_reviewed_judge_video_package(tmp_path):
+    _make_static_tree(tmp_path)
+    evidence = _complete_evidence(tmp_path)
+    evidence["presentation"]["human_reviewed"] = False
+    report = evaluate_submission_readiness(tmp_path, evidence)
+    assert "judge_video_package" in report["failed_checks"]
+
+    evidence = _complete_evidence(tmp_path)
+    evidence["presentation"]["source_sha"] = "c" * 40
+    report = evaluate_submission_readiness(tmp_path, evidence)
+    assert "judge_video_package" in report["failed_checks"]
+
+
+def test_final_gate_rejects_bad_video_digest_or_missing_required_content(tmp_path):
+    _make_static_tree(tmp_path)
+    evidence = _complete_evidence(tmp_path)
+    evidence["presentation"]["video_sha256"] = "not-a-digest"
+    report = evaluate_submission_readiness(tmp_path, evidence)
+    assert "judge_video_package" in report["failed_checks"]
+
+    evidence = _complete_evidence(tmp_path)
+    evidence["presentation"]["shows_architecture"] = False
+    report = evaluate_submission_readiness(tmp_path, evidence)
+    assert "judge_video_package" in report["failed_checks"]

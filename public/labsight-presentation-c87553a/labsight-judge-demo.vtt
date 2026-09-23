@@ -1,0 +1,65 @@
+WEBVTT
+
+1
+00:00:00.578 --> 00:00:03.593
+Team: UniteAndCreateForLife — Jakob Hedrich, solo builder.
+
+2
+00:00:03.593 --> 00:00:07.609
+HAL LabSight: Microscopy image-quality control only — not diagnosis or biological identification.
+
+3
+00:00:07.609 --> 00:00:12.609
+Architecture: OpenCV perception → policy decision → action or human recapture request; every step is traceable.
+
+4
+00:00:12.609 --> 00:00:14.828
+Clean capture: The shipped UI requests a live OpenCV analysis; no response is injected.
+
+5
+00:00:15.046 --> 00:00:18.046
+Observed action: First: accept; final: accept.
+
+6
+00:00:18.312 --> 00:00:20.531
+Focus failure: The shipped UI requests a live OpenCV analysis; no response is injected.
+
+7
+00:00:20.687 --> 00:00:23.687
+Observed action: First: request_recapture_focus; final: request_recapture_focus.
+
+8
+00:00:23.859 --> 00:00:26.078
+Exposure failure: The shipped UI requests a live OpenCV analysis; no response is injected.
+
+9
+00:00:26.218 --> 00:00:29.218
+Observed action: First: request_recapture_exposure; final: request_recapture_exposure.
+
+10
+00:00:29.437 --> 00:00:31.656
+Agentic illumination recovery: The shipped UI requests a live OpenCV analysis; no response is injected.
+
+11
+00:00:32.062 --> 00:00:35.078
+Observed action: First: enhance_and_reanalyze; final: accept.
+
+12
+00:00:36.234 --> 00:00:42.250
+Judge suite: PASS: Four deterministic cases verify accept, two recapture actions, and CLAHE re-analysis.
+
+13
+00:00:43.000 --> 00:00:48.015
+Evidence export: A real upload and evidence download preserve request/runtime metadata without image bytes or filenames.
+
+14
+00:00:48.015 --> 00:00:55.015
+Principal results — independent-source challenge: 130 scored stressor samples: 87.7% QC agreement, 16 failures, 0 unsafe accepts.
+
+15
+00:00:55.015 --> 00:01:01.046
+Limits and human control: Controlled stressors are not expert ground truth or clinical validation. Review failures; recapture when requested.
+
+16
+00:01:01.046 --> 00:01:04.920
+Reproducible evidence: Source-bound OpenCV 5 container, deterministic tests, receipts and hashes. This recording is not AWS evidence.

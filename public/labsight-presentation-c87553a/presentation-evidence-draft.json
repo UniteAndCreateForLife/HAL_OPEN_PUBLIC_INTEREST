@@ -1,0 +1,13 @@
+{
+  "source_sha": "c87553a66289a3fa0310e1334aff09516b524df8",
+  "video_sha256": "16dd26a4a27f59053f19031d5a8632f1e0587adf8f9fb0ffc3bfd79879b2064b",
+  "video_duration_seconds": 64.92,
+  "captioned": true,
+  "human_reviewed": false,
+  "judge_accessible": false,
+  "shows_team": true,
+  "shows_application": true,
+  "shows_architecture": true,
+  "shows_principal_results": true,
+  "status": "draft_requires_human_review_and_judge_accessible_hosting"
+}

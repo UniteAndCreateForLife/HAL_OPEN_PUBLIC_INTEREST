@@ -14,6 +14,10 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from .agent import LabSightAgent
+from .image_safety import (
+    MAX_BASE64_CHARS, MAX_ENCODED_BYTES, MAX_IMAGE_DIMENSION, MAX_IMAGE_PIXELS,
+    ImageSafetyError, inspect_image_bytes, validate_decoded_shape,
+)
 from .judge_demo import JUDGE_SCENARIOS, summarize_judge_suite
 from .observability import emit_qc_metrics
 from .runtime import (
@@ -69,7 +73,7 @@ def _competition_runtime_verified(distribution_version: str | None, runtime_vers
 
 
 @app.get("/health")
-def health() -> dict[str, str | bool | None]:
+def health() -> dict[str, str | bool | int | None]:
     runtime = competition_runtime_info()
     return {
         "status": "ok",
@@ -85,6 +89,10 @@ def health() -> dict[str, str | bool | None]:
         "expected_cv2": EXPECTED_CV2_VERSION,
         "numpy": np.__version__,
         "opencv5_verified": bool(runtime["opencv5_verified"]),
+        "accepted_image_formats": "PNG,JPEG",
+        "max_encoded_bytes": MAX_ENCODED_BYTES,
+        "max_image_pixels": MAX_IMAGE_PIXELS,
+        "max_image_dimension": MAX_IMAGE_DIMENSION,
     }
 
 
@@ -116,14 +124,24 @@ def _analyze_image(image: np.ndarray, *, request_id: str = "unknown", source: st
 
 @app.post("/analyze")
 def analyze(req: AnalyzeRequest, request: Request) -> dict:
+    if len(req.image_base64) > MAX_BASE64_CHARS:
+        raise HTTPException(status_code=413, detail="encoded image exceeds safety limit")
     try:
         raw = base64.b64decode(req.image_base64, validate=True)
     except Exception as exc:
         raise HTTPException(status_code=400, detail="invalid base64 payload") from exc
+    try:
+        header = inspect_image_bytes(raw)
+    except ImageSafetyError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
     array = np.frombuffer(raw, dtype=np.uint8)
     image = cv2.imdecode(array, cv2.IMREAD_UNCHANGED)
     if image is None:
         raise HTTPException(status_code=400, detail="payload is not a decodable image")
+    try:
+        validate_decoded_shape(image.shape, header)
+    except ImageSafetyError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
     return _analyze_image(image, request_id=request.state.request_id, source="upload")
 
 

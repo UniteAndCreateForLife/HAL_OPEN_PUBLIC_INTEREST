@@ -10,6 +10,7 @@ LabSight turns microscopy image quality into a measurable perception → decisio
 - agentic two-pass analysis when illumination correction is warranted
 - explicit human-review and recapture outcomes
 - FastAPI service, browser demo, and CLI
+- pre-decode PNG/JPEG size and dimension safety gate for public endpoint operation
 - deterministic synthetic microscopy benchmark
 - automated tests for blur, clipping, agent tool invocation, API behavior, segmentation, and evaluation
 - AWS ECR + App Runner deployment path
@@ -28,7 +29,7 @@ Open `http://127.0.0.1:8080/` for the judge-facing demo. `GET /demo/judge` runs 
 
 ## Current validation
 
-Development evidence is deliberately separated from authenticated AWS evidence. The established OpenCV 4.13 baseline remains under `evaluation/baselines/`. The current authorized-worker development suite passes **87/87 deterministic tests**; because that host Python installation is mixed, this test count is not OpenCV 5 competition-runtime evidence. Separate clean/container evidence verifies the exact `opencv-python==5.0.0.93` distribution with `cv2.__version__ == 5.0.0`:
+Development evidence is deliberately separated from authenticated AWS evidence. The established OpenCV 4.13 baseline remains under `evaluation/baselines/`. The current authorized-worker development suite passes **102/102 deterministic tests**; because that host Python installation is mixed, this test count is not OpenCV 5 competition-runtime evidence. Separate clean/container evidence verifies the exact `opencv-python==5.0.0.93` distribution with `cv2.__version__ == 5.0.0`:
 
 - 100 synthetic benchmark samples
 - 100% final-decision accuracy
@@ -52,4 +53,4 @@ Visual evidence alters a later action. Focus is measured after local CLAHE contr
 
 ## Responsible operation
 
-LabSight is a quality-control assistant, not a diagnostic system. It should not be used to make clinical or biological conclusions. Real-image evaluation will use consented/openly licensed microscopy data, document failure cases, and preserve human review for ambiguous samples.
+LabSight is a quality-control assistant, not a diagnostic system. It should not be used to make clinical or biological conclusions. The public analysis endpoint accepts only PNG/JPEG, caps encoded payloads at 8 MiB, rejects dimensions above 8192 pixels or 16 megapixels before OpenCV decoding, and publishes those limits in `/health`. Real-image evaluation uses openly licensed microscopy data, documents failure cases, and preserves human review for ambiguous samples.

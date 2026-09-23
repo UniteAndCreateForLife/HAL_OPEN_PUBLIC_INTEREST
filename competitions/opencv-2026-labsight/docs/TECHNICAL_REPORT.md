@@ -21,6 +21,9 @@ The regression corpus generates four deterministic capture classes across multip
 
 Synthetic evaluation is engineering regression evidence only. It is not clinical validation. The real-image path uses five CC0 BBBC038 example images, frozen source SHA-256 locks, deterministic QC stressors, and separate final-state/action/enhancement failure analysis. Final scoring still must be repeated on the authenticated AWS/OpenCV 5 competition image.
 
+## Input safety and failure handling
+The public `/analyze` endpoint is fail-closed before OpenCV decode: only PNG/JPEG are accepted, encoded payloads are capped at 8 MiB, declared dimensions are limited to 8192 pixels per axis and 16 megapixels total, and decoded dimensions must match the encoded header. Oversized or unsupported inputs are rejected before `cv2.imdecode`, reducing decompression/resource-exhaustion risk and protecting AWS cost/reliability. The active limits are exposed by `/health` for reproducibility and operator review.
+
 ## Cloud target
 The competition container pins `opencv-python==5.0.0.93` (OpenCV 5) and is intended for AWS App Runner from an immutable ECR image, with S3 reserved for evaluation fixtures/evidence and CloudWatch/App Runner logs for request/latency/decision observability.
 

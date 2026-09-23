@@ -29,6 +29,7 @@ DEMO_HTML = r'''<!doctype html>
     <div class="card"><strong>Blurred sample</strong><p class="sub">Expected: focus recapture.</p><button onclick="demo('blurred')">Analyze blurred</button></div>
     <div class="card"><strong>Uneven illumination</strong><p class="sub">Expected: CLAHE → second vision pass.</p><button onclick="demo('uneven')">Analyze uneven</button></div>
     <div class="card"><strong>Clipped exposure</strong><p class="sub">Expected: exposure recapture.</p><button onclick="demo('clipped')">Analyze clipped</button></div>
+    <div class="card"><strong>Judge evidence suite</strong><p class="sub">Runs all four deterministic scenarios and proves the CLAHE-driven second vision pass.</p><button onclick="judgeSuite()">Run judge suite</button></div>
   </section>
   <section class="card">
     <strong>Analyze your own PNG/JPEG</strong>
@@ -41,12 +42,22 @@ DEMO_HTML = r'''<!doctype html>
 const out = document.getElementById('result');
 const statusEl = document.getElementById('status');
 function show(data) {
-  statusEl.textContent = `Decision: ${data.status || data.result?.status || 'unknown'}`;
+  if (typeof data.all_expectations_met === 'boolean') {
+    const exact = data.runtime?.opencv5_verified === true ? 'exact OpenCV 5 runtime' : 'non-competition runtime';
+    statusEl.textContent = `Judge suite: ${data.all_expectations_met ? 'PASS' : 'FAIL'} · ${exact}`;
+  } else {
+    statusEl.textContent = `Decision: ${data.status || data.result?.status || 'unknown'}`;
+  }
   out.textContent = JSON.stringify(data, null, 2);
 }
 async function demo(kind) {
   statusEl.textContent = 'Analyzing…';
   const r = await fetch(`/demo/analyze/${kind}`);
+  show(await r.json());
+}
+async function judgeSuite() {
+  statusEl.textContent = 'Running deterministic judge evidence suite…';
+  const r = await fetch('/demo/judge');
   show(await r.json());
 }
 async function upload() {

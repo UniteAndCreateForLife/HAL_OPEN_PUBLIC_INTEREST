@@ -24,13 +24,13 @@ labsight-evaluate --seeds 25 --output evaluation/latest
 uvicorn labsight.api:app --host 127.0.0.1 --port 8080
 ```
 
-Open `http://127.0.0.1:8080/` for the judge-facing demo.
+Open `http://127.0.0.1:8080/` for the judge-facing demo. `GET /demo/judge` runs the four deterministic showcase scenarios in one request and returns expected-vs-observed actions, the full uneven-illumination CLAHE trace, runtime/source provenance, and the non-diagnostic responsible-use boundary. Its `evidence_scope` explicitly states that this live runtime receipt is not AWS evidence by itself.
 
 ## Current validation
 
 Development evidence is deliberately separated from authenticated AWS evidence. The established OpenCV 4.13 baseline remains under `evaluation/baselines/`. A clean local Python 3.12 competition environment now also verifies the exact `opencv-python==5.0.0.93` distribution with `cv2.__version__ == 5.0.0`:
 
-- 77/77 deterministic tests pass
+- 87/87 deterministic tests pass in the current development suite
 - 100 synthetic benchmark samples
 - 100% final-decision accuracy
 - 100% synthetic agent action/tool-call accuracy

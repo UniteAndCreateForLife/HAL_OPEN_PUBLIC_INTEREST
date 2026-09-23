@@ -13,6 +13,9 @@ LabSight is deliberately auditable:
 
 This means the visual result changes a later tool call and subsequent plan; the trace is serialized for inspection.
 
+## Judge-facing live evidence
+`GET /demo/judge` executes clean, severe-blur, uneven-illumination, and clipped-exposure scenarios against the running service. The response compares expected and observed first/final actions, preserves each serialized trace, and exposes source/runtime provenance. The uneven case is the compact Agentic Vision proof: the first OpenCV observation selects CLAHE, a second OpenCV observation is produced, and that second observation determines the final action. The response is deliberately labeled `live_runtime_demo_not_aws_by_itself`; it cannot satisfy AWS deployment evidence without an authenticated App Runner deployment and CloudWatch evidence.
+
 ## Evaluation design
 The regression corpus generates four deterministic capture classes across multiple random seeds: clean, blurred, uneven illumination, and clipped exposure. The benchmark records decision accuracy, action/tool-call accuracy, median/P95/max latency, per-sample QC metrics, OpenCV runtime version, and whether OpenCV 5 has actually been verified.
 

@@ -14,6 +14,7 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from .agent import LabSightAgent
+from .judge_demo import JUDGE_SCENARIOS, summarize_judge_suite
 from .observability import emit_qc_metrics
 from .runtime import (
     EXPECTED_CV2_VERSION,
@@ -124,6 +125,19 @@ def analyze(req: AnalyzeRequest, request: Request) -> dict:
     if image is None:
         raise HTTPException(status_code=400, detail="payload is not a decodable image")
     return _analyze_image(image, request_id=request.state.request_id, source="upload")
+
+
+@app.get("/demo/judge")
+def judge_demo(request: Request) -> dict:
+    results: dict[str, dict] = {}
+    for spec in JUDGE_SCENARIOS:
+        image = microscopy_scene(**spec.params)
+        results[spec.name] = _analyze_image(
+            image,
+            request_id=request.state.request_id,
+            source=f"judge:{spec.name}",
+        )
+    return summarize_judge_suite(results, runtime=health())
 
 
 @app.get("/demo/analyze/{scenario}")

@@ -17,6 +17,7 @@ def test_home_demo_page():
     assert response.status_code == 200
     assert "HAL LabSight" in response.text
     assert "Analyze uneven" in response.text
+    assert "Run judge suite" in response.text
     assert response.headers["x-labsight-request-id"]
     assert "labsight;dur=" in response.headers["server-timing"]
 

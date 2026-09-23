@@ -22,7 +22,7 @@ def _document() -> dict:
 def test_public_contribution_index_is_valid():
     document = load_and_validate(INDEX_PATH)
 
-    assert len(document["contributions"]) == 3
+    assert len(document["contributions"]) == 4
     assert document["verified_cash_received_usd"] == 0
 
 
@@ -54,6 +54,24 @@ def test_chain_love_merge_is_not_bounty_acceptance_or_payment():
     assert chain_love["accepted"] is None
     assert chain_love["amount_awarded"] is None
     assert chain_love["amount_received"] is None
+
+
+def test_global_smart_campus_merge_is_not_competition_submission_or_payment():
+    document = _document()
+    campus = next(
+        entry
+        for entry in document["contributions"]
+        if entry["id"] == "global-smart-campus-2026"
+    )
+
+    assert campus["status"] == "merged"
+    assert campus["submitted"] is False
+    assert campus["merged"] is True
+    assert campus["accepted"] is None
+    assert campus["amount_awarded"] is None
+    assert campus["amount_received"] is None
+    assert campus["reward"]["currency"] == "INR"
+    assert campus["reward"]["advertised_amount"] == 50000
 
 
 def test_merged_flag_must_match_status():

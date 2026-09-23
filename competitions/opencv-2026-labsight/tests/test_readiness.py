@@ -39,6 +39,11 @@ def _complete_evidence(root: Path) -> dict:
         "evaluation": {
             "failure_cases_documented": True,
             "agentic_trace_documented": True,
+            "deployed_endpoint_verified": True,
+            "deployed_source_sha": source_sha,
+            "deployed_judge_suite_passed": True,
+            "deployed_real_corpus_scored": 15,
+            "deployed_unsafe_accepts": 0,
         },
         "demo": {
             "video_url": "https://example.test/labsight-demo",
@@ -104,3 +109,16 @@ def test_cli_writes_machine_readable_report(tmp_path, capsys):
     payload = json.loads(output.read_text(encoding="utf-8"))
     assert payload["ready"] is True
     assert json.loads(capsys.readouterr().out)["expected_opencv"] == EXPECTED_OPENCV
+
+
+def test_final_gate_requires_source_bound_deployed_evaluation(tmp_path):
+    _make_static_tree(tmp_path)
+    evidence = _complete_evidence(tmp_path)
+    evidence["evaluation"]["deployed_endpoint_verified"] = False
+    report = evaluate_submission_readiness(tmp_path, evidence)
+    assert "deployed_evaluation" in report["failed_checks"]
+
+    evidence = _complete_evidence(tmp_path)
+    evidence["evaluation"]["deployed_source_sha"] = "c" * 40
+    report = evaluate_submission_readiness(tmp_path, evidence)
+    assert "deployed_evaluation" in report["failed_checks"]

@@ -82,3 +82,19 @@ After authenticated App Runner deployment and `deployment-evidence.json` creatio
 The script generates deterministic demo traffic, resolves the AWS-documented App Runner service/application log groups from the service ARN, and captures CloudWatch events for the evidence window. `tools/aws_observability_evidence.py` fails closed unless the logs contain both source-bound OpenCV 5 QC decisions and source-bound `HAL/LabSight` Embedded Metric Format events. EMF is emitted as raw JSON on stdout so CloudWatch can parse it rather than receiving a logger-prefixed line.
 
 The validator also rejects raw-image payload markers in captured application logs. Successful output enriches the deployment evidence with log-group names, event counts, capture timestamps, and `cloudwatch_evidence: true`. This proves telemetry from the deployed source revision; it does not infer AWS evidence from local or CI logs.
+
+## Source-bound live endpoint evaluation
+
+After `deployment-evidence.json` exists, run the deployed Agentic Vision suite and the frozen BBBC038-derived corpus against the same endpoint:
+
+```bash
+./aws/evaluate_deployment.sh evaluation/aws/deployment-evidence.json evaluation/aws
+```
+
+`tools/endpoint_evaluation.py` first rejects any `/health` response whose source SHA or exact `opencv-python==5.0.0.93` / `cv2.__version__==5.0.0` provenance does not match the deployment evidence. It then requires the live `/demo/judge` Agentic Vision trace to pass before sending the provenance-locked real-image corpus through `/analyze`.
+
+Every local corpus file is SHA-256 verified before upload. The report records expected versus observed first/final actions, enhancement use, unsafe accepts, request IDs, server timing, round-trip latency, corpus-manifest digest, and source provenance. The evidence is explicitly scoped as live-endpoint evidence and does not by itself prove AWS identity.
+
+The wrapper writes `endpoint-evaluation.json` plus `deployment-evidence-with-evaluation.json`. The latter preserves existing deployment fields and adds the source-bound deployed-evaluation readiness fragment. Feed that enriched file into `capture_observability.sh` so subsequent CloudWatch validation preserves both endpoint and observability evidence.
+
+Final readiness now fails closed unless the evidence document proves a source-matched live judge suite, at least one scored frozen real-corpus item, and zero unsafe accepts. Local/CI/container evaluation cannot satisfy this deployed-evaluation check.

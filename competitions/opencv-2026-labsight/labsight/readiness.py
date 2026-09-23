@@ -131,6 +131,21 @@ def evaluate_submission_readiness(
             "failure analysis and perception-decision-action trace evidence required",
         )
 
+        deployed_evaluation_ok = (
+            evaluation.get("deployed_endpoint_verified") is True
+            and str(evaluation.get("deployed_source_sha", "")).lower() == source_sha
+            and evaluation.get("deployed_judge_suite_passed") is True
+            and isinstance(evaluation.get("deployed_real_corpus_scored"), int)
+            and evaluation.get("deployed_real_corpus_scored", 0) > 0
+            and evaluation.get("deployed_unsafe_accepts") == 0
+        )
+        _check(
+            checks,
+            "deployed_evaluation",
+            deployed_evaluation_ok,
+            "source-bound live endpoint judge suite and frozen real-corpus evaluation required",
+        )
+
         endpoint_or_live = endpoint.startswith("https://") or demo.get("live_demo_arranged") is True
         _check(
             checks,

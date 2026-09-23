@@ -60,7 +60,7 @@ This is deliberately not another free-form campus chatbot. The differentiator is
 Organizer email confirms the HAL project is eligible for the startup track and that solo founders can participate. The official challenge page lists an October 5, 2026 submission deadline and INR 50,000 startup winner prize. No application submission, finalist status, award, procurement, funding, or payment is claimed.
 
 ## Submission requirement cross-check
-- Live or recorded demonstration: current local deterministic CLI demo; recorded presentation not yet produced.
+- Live or recorded demonstration: deterministic CLI demo plus source-bound recorded-demo tooling; generated artifacts remain presentation candidates until human editorial approval and final submission.
 - Users/pilots/revenue/validation where available: no verified users, pilots, or revenue; software validation only.
 - Responsible-AI considerations: evidence citation, fail-closed ambiguity handling, sensitive-case escalation, and human authorization.
 - Founder/core-team profile: founder-led HAL SUPREME / UniteAndCreateForLife project; final personal/startup attestations remain human-only.

@@ -23,3 +23,14 @@ python validate_package.py
 ## What it does not prove
 
 No production deployment, institutional adoption, student-data processing, regulatory approval, revenue, paid pilot, diagnostic capability, competition submission, award, or payment is claimed.
+
+## Recorded demo candidate
+
+After tests pass, create a source-bound, silent H.264 demonstration outside the repository:
+
+```bash
+python record_demo.py --output-dir <artifact-directory>
+python record_demo.py --verify-receipt <artifact-directory>/recorded-demo-receipt.json
+```
+
+The receipt binds the video to the exact Git commit and source hashes and fails closed on source/video drift. It is presentation evidence only, not proof of competition submission, production deployment, institutional adoption, award, or payment.

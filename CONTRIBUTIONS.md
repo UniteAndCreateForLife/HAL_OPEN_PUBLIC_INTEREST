@@ -4,7 +4,7 @@ This page summarizes inspectable engineering contributions by
 UniteAndCreateForLife. It is deliberately evidence-first: implementation,
 review, submission, acceptance, award, and payment are different states.
 
-**As of:** 2026-09-23 10:45 UTC
+**As of:** 2026-09-23 11:28 UTC
 
 Verified cash received: **USD 0**
 
@@ -55,12 +55,17 @@ call-start reliability changes and deterministic regression coverage.
 [PR #3925](https://github.com/Chain-Love/chain-love/pull/3925) contributes
 multi-network ecosystem listing updates.
 
-- **State:** open with an approval review; merge remains a maintainer decision.
+- **State:** merged on September 23, 2026 after maintainer approval. The
+  [merge commit](https://github.com/Chain-Love/chain-love/commit/7d2c1f2173211c7ad651ce35e10f541b6bbdddf5)
+  and [maintainer receipt](https://github.com/Chain-Love/chain-love/pull/3925#issuecomment-5793217075)
+  establish code acceptance.
 - **Funding boundary:** the [current reward rules](https://github.com/Chain-Love/chain-love/discussions/41)
   limit paid contributions to Algorand, Filecoin, and Somnia. This PR changes
-  eight networks, so it is listed as a useful portfolio contribution rather
-  than verified payment-eligible work.
-- **Financial state:** no verified award or payment.
+  eight different networks, so the merge is recorded as a useful portfolio
+  contribution rather than verified payment-eligible work.
+- **Financial state:** bounty acceptance, award, and payment remain unknown;
+  verified cash received is USD 0.
+- **Remaining:** no maintainer action remains for the code contribution.
 
 ## Reproduce the index check
 
@@ -72,9 +77,10 @@ python -m pytest tests/test_contribution_index.py
 ```
 
 The validator runs without network access. It checks the schema, contribution
-IDs, status vocabulary, GitHub evidence links, currency fields, and the rule
-that received money cannot be recorded without a known award. Tests also require
-this page to carry every indexed contribution and evidence URL.
+IDs, status vocabulary, code-merge state, GitHub evidence links, currency
+fields, and the rule that received money cannot be recorded without a known
+award. Tests also require this page to carry every indexed contribution and
+evidence URL.
 
 ## Scope and privacy
 

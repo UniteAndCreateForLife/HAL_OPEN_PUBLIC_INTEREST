@@ -14,6 +14,7 @@ ALLOWED_STATUSES = {
     "open_awaiting_sponsor",
     "open_approved_portfolio_only",
     "merged",
+    "merged_portfolio_only",
     "closed",
 }
 ALLOWED_REWARD_MODELS = {
@@ -90,6 +91,9 @@ def validate_index(document: dict[str, Any]) -> dict[str, Any]:
             )
         _require(entry.get("status") in ALLOWED_STATUSES, f"{prefix}.status is invalid")
         _require(isinstance(entry.get("submitted"), bool), f"{prefix}.submitted must be boolean")
+        _require(isinstance(entry.get("merged"), bool), f"{prefix}.merged must be boolean")
+        merged_status = entry.get("status") in {"merged", "merged_portfolio_only"}
+        _require(entry["merged"] == merged_status, f"{prefix}.merged must match status")
         _require(entry.get("accepted") in (True, False, None), f"{prefix}.accepted is invalid")
         _github_url(entry.get("pull_request_url"), f"{prefix}.pull_request_url")
         _github_url(entry.get("issue_url"), f"{prefix}.issue_url", nullable=True)

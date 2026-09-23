@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "as_of_utc": "2026-09-23T10:45:00Z",
-  "scope_note": "Public evidence only. Unknown financial values remain null.",
+  "as_of_utc": "2026-09-23T11:28:00Z",
+  "scope_note": "Public evidence only. merged records code integration; accepted records sponsor or bounty acceptance. Unknown financial values remain null.",
   "verified_cash_received_usd": 0,
   "contributions": [
     {
@@ -12,6 +12,7 @@
       "issue_url": null,
       "status": "open_draft",
       "submitted": false,
+      "merged": false,
       "accepted": null,
       "amount_awarded": null,
       "amount_received": null,
@@ -36,6 +37,7 @@
       "issue_url": "https://github.com/moorcheh-ai/memanto/issues/1852",
       "status": "open_awaiting_sponsor",
       "submitted": true,
+      "merged": false,
       "accepted": null,
       "amount_awarded": null,
       "amount_received": null,
@@ -58,8 +60,9 @@
       "repository": "Chain-Love/chain-love",
       "pull_request_url": "https://github.com/Chain-Love/chain-love/pull/3925",
       "issue_url": null,
-      "status": "open_approved_portfolio_only",
+      "status": "merged_portfolio_only",
       "submitted": true,
+      "merged": true,
       "accepted": null,
       "amount_awarded": null,
       "amount_received": null,
@@ -72,9 +75,11 @@
       },
       "evidence_urls": [
         "https://github.com/Chain-Love/chain-love/pull/3925",
+        "https://github.com/Chain-Love/chain-love/commit/7d2c1f2173211c7ad651ce35e10f541b6bbdddf5",
+        "https://github.com/Chain-Love/chain-love/pull/3925#issuecomment-5793217075",
         "https://github.com/Chain-Love/chain-love/discussions/41"
       ],
-      "remaining_action": "Maintainer merge decision; current reward rules do not verify this PR as payment-eligible."
+      "remaining_action": "No maintainer action remains for the merged code; current reward rules do not verify this PR as payment-eligible. Sponsor acceptance, award, and payment remain unknown."
     }
   ]
 }

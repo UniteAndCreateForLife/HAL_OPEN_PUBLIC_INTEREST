@@ -43,6 +43,27 @@ def test_received_money_requires_a_known_award():
         validate_index(document)
 
 
+def test_chain_love_merge_is_not_bounty_acceptance_or_payment():
+    document = _document()
+    chain_love = next(
+        entry for entry in document["contributions"] if entry["id"] == "chain-love-3925"
+    )
+
+    assert chain_love["status"] == "merged_portfolio_only"
+    assert chain_love["merged"] is True
+    assert chain_love["accepted"] is None
+    assert chain_love["amount_awarded"] is None
+    assert chain_love["amount_received"] is None
+
+
+def test_merged_flag_must_match_status():
+    document = _document()
+    document["contributions"][0]["merged"] = True
+
+    with pytest.raises(ContributionIndexError, match="merged must match status"):
+        validate_index(document)
+
+
 def test_public_markdown_links_every_indexed_contribution():
     document = _document()
     markdown = README_PATH.read_text(encoding="utf-8")

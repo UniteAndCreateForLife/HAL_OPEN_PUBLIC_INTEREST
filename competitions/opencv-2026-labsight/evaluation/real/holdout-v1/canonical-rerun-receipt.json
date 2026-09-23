@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "captured_at_utc": "2026-09-23T05:01:00.953468+00:00",
+  "scope": "local_exact_opencv5_container_source_disjoint_challenge_not_aws",
+  "source_sha": "d88f18b2b16c5a1666a59614afc56be08fea83bb",
+  "container_image_id": "sha256:1ac3304219d00f93326d050ae9a0d8aa8535474eefbc9240bc85422302fa1f9c",
+  "opencv": {
+    "opencv_distribution": "5.0.0.93",
+    "opencv_runtime": "5.0.0",
+    "expected_opencv_distribution": "5.0.0.93",
+    "expected_opencv_runtime": "5.0.0",
+    "opencv5_verified": true
+  },
+  "source_count": 65,
+  "samples": 260,
+  "scored_samples": 130,
+  "qc_agreement": 0.8769230769230769,
+  "first_action_agreement": 0.8615384615384616,
+  "enhancement_agreement": 0.9435897435897436,
+  "combined_expectation_agreement": 0.8615384615384616,
+  "unsafe_accept_count": 0,
+  "final_failure_count": 16,
+  "selection_lock_hash_scheme": "utf8_lf",
+  "selection_lock_sha256": "1d3fbb5778fcde3aeaa31c126642423f4cc4dc829ba38bf21b832adbd785c92c",
+  "manifest_sha256": "088e91d67b57ca6c95e25f604611f620e21eddf4df6c747c03e391fc8affd86d",
+  "full_report_sha256": "5fb700c9a25790f71ac589542dfcd4c1994ab36e246f9da382f118c180f6697e",
+  "full_report_local_path": "C:\\Users\\jakob101\\HAL_BOUNTY_WORKSPACE\\artifacts\\labsight-holdout-rerun-20260923T0500Z\\first-pass.json",
+  "execution_constraints": {
+    "network": "none",
+    "root_filesystem": "read_only",
+    "workspace_mount": "read_only",
+    "capabilities": "all_dropped",
+    "no_new_privileges": true,
+    "cpus": 2,
+    "memory_gib": 2
+  },
+  "diagnostic_claims": false,
+  "limitations": [
+    "Controlled stressor expectations, not expert QC ground truth.",
+    "Native images and final uneven-illumination outcomes are unscored.",
+    "Exact source/pixel disjointness does not prove acquisition or perceptual independence.",
+    "Derivatives share sources; image count is not independent sample count.",
+    "After inspection, retain as regression evidence, not a fresh holdout."
+  ]
+}

@@ -29,7 +29,7 @@ def _document() -> dict:
 def test_public_contribution_index_is_valid():
     document = load_and_validate(INDEX_PATH)
 
-    assert len(document["contributions"]) == 4
+    assert len(document["contributions"]) == 5
     assert document["verified_cash_received_usd"] == 0
 
 
@@ -82,6 +82,49 @@ def test_global_smart_campus_merge_is_not_competition_submission_or_payment():
     assert campus["demo_url"] == (
         "https://hal-campus-evidence-desk.therealjakobhedrich.workers.dev"
     )
+
+
+def test_twilio_program_benefits_are_not_recorded_as_cash():
+    document = _document()
+    twilio = next(
+        entry
+        for entry in document["contributions"]
+        if entry["id"] == "twilio-searchlight-2026"
+    )
+
+    assert twilio["status"] == "open_draft"
+    assert twilio["submitted"] is False
+    assert twilio["accepted"] is None
+    assert twilio["amount_awarded"] is None
+    assert twilio["amount_received"] is None
+    assert twilio["reward"]["currency"] is None
+    assert twilio["reward"]["advertised_amount"] is None
+    benefits = twilio["reward"]["non_cash_benefits"]
+    assert {benefit["kind"] for benefit in benefits} == {
+        "provider_credit",
+        "gift_card",
+        "swag",
+    }
+    assert all(benefit["conditional"] is True for benefit in benefits)
+
+
+def test_non_cash_benefits_are_validated_separately_from_cash():
+    document = _document()
+    reward = document["contributions"][0]["reward"]
+    reward["non_cash_benefits"] = [
+        {
+            "kind": "provider_credit",
+            "provider": "Example Provider",
+            "currency": "USD",
+            "maximum_value": 5000,
+            "conditional": True,
+        }
+    ]
+    validate_index(document)
+
+    reward["non_cash_benefits"][0]["kind"] = ""
+    with pytest.raises(ContributionIndexError, match="non_cash_benefits"):
+        validate_index(document)
 
 
 def test_demo_urls_must_use_https():

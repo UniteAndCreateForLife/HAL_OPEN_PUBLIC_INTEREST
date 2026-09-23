@@ -4,7 +4,7 @@ This page summarizes inspectable engineering contributions by
 UniteAndCreateForLife. It is deliberately evidence-first: implementation,
 review, submission, acceptance, award, and payment are different states.
 
-**As of:** 2026-09-23 15:31 UTC
+**As of:** 2026-09-23 18:35 UTC
 
 Verified cash received: **USD 0**
 
@@ -90,6 +90,32 @@ and service-routing prototype for the Global Smart Campus 2026 startup stream.
   The prize is not expected or earned income.
 - **Remaining:** human completion of identity, contact, turnover,
   startup-representation, and final application declarations.
+
+## twilio-searchlight-2026
+
+[HAL SUPREME PR #7](https://github.com/UniteAndCreateForLife/HAL_SUPREME/pull/7)
+adds a bounded Twilio Messaging bridge that validates Twilio signatures before
+routing a minimized conversation through HAL's canonical Operator Gateway.
+
+- **State:** open draft; the Searchlight application is not submitted, selected,
+  awarded, credited, or paid.
+- **Engineering:** invalid and oversized requests fail closed; replies require a
+  verified provider operation; identical and concurrent retries invoke HAL only
+  once; conflicting content under the same message identifier returns HTTP 409.
+- **Current evidence:** replay-safety commit
+  [`fd1969d`](https://github.com/UniteAndCreateForLife/HAL_SUPREME/commit/fd1969df28ec35c3e992535971656cc8e663cb51)
+  passed 32 focused tests, 50 full tests, lint, formatting, compilation, HTTP
+  regression, and the pinned non-root container canary.
+- **CI:** [run 35899476367](https://github.com/UniteAndCreateForLife/HAL_SUPREME/actions/runs/35899476367)
+  passed at that exact source commit with source-bound evidence.
+- **Reward boundary:** the
+  [official Searchlight page](https://www.twilio.com/en-us/lp/twilio-ai-startup-searchlight)
+  describes track-dependent maximum credits, gift-card value, and swag. These
+  conditional non-cash benefits are recorded separately from verified cash and
+  are not expected income.
+- **Remaining:** an authorized real signed Twilio interaction through the
+  canonical HAL path, human demo review, and truthful application declarations
+  before the September 25, 2026 deadline.
 
 ## Reproduce the index check
 

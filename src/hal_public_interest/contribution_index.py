@@ -28,6 +28,11 @@ MONEY_FIELDS = (
     "prize_pool_maximum",
     "category_award",
 )
+ALLOWED_NON_CASH_BENEFIT_KINDS = {
+    "provider_credit",
+    "gift_card",
+    "swag",
+}
 
 
 class ContributionIndexError(ValueError):
@@ -41,9 +46,7 @@ def _require(condition: bool, message: str) -> None:
 
 def _is_money(value: Any) -> bool:
     return value is None or (
-        isinstance(value, (int, float))
-        and not isinstance(value, bool)
-        and value >= 0
+        isinstance(value, (int, float)) and not isinstance(value, bool) and value >= 0
     )
 
 
@@ -81,7 +84,9 @@ def validate_index(document: dict[str, Any]) -> dict[str, Any]:
         raise ContributionIndexError("as_of_utc must be ISO-8601") from exc
 
     verified = document.get("verified_cash_received_usd")
-    _require(_is_money(verified) and verified is not None, "verified cash total is invalid")
+    _require(
+        _is_money(verified) and verified is not None, "verified cash total is invalid"
+    )
 
     entries = document.get("contributions")
     _require(isinstance(entries, list) and entries, "contributions must be non-empty")
@@ -101,11 +106,19 @@ def validate_index(document: dict[str, Any]) -> dict[str, Any]:
                 f"{prefix}.{field} is required",
             )
         _require(entry.get("status") in ALLOWED_STATUSES, f"{prefix}.status is invalid")
-        _require(isinstance(entry.get("submitted"), bool), f"{prefix}.submitted must be boolean")
-        _require(isinstance(entry.get("merged"), bool), f"{prefix}.merged must be boolean")
+        _require(
+            isinstance(entry.get("submitted"), bool),
+            f"{prefix}.submitted must be boolean",
+        )
+        _require(
+            isinstance(entry.get("merged"), bool), f"{prefix}.merged must be boolean"
+        )
         merged_status = entry.get("status") in {"merged", "merged_portfolio_only"}
         _require(entry["merged"] == merged_status, f"{prefix}.merged must match status")
-        _require(entry.get("accepted") in (True, False, None), f"{prefix}.accepted is invalid")
+        _require(
+            entry.get("accepted") in (True, False, None),
+            f"{prefix}.accepted is invalid",
+        )
         _github_url(entry.get("pull_request_url"), f"{prefix}.pull_request_url")
         _github_url(entry.get("issue_url"), f"{prefix}.issue_url", nullable=True)
         _https_url(entry.get("demo_url"), f"{prefix}.demo_url", nullable=True)
@@ -114,7 +127,10 @@ def validate_index(document: dict[str, Any]) -> dict[str, Any]:
         received = entry.get("amount_received")
         _require(_is_money(awarded), f"{prefix}.amount_awarded is invalid")
         _require(_is_money(received), f"{prefix}.amount_received is invalid")
-        _require(received is None or awarded is not None, f"{prefix} cannot receive an unknown award")
+        _require(
+            received is None or awarded is not None,
+            f"{prefix} cannot receive an unknown award",
+        )
         if received is not None and awarded is not None:
             _require(received <= awarded, f"{prefix} received more than awarded")
         reward = entry.get("reward")
@@ -129,10 +145,50 @@ def validate_index(document: dict[str, Any]) -> dict[str, Any]:
             f"{prefix}.reward.currency is invalid",
         )
         for field in MONEY_FIELDS:
-            _require(_is_money(reward.get(field)), f"{prefix}.reward.{field} is invalid")
+            _require(
+                _is_money(reward.get(field)), f"{prefix}.reward.{field} is invalid"
+            )
+
+        benefits = reward.get("non_cash_benefits", [])
+        _require(
+            isinstance(benefits, list),
+            f"{prefix}.reward.non_cash_benefits must be a list",
+        )
+        for benefit_index, benefit in enumerate(benefits):
+            benefit_prefix = f"{prefix}.reward.non_cash_benefits[{benefit_index}]"
+            _require(
+                isinstance(benefit, dict),
+                f"{benefit_prefix} must be an object",
+            )
+            _require(
+                benefit.get("kind") in ALLOWED_NON_CASH_BENEFIT_KINDS,
+                f"{benefit_prefix}.kind is invalid",
+            )
+            _require(
+                isinstance(benefit.get("provider"), str)
+                and bool(benefit["provider"].strip()),
+                f"{benefit_prefix}.provider is required",
+            )
+            benefit_currency = benefit.get("currency")
+            _require(
+                isinstance(benefit_currency, str) and len(benefit_currency) == 3,
+                f"{benefit_prefix}.currency is invalid",
+            )
+            benefit_value = benefit.get("maximum_value")
+            _require(
+                _is_money(benefit_value) and benefit_value is not None,
+                f"{benefit_prefix}.maximum_value is invalid",
+            )
+            _require(
+                isinstance(benefit.get("conditional"), bool),
+                f"{benefit_prefix}.conditional must be boolean",
+            )
 
         evidence = entry.get("evidence_urls")
-        _require(isinstance(evidence, list) and evidence, f"{prefix}.evidence_urls is required")
+        _require(
+            isinstance(evidence, list) and evidence,
+            f"{prefix}.evidence_urls is required",
+        )
         for index, url in enumerate(evidence):
             _github_url(url, f"{prefix}.evidence_urls[{index}]")
 

@@ -4,6 +4,7 @@ Playwright drives the shipped UI; the recorder never injects successful
 responses.  The resulting package is local/CI demonstration evidence, not AWS
 deployment or competition-submission evidence.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -26,6 +27,12 @@ EXPECTED_ACTIONS = {
     "clipped": ("request_recapture_exposure", "request_recapture_exposure"),
     "uneven": ("enhance_and_reanalyze", "accept"),
 }
+REQUIRED_PRESENTATION_COVERAGE = (
+    "shows_team",
+    "shows_application",
+    "shows_architecture",
+    "shows_principal_results",
+)
 
 
 @dataclass(frozen=True)
@@ -62,7 +69,9 @@ def validate_analysis(name: str, result: dict[str, Any]) -> dict[str, Any]:
         if len(trace) != 2 or result.get("used_enhancement") is not True:
             raise ValueError("uneven: CLAHE and a second visual pass were not observed")
         if trace[1].get("decision") != final:
-            raise ValueError("uneven: second visual pass did not determine the final action")
+            raise ValueError(
+                "uneven: second visual pass did not determine the final action"
+            )
     return {
         "scenario": name,
         "expected_first_action": expected_first,
@@ -112,12 +121,48 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def build_presentation_evidence(
+    source_sha: str,
+    video_path: Path,
+    duration: float,
+    coverage: set[str],
+) -> dict[str, Any]:
+    if len(source_sha) != 40 or any(
+        c not in "0123456789abcdef" for c in source_sha.lower()
+    ):
+        raise ValueError("presentation source SHA must be a full 40-character Git SHA")
+    if not video_path.is_file():
+        raise ValueError("presentation video is missing")
+    if not 0 < duration <= 300:
+        raise ValueError("presentation video duration must be within (0, 300]")
+    missing = [key for key in REQUIRED_PRESENTATION_COVERAGE if key not in coverage]
+    if missing:
+        raise ValueError(
+            f"presentation recording missing required coverage: {', '.join(missing)}"
+        )
+    return {
+        "source_sha": source_sha.lower(),
+        "video_sha256": sha256_file(video_path),
+        "video_duration_seconds": round(duration, 3),
+        "captioned": True,
+        "human_reviewed": False,
+        "judge_accessible": False,
+        **{key: True for key in REQUIRED_PRESENTATION_COVERAGE},
+        "status": "draft_requires_human_review_and_judge_accessible_hosting",
+    }
+
+
 def write_manifest(output: Path) -> dict[str, str]:
     excluded = {"SHA256SUMS"}
-    files = sorted(path for path in output.rglob("*") if path.is_file() and path.name not in excluded)
+    files = sorted(
+        path
+        for path in output.rglob("*")
+        if path.is_file() and path.name not in excluded
+    )
     hashes = {path.relative_to(output).as_posix(): sha256_file(path) for path in files}
     (output / "SHA256SUMS").write_text(
-        "".join(f"{digest}  {name}\n" for name, digest in hashes.items()), encoding="utf-8"
+        "".join(f"{digest}  {name}\n" for name, digest in hashes.items()),
+        encoding="utf-8",
     )
     return hashes
 
@@ -147,7 +192,9 @@ def _run(command: list[str]) -> subprocess.CompletedProcess[str]:
 
 def transcode(webm: Path, mp4: Path) -> float:
     if not shutil.which("ffmpeg") or not shutil.which("ffprobe"):
-        raise RuntimeError("ffmpeg and ffprobe are required to create and verify the MP4")
+        raise RuntimeError(
+            "ffmpeg and ffprobe are required to create and verify the MP4"
+        )
     _run(
         [
             "ffmpeg",
@@ -202,7 +249,9 @@ def record(
         raise ValueError("--url must identify an authorized HTTP(S) LabSight instance")
     if pace <= 0:
         raise ValueError("--pace must be greater than zero")
-    if len(source_sha) != 40 or any(c not in "0123456789abcdef" for c in source_sha.lower()):
+    if len(source_sha) != 40 or any(
+        c not in "0123456789abcdef" for c in source_sha.lower()
+    ):
         raise ValueError("--source-sha must be a full 40-character Git SHA")
     holdout = load_holdout_receipt(holdout_path)
     output.mkdir(parents=True, exist_ok=True)
@@ -210,6 +259,7 @@ def record(
     screenshots.mkdir(exist_ok=True)
     captions: list[Caption] = []
     observations: list[dict[str, Any]] = []
+    presentation_coverage: set[str] = set()
     started = time.monotonic()
 
     def elapsed() -> float:
@@ -218,7 +268,14 @@ def record(
     def pause(page: Any, seconds: float) -> None:
         page.wait_for_timeout(round(seconds * pace * 1000))
 
-    def scene(page: Any, title: str, body: str, seconds: float = 4.0) -> None:
+    def scene(
+        page: Any,
+        title: str,
+        body: str,
+        seconds: float = 4.0,
+        *,
+        coverage_key: str | None = None,
+    ) -> None:
         start = elapsed()
         page.evaluate(
             """([title, body]) => {
@@ -251,9 +308,18 @@ def record(
         )
         pause(page, seconds)
         captions.append(Caption(start, elapsed(), title, body))
+        if coverage_key is not None:
+            if coverage_key not in REQUIRED_PRESENTATION_COVERAGE:
+                raise ValueError(f"unknown presentation coverage key: {coverage_key}")
+            presentation_coverage.add(coverage_key)
 
     def analyze(page: Any, name: str, label: str) -> None:
-        scene(page, label, "The shipped UI requests a live OpenCV analysis; no response is injected.", 2.2)
+        scene(
+            page,
+            label,
+            "The shipped UI requests a live OpenCV analysis; no response is injected.",
+            2.2,
+        )
         page.get_by_role("button", name=f"Analyze {name}", exact=True).click()
         expect(page.locator("#status")).to_have_attribute("data-state", "complete")
         expect(page.locator("#download")).to_be_enabled()
@@ -291,8 +357,27 @@ def record(
         health_before = before.json()
         validate_health(health_before, source_sha)
 
-        scene(page, "HAL LabSight", "Microscopy image-quality control only — not diagnosis or biological identification.", 4.0)
-        scene(page, "Architecture", "OpenCV perception → policy decision → action or human recapture request; every step is traceable.", 5.0)
+        scene(
+            page,
+            "Team",
+            "UniteAndCreateForLife — Jakob Hedrich, solo builder.",
+            3.0,
+            coverage_key="shows_team",
+        )
+        scene(
+            page,
+            "HAL LabSight",
+            "Microscopy image-quality control only — not diagnosis or biological identification.",
+            4.0,
+            coverage_key="shows_application",
+        )
+        scene(
+            page,
+            "Architecture",
+            "OpenCV perception → policy decision → action or human recapture request; every step is traceable.",
+            5.0,
+            coverage_key="shows_architecture",
+        )
         analyze(page, "clean", "Clean capture")
         analyze(page, "blurred", "Focus failure")
         analyze(page, "clipped", "Exposure failure")
@@ -302,7 +387,12 @@ def record(
         expect(page.locator("#status")).to_contain_text("Judge suite: PASS")
         if page.locator("#suite article").count() != 4:
             raise ValueError("judge suite did not render all four scenarios")
-        scene(page, "Judge suite: PASS", "Four deterministic cases verify accept, two recapture actions, and CLAHE re-analysis.", 6.0)
+        scene(
+            page,
+            "Judge suite: PASS",
+            "Four deterministic cases verify accept, two recapture actions, and CLAHE re-analysis.",
+            6.0,
+        )
         page.screenshot(path=str(screenshots / "judge-suite.png"), full_page=True)
 
         raw = context.request.get(url.rstrip("/") + "/demo/image/clean").body()
@@ -313,24 +403,44 @@ def record(
         expect(page.locator("#status")).to_have_attribute("data-state", "complete")
         expect(page.locator("#decision")).to_have_text("Accept capture")
         with page.expect_download() as transfer:
-            page.get_by_role("button", name="Download evidence JSON", exact=True).click()
+            page.get_by_role(
+                "button", name="Download evidence JSON", exact=True
+            ).click()
         downloaded = output / "observed-ui-evidence.json"
         transfer.value.save_as(downloaded)
         download_payload = json.loads(downloaded.read_text(encoding="utf-8"))
         serialized = json.dumps(download_payload)
         if "image_base64" in serialized or "synthetic-demo-input" in serialized:
-            raise ValueError("downloaded evidence leaked image bytes or the local filename")
-        scene(page, "Evidence export", "A real upload and evidence download preserve request/runtime metadata without image bytes or filenames.", 5.0)
+            raise ValueError(
+                "downloaded evidence leaked image bytes or the local filename"
+            )
+        scene(
+            page,
+            "Evidence export",
+            "A real upload and evidence download preserve request/runtime metadata without image bytes or filenames.",
+            5.0,
+        )
 
         scene(
             page,
-            "Independent-source challenge",
+            "Principal results — independent-source challenge",
             f"{holdout['scored_samples']} scored stressor samples: {holdout['qc_agreement']:.1%} QC agreement, "
             f"{holdout['final_failure_count']} failures, {holdout['unsafe_accept_count']} unsafe accepts.",
             7.0,
+            coverage_key="shows_principal_results",
         )
-        scene(page, "Limits and human control", "Controlled stressors are not expert ground truth or clinical validation. Review failures; recapture when requested.", 6.0)
-        scene(page, "Reproducible evidence", "Source-bound OpenCV 5 container, deterministic tests, receipts and hashes. This recording is not AWS evidence.", 4.0)
+        scene(
+            page,
+            "Limits and human control",
+            "Controlled stressors are not expert ground truth or clinical validation. Review failures; recapture when requested.",
+            6.0,
+        )
+        scene(
+            page,
+            "Reproducible evidence",
+            "Source-bound OpenCV 5 container, deterministic tests, receipts and hashes. This recording is not AWS evidence.",
+            4.0,
+        )
 
         after = context.request.get(url.rstrip("/") + "/health")
         if not after.ok:
@@ -346,9 +456,14 @@ def record(
     raw_dir = output / "raw-video"
     if raw_dir.exists():
         shutil.rmtree(raw_dir)
-    duration = transcode(webm, output / "labsight-judge-demo.mp4")
-    write_captions(
-        output / "labsight-judge-demo.vtt", captions, max_duration=duration
+    mp4 = output / "labsight-judge-demo.mp4"
+    duration = transcode(webm, mp4)
+    write_captions(output / "labsight-judge-demo.vtt", captions, max_duration=duration)
+    presentation = build_presentation_evidence(
+        source_sha, mp4, duration, presentation_coverage
+    )
+    (output / "presentation-evidence-draft.json").write_text(
+        json.dumps(presentation, indent=2) + "\n", encoding="utf-8"
     )
     receipt = {
         "schema_version": "1.0",
@@ -372,6 +487,8 @@ def record(
             "limitations": holdout["limitations"],
         },
         "video_duration_seconds": round(duration, 3),
+        "video_sha256": presentation["video_sha256"],
+        "presentation": presentation,
         "audio": False,
         "captioned": True,
         "browser_version": browser_version,
@@ -391,8 +508,12 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--holdout-receipt", type=Path, required=True)
-    parser.add_argument("--executable", help="Path to an existing Chromium or Edge executable")
-    parser.add_argument("--pace", type=float, default=1.0, help="Scene timing multiplier (default: 1.0)")
+    parser.add_argument(
+        "--executable", help="Path to an existing Chromium or Edge executable"
+    )
+    parser.add_argument(
+        "--pace", type=float, default=1.0, help="Scene timing multiplier (default: 1.0)"
+    )
     args = parser.parse_args()
     try:
         report = record(
@@ -404,7 +525,11 @@ def main() -> int:
             pace=args.pace,
         )
     except Exception as exc:
-        print(json.dumps({"passed": False, "error": f"{type(exc).__name__}: {exc}"}, indent=2))
+        print(
+            json.dumps(
+                {"passed": False, "error": f"{type(exc).__name__}: {exc}"}, indent=2
+            )
+        )
         return 1
     print(json.dumps({"passed": True, **report}, indent=2))
     return 0

@@ -1,16 +1,17 @@
 """Deterministic contracts for the judge-demo recording evidence."""
+
 from __future__ import annotations
 
 import hashlib
 import json
-from pathlib import Path
-
 import pytest
 
 from tools.judge_video_capture import (
     Caption,
     EXPECTED_ACTIONS,
+    REQUIRED_PRESENTATION_COVERAGE,
     _vtt_time,
+    build_presentation_evidence,
     load_holdout_receipt,
     sha256_file,
     validate_analysis,
@@ -82,7 +83,9 @@ def test_live_scenario_contract(name):
 @pytest.mark.parametrize("name", sorted(EXPECTED_ACTIONS))
 def test_wrong_final_action_is_rejected(name):
     payload = analysis(name)
-    payload["status"] = "accept" if payload["status"] != "accept" else "request_recapture_focus"
+    payload["status"] = (
+        "accept" if payload["status"] != "accept" else "request_recapture_focus"
+    )
     with pytest.raises(ValueError, match="expected"):
         validate_analysis(name, payload)
 
@@ -110,7 +113,12 @@ def test_uneven_requires_enhancement_flag():
 
 @pytest.mark.parametrize(
     ("seconds", "expected"),
-    [(0, "00:00:00.000"), (1.2345, "00:00:01.234"), (61.001, "00:01:01.001"), (3661.9, "01:01:01.900")],
+    [
+        (0, "00:00:00.000"),
+        (1.2345, "00:00:01.234"),
+        (61.001, "00:01:01.001"),
+        (3661.9, "01:01:01.900"),
+    ],
 )
 def test_vtt_time(seconds, expected):
     assert _vtt_time(seconds) == expected
@@ -185,3 +193,27 @@ def test_manifest_uses_relative_posix_paths(tmp_path):
     nested.mkdir()
     (nested / "clean.png").write_bytes(b"png")
     assert "screenshots/clean.png" in write_manifest(tmp_path)
+
+
+def test_presentation_evidence_is_source_bound_and_not_self_approving(tmp_path):
+    video = tmp_path / "demo.mp4"
+    video.write_bytes(b"judge-video")
+    evidence = build_presentation_evidence(
+        "a" * 40, video, 62.4, set(REQUIRED_PRESENTATION_COVERAGE)
+    )
+    assert evidence["source_sha"] == "a" * 40
+    assert evidence["video_sha256"] == hashlib.sha256(b"judge-video").hexdigest()
+    assert evidence["video_duration_seconds"] == 62.4
+    assert evidence["captioned"] is True
+    assert evidence["human_reviewed"] is False
+    assert evidence["judge_accessible"] is False
+    assert all(evidence[key] is True for key in REQUIRED_PRESENTATION_COVERAGE)
+
+
+@pytest.mark.parametrize("missing", REQUIRED_PRESENTATION_COVERAGE)
+def test_presentation_evidence_rejects_missing_required_scene(tmp_path, missing):
+    video = tmp_path / "demo.mp4"
+    video.write_bytes(b"judge-video")
+    coverage = set(REQUIRED_PRESENTATION_COVERAGE) - {missing}
+    with pytest.raises(ValueError, match="missing required coverage"):
+        build_presentation_evidence("a" * 40, video, 30.0, coverage)

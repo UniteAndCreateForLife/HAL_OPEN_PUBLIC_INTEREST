@@ -33,10 +33,17 @@ the UI and downloads the UI's evidence JSON. No successful response is mocked.
 
 ## Review and submission boundary
 
-The default sequence is under five minutes. The MP4 is a captioned **draft with
-no audio**. A human must inspect it, add or record narration, verify captions,
-and choose a judge-accessible hosting route before final submission. Never call
-the artifact an AWS deployment or a completed Devpost submission.
+The default sequence is under five minutes. It explicitly covers the team,
+application, architecture, and principal results required for judge review. The
+recorder writes `presentation-evidence-draft.json`, binding those scenes to the
+exact source SHA, MP4 SHA-256, duration, and caption state. It deliberately sets
+`human_reviewed=false` and `judge_accessible=false`; automation cannot self-approve
+those final human/hosting gates.
+
+The MP4 is a captioned **draft with no audio**. A human must inspect it, add or
+record narration, verify captions, and choose a judge-accessible hosting route
+before final submission. Never call the artifact an AWS deployment or a
+completed Devpost submission.
 
 The independent-source slide is populated from the committed canonical holdout
 receipt rather than copied metrics. It states both agreement and failures, and

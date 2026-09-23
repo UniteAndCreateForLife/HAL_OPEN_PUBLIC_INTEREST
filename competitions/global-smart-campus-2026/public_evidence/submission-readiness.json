@@ -30,23 +30,24 @@
   },
   "package_source_sha256": {
     "APPLICATION_BRIEF.md": "a4b1e02368d3905ecae1976afc5242ca51a435e4e86972e7441ced4779cae268",
+    "artifact_io.py": "b0e6bc8fa3313b21f59ba03385ce31dfc551829902746ac5c0fa9db834724be1",
     "campus_mvp.py": "6c75d299c9f96809702e3f28140d3d9424cb5b25aa4ac3d377f66b7b7b8d9c56",
     "official_rules_snapshot.json": "96412be6fc96a10c1574bd57065528f95276ff00ab3b3474b032131e5ecc8799",
-    "record_demo.py": "0840b10919d1b15b21f2f36ef7d3dbc4a2c38d5771dbaafcc371f5b91ec61b22",
-    "submission_gate.py": "62938c3ed506b91016f79b5223776dbc2f791188e99d1963ecf3cdc3840dd7dc",
-    "validate_package.py": "7c38db2668eb56f33694aba151b99ffa57400a8ed4f3afd7b96fecea49f9ad42"
+    "record_demo.py": "bd20de645547158e4ae2491f85b157a5fc8a83c77d8834e957ac8243c3f1d5ce",
+    "submission_gate.py": "63d197e450b6678a38a94ffd5a112d1e10f3f9b1d3bc87fd94380910a47798b6",
+    "validate_package.py": "15d10b3ef6b241affe8b47447c38a67f7731038fcd3f4466a4ba66025b7f7759"
   },
   "recorded_demo": {
     "demo_cases": 4,
     "duration_seconds": 49.0,
-    "source_commit": "b5e789fcc2dbd22f80a43222b7e33ce9f8682c4f",
+    "source_commit": "49a82066403d76da5f793b31de37720137711bde",
     "verified": true,
     "video_sha256": "2de1a14864c615539deffb09c904c6ce45db64e668ef60728ec4b81977c85a10"
   },
   "remote_finalist_participation": "pre_recorded_presentation_and_mvp_demo_if_selected",
   "rules_snapshot_sha256": "96412be6fc96a10c1574bd57065528f95276ff00ab3b3474b032131e5ecc8799",
   "scope": "local_competition_readiness_not_submission_finalist_award_or_payment",
-  "source_commit": "b5e789fcc2dbd22f80a43222b7e33ce9f8682c4f",
+  "source_commit": "49a82066403d76da5f793b31de37720137711bde",
   "startup_prize_inr": 50000,
   "status": "PASS",
   "stream": "Early-Stage EdTech Startups",

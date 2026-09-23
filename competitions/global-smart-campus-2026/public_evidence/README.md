@@ -1,17 +1,17 @@
 # Public evidence package
 
-This directory contains the judge-reviewable evidence generated from standalone
-source commit `b5e789fcc2dbd22f80a43222b7e33ce9f8682c4f`. That commit is preserved as a
-parent of the publication merge and contains the exact competition source.
+This directory contains judge-reviewable evidence generated from standalone
+source commit `49a82066403d76da5f793b31de37720137711bde`. That commit is preserved as a
+parent of the publication history and contains the exact competition source.
 
 ## Files
 
-- `HAL_CAMPUS_EVIDENCE_DESK_DEMO.mp4` — 49.0 seconds, H.264, 1280x720.
-- `recorded-demo-receipt.json` — source hashes, four observed outcomes, video
+- `HAL_CAMPUS_EVIDENCE_DESK_DEMO.mp4`: 49.0 seconds, H.264, 1280x720.
+- `recorded-demo-receipt.json`: source hashes, four observed outcomes, video
   probe, and negative competition-state claims.
-- `submission-readiness.json` — exact-source readiness result with the recorded
+- `submission-readiness.json`: exact-source readiness result with the recorded
   demo verified.
-- `HAL_CAMPUS_SUBMISSION_BUNDLE_b5e789fc.zip` — deterministic ten-file
+- `HAL_CAMPUS_SUBMISSION_BUNDLE_49a82066.zip`: deterministic twelve-file
   portable evidence bundle with a SHA-256 manifest.
 
 ## Integrity
@@ -19,16 +19,16 @@ parent of the publication merge and contains the exact competition source.
 - MP4 SHA-256:
   `2de1a14864c615539deffb09c904c6ce45db64e668ef60728ec4b81977c85a10`
 - Demo receipt SHA-256:
-  `c0de38cac2a5a7bca9044155338ded49690ae0fd21a37aa4d1cf3df8df8de708`
+  `be23b3f10ae7e452949ae237a2396f4e3f7c902516802aaf9c421745872c8a48`
 - Readiness receipt SHA-256:
-  `b9498179fdfbdca33ea77347fc3fba7bf1464501ce6cc8fbd7558d9567d20525`
+  `5453fd3b4493e09fca0091a8ee3c6929fdbd9d9e381b74d2ed65b9fd7c5e0fbf`
 - Bundle SHA-256:
-  `b5712e389614b51b00764a2393b22de9e22c0da57ac5e8bb73dff104afc58b9b`
+  `520e983b57cba8f538db5bfe3485c92b31be06940157e87bd1cec0920259d09f`
 
 Verify the archive from this project directory:
 
 ```text
-python build_submission_bundle.py --verify public_evidence/HAL_CAMPUS_SUBMISSION_BUNDLE_b5e789fc.zip
+python build_submission_bundle.py --verify public_evidence/HAL_CAMPUS_SUBMISSION_BUNDLE_49a82066.zip
 ```
 
 The package is preparation evidence only. It does not claim final application

@@ -9,6 +9,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+from artifact_io import write_json_lf
 from campus_mvp import default_demo_desk, demo_cases
 from record_demo import verify_receipt as verify_recorded_demo_receipt
 
@@ -17,6 +18,7 @@ RULES = ROOT / "official_rules_snapshot.json"
 BRIEF = ROOT / "APPLICATION_BRIEF.md"
 OUT = ROOT / "evidence" / "submission_readiness.json"
 PACKAGE_SOURCE_FILES = (
+    "artifact_io.py",
     "campus_mvp.py",
     "record_demo.py",
     "submission_gate.py",
@@ -248,7 +250,7 @@ def main() -> int:
     receipt = build_receipt(args.demo_receipt)
     output = args.output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    write_json_lf(output, receipt)
     print(
         json.dumps(
             {

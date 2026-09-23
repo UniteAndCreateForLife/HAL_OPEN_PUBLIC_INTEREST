@@ -11,6 +11,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from artifact_io import write_json_lf
 from campus_mvp import default_demo_desk, demo_cases
 
 ROOT = Path(__file__).resolve().parent
@@ -19,6 +20,7 @@ HEIGHT = 720
 FPS = 25
 SLIDE_SECONDS = 7
 SOURCE_FILES = (
+    "artifact_io.py",
     "campus_mvp.py",
     "record_demo.py",
     "test_campus_mvp.py",
@@ -232,7 +234,7 @@ def main() -> int:
     write_video(slides, video, ffmpeg)
     receipt = build_receipt(output_dir, results, video, ffprobe)
     receipt_path = output_dir / "recorded-demo-receipt.json"
-    receipt_path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    write_json_lf(receipt_path, receipt)
     verify_receipt(receipt_path, ffprobe)
     print(json.dumps({"status": "PASS", "receipt": str(receipt_path), "receipt_sha256": sha256(receipt_path), "video": str(video), "video_sha256": receipt["video_sha256"], **receipt["video_probe"]}, sort_keys=True))
     return 0

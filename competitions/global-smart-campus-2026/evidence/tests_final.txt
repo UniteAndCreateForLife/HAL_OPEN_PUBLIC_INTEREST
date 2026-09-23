@@ -5,6 +5,7 @@ test_missing_required_section_fails_closed (test_application_packet.ApplicationP
 test_positive_competition_claim_is_rejected (test_application_packet.ApplicationPacketTests.test_positive_competition_claim_is_rejected) ... ok
 test_rendered_markdown_marks_packet_as_preparation_only (test_application_packet.ApplicationPacketTests.test_rendered_markdown_marks_packet_as_preparation_only) ... ok
 test_source_drift_is_rejected (test_application_packet.ApplicationPacketTests.test_source_drift_is_rejected) ... ok
+test_json_bytes_are_deterministic_lf_on_windows (test_artifact_io.ArtifactIoTests.test_json_bytes_are_deterministic_lf_on_windows) ... ok
 test_academic_answer_cites_policy (test_campus_mvp.CampusEvidenceDeskTests.test_academic_answer_cites_policy) ... ok
 test_facilities_request_routes_with_evidence (test_campus_mvp.CampusEvidenceDeskTests.test_facilities_request_routes_with_evidence) ... ok
 test_plural_facilities_request_routes_to_facilities_ticket (test_campus_mvp.CampusEvidenceDeskTests.test_plural_facilities_request_routes_to_facilities_ticket) ... ok
@@ -37,6 +38,6 @@ test_repository_evidence_path_is_portable (test_validate_package.ValidatePackage
 test_repository_evidence_path_rejects_escape (test_validate_package.ValidatePackagePrivacyTests.test_repository_evidence_path_rejects_escape) ... ok
 
 ----------------------------------------------------------------------
-Ran 37 tests in 0.679s
+Ran 38 tests in 0.665s
 
 OK

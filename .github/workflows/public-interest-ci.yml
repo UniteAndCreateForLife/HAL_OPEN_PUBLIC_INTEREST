@@ -1,0 +1,74 @@
+name: Public Interest Cross-Platform CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-interest-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            label: linux-x64
+          - runner: ubuntu-24.04-arm
+            label: linux-arm64
+          - runner: windows-latest
+            label: windows-x64
+          - runner: macos-latest
+            label: macos-arm64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install project test dependency
+        run: python -m pip install -e . pytest
+      - name: Run deterministic test suite
+        run: python -m pytest -q
+      - name: Compile public source
+        run: python -m compileall -q src tests
+      - name: Emit source-bound runner receipt
+        env:
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RUNNER_LABEL: ${{ matrix.label }}
+        run: |
+          python - <<'PY'
+          import json, os, platform, pathlib, sys
+          path = pathlib.Path('evidence/ci-runners')
+          path.mkdir(parents=True, exist_ok=True)
+          receipt = {
+              'schema': 'hal.public-interest-runner.v1',
+              'source_sha': os.environ['SOURCE_SHA'],
+              'runner_label': os.environ['RUNNER_LABEL'],
+              'platform': platform.platform(),
+              'machine': platform.machine(),
+              'python': sys.version.split()[0],
+              'network_calls_by_project_tests': False,
+              'paid_runner_requested': False,
+              'secrets_required': False,
+          }
+          (path / f"{os.environ['RUNNER_LABEL']}.json").write_text(
+              json.dumps(receipt, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8'
+          )
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: public-interest-${{ matrix.label }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: evidence/ci-runners/${{ matrix.label }}.json
+          if-no-files-found: error
+          retention-days: 7

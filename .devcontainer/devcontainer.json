@@ -1,0 +1,18 @@
+{
+  "name": "HAL Open Public Interest",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bookworm",
+  "remoteUser": "vscode",
+  "postCreateCommand": "python -m pip install -e . pytest",
+  "containerEnv": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ]
+    }
+  }
+}

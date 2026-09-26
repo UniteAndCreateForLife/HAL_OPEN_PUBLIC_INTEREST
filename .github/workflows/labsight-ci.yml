@@ -1,0 +1,189 @@
+name: HAL LabSight CI
+
+on:
+  push:
+    branches: [opencv-2026-labsight]
+    paths:
+      - "competitions/opencv-2026-labsight/**"
+      - ".github/workflows/labsight-ci.yml"
+  pull_request:
+    paths:
+      - "competitions/opencv-2026-labsight/**"
+      - ".github/workflows/labsight-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: competitions/opencv-2026-labsight
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install development/test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Tests
+        run: pytest -q
+      - name: Static submission-readiness gate
+        run: labsight-readiness --static-only --output evaluation/ci/readiness-static.json
+      - name: Regression benchmark
+        run: python -m labsight.evaluation --seeds 10 --output evaluation/ci
+
+  opencv5-competition-evidence:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: competitions/opencv-2026-labsight
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install exact competition runtime
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-competition.txt
+          python -m pip install -e '.[test]'
+          python -m pip check
+      - name: Prove exact OpenCV 5 runtime
+        env:
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          mkdir -p evaluation/ci-opencv5
+          python - <<'PY'
+          import json
+          import os
+          import platform
+          import sys
+          from pathlib import Path
+          from labsight.runtime import competition_runtime_info
+
+          runtime = competition_runtime_info()
+          payload = {
+              "source_sha": os.environ["SOURCE_SHA"],
+              "python": sys.version.split()[0],
+              "platform": platform.platform(),
+              "runtime": runtime,
+              "scope": "clean GitHub runner; exact OpenCV 5 reproducibility evidence, not AWS deployment evidence",
+          }
+          output = Path("evaluation/ci-opencv5/runtime.json")
+          output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+          print(json.dumps(payload, indent=2))
+          if not runtime["opencv5_verified"]:
+              raise SystemExit("exact OpenCV 5 competition runtime verification failed")
+          PY
+          python -m pip freeze > evaluation/ci-opencv5/pip-freeze.txt
+      - name: Deterministic tests under exact OpenCV 5
+        run: pytest -q
+      - name: 100-sample OpenCV 5 benchmark
+        run: python -m labsight.evaluation --seeds 25 --output evaluation/ci-opencv5
+      - name: Upload OpenCV 5 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: labsight-opencv5-${{ github.event.pull_request.head.sha || github.sha }}
+          path: competitions/opencv-2026-labsight/evaluation/ci-opencv5
+          if-no-files-found: error
+          retention-days: 30
+
+  container-runtime-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      IMAGE: hal-labsight:ci
+    defaults:
+      run:
+        working-directory: competitions/opencv-2026-labsight
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Build the actual pinned production image
+        run: |
+          mkdir -p evaluation/ci-container
+          docker build --progress=plain --build-arg LABSIGHT_BUILD_SHA="$SOURCE_SHA" -t "$IMAGE" . 2>&1 | tee evaluation/ci-container/build.log
+          docker image inspect "$IMAGE" > evaluation/ci-container/image-inspect.json
+      - name: Probe real HTTP and Agentic Vision inside isolated container
+        run: |
+          set -euo pipefail
+          cleanup() {
+            docker logs labsight-ci > evaluation/ci-container/service.log 2>&1 || true
+            docker rm -f labsight-ci >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          docker run -d --name labsight-ci --network none --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges --cpus 2 --memory 2g "$IMAGE"
+          docker exec -i labsight-ci python - --source-sha "$SOURCE_SHA" < tools/container_probe.py > evaluation/ci-container/http-probe.json
+          docker exec labsight-ci python -m pip freeze > evaluation/ci-container/pip-freeze.txt
+          docker exec labsight-ci sh -c 'dpkg-query -W' > evaluation/ci-container/os-packages.txt
+          docker exec labsight-ci python -m labsight.evaluation --seeds 25 --output /tmp/benchmark
+          mkdir -p evaluation/ci-container/benchmark
+          docker exec labsight-ci cat /tmp/benchmark/summary.json > evaluation/ci-container/benchmark/summary.json
+          docker exec labsight-ci cat /tmp/benchmark/samples.csv > evaluation/ci-container/benchmark/samples.csv
+          sha256sum evaluation/ci-container/http-probe.json evaluation/ci-container/image-inspect.json evaluation/ci-container/pip-freeze.txt evaluation/ci-container/os-packages.txt evaluation/ci-container/benchmark/* > evaluation/ci-container/SHA256SUMS
+      - name: Upload container evidence (never AWS evidence)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: labsight-container-${{ github.event.pull_request.head.sha || github.sha }}
+          path: competitions/opencv-2026-labsight/evaluation/ci-container
+          if-no-files-found: error
+          retention-days: 60
+
+  judge-demo-recording:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: competitions/opencv-2026-labsight
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned recording tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends ffmpeg
+          python -m pip install playwright==1.55.0
+          python -m playwright install --with-deps chromium
+          ffmpeg -version | head -n 1
+      - name: Record real production-container judge demo
+        run: tools/judge_video_capture.sh evaluation/ci-judge-recording 0.12
+      - name: Verify source-bound recording receipt
+        env:
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          receipt = json.loads(Path("evaluation/ci-judge-recording/recording-receipt.json").read_text())
+          assert receipt["source_sha"] == os.environ["SOURCE_SHA"]
+          assert receipt["judge_suite_passed"] is True
+          assert receipt["runtime_before"]["opencv5_verified"] is True
+          assert receipt["runtime_after"]["opencv5_verified"] is True
+          assert receipt["video_duration_seconds"] <= 300
+          assert receipt["diagnostic_claims"] is False
+          assert receipt["submission_status"] == "draft_recording_requires_human_narration_and_review"
+          PY
+          (cd evaluation/ci-judge-recording && sha256sum --check SHA256SUMS)
+      - name: Upload captioned demo package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: labsight-judge-demo-${{ github.event.pull_request.head.sha }}
+          path: competitions/opencv-2026-labsight/evaluation/ci-judge-recording
+          if-no-files-found: error
+          retention-days: 30

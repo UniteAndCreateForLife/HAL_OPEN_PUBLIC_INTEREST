@@ -1,0 +1,17 @@
+INFO:     127.0.0.1:49378 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53230 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53236 - "GET /demo/analyze/clean HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53248 - "GET /demo/analyze/blurred HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53250 - "GET /demo/analyze/uneven HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53256 - "GET /demo/analyze/clipped HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58934 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54296 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54298 - "GET /demo/analyze/clean HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54310 - "GET /demo/analyze/blurred HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54316 - "GET /demo/analyze/uneven HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54324 - "GET /demo/analyze/clipped HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52842 - "GET /health HTTP/1.1" 200 OK
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)

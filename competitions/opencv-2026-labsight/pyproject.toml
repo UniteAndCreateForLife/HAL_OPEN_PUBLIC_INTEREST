@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hal-labsight"
+version = "0.2.0"
+description = "Agentic microscopy quality control for the OpenCV AI Competition 2026"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy>=2.0,<3",
+  "fastapi>=0.115,<1",
+  "uvicorn>=0.30,<1",
+  "opencv-python>=4.13,<6",
+]
+
+[project.optional-dependencies]
+competition = ["opencv-python==5.0.0.93"]
+test = ["pytest>=8,<10", "httpx>=0.27,<1"]
+
+[project.scripts]
+labsight = "labsight.cli:main"
+labsight-evaluate = "labsight.evaluation:main"
+labsight-readiness = "labsight.readiness:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["labsight*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["."]

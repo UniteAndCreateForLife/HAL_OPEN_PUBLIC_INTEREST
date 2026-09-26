@@ -1,0 +1,86 @@
+[
+    {
+        "Id": "sha256:ce6f5b8813c1f9940dc8cf6e0cd43fb4c7eeda811711876bb38007aed83d1b77",
+        "RepoTags": [
+            "hal-labsight:focusfix"
+        ],
+        "RepoDigests": [
+            "hal-labsight@sha256:ce6f5b8813c1f9940dc8cf6e0cd43fb4c7eeda811711876bb38007aed83d1b77"
+        ],
+        "Comment": "buildkit.dockerfile.v0",
+        "Created": "2026-09-22T23:37:31.424142565Z",
+        "Config": {
+            "User": "65532:65532",
+            "ExposedPorts": {
+                "8080/tcp": {}
+            },
+            "Env": [
+                "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+                "PYTHON_VERSION=3.12.14",
+                "PYTHON_SHA256=5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a",
+                "LABSIGHT_BUILD_SHA=80090cdc97a7a6b71c94cab9617f2243d52f249d",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "PYTHONUNBUFFERED=1"
+            ],
+            "Cmd": [
+                "uvicorn",
+                "labsight.api:app",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8080"
+            ],
+            "WorkingDir": "/app",
+            "Labels": {
+                "org.opencontainers.image.revision": "80090cdc97a7a6b71c94cab9617f2243d52f249d"
+            },
+            "ArgsEscaped": true,
+            "Healthcheck": {
+                "Test": [
+                    "CMD-SHELL",
+                    "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=3).read()\""
+                ],
+                "Interval": 30000000000,
+                "Timeout": 5000000000,
+                "StartPeriod": 10000000000,
+                "Retries": 3
+            }
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 223920349,
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:a6dc765193a52cbaede3c93a9ff48b9540948dd0774bbe7031fcb5847606f9ac",
+                "sha256:7ca599ccfc97fa428fcf941eda7c2d643f066feb947020dcdbbf913cec34d5dc",
+                "sha256:b54011271bdbf69ae643cb5a4af6a5bc2f834ae8bc0833b736b52bbd2396e99f",
+                "sha256:c321a426ca693e386f4df5f198d7f32c2da49e29f53ff77d695ceb02dfb0a421",
+                "sha256:a27a83d58990aa3e8bdaad6ff94dc403473f040db4b37179afe3211efe01cc5a",
+                "sha256:cf9e5e92ce9a544690b6745088f9df119e60e0283b982ace6d5526087914b6ae",
+                "sha256:50e7b0ae61dee101336d9170be2a266ab6d81d3c88f1514ea24677bde2d23b59",
+                "sha256:61a7153dd3e88da71525f6fc26a9d62565e848bab9d0d3222e251c619d889ad3",
+                "sha256:79cdeb9e198ad04bf5c8adaaf61cf0e4966d7c72982aec185dc4591a8e9c6982",
+                "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2026-09-22T23:37:45.161433862Z"
+        },
+        "Descriptor": {
+            "mediaType": "application/vnd.oci.image.index.v1+json",
+            "digest": "sha256:ce6f5b8813c1f9940dc8cf6e0cd43fb4c7eeda811711876bb38007aed83d1b77",
+            "size": 856
+        },
+        "Identity": {
+            "Build": [
+                {
+                    "Ref": "ujqb3gr2q9mxjghwy2o1i3mt2",
+                    "CreatedAt": "2026-09-22T23:37:49.412681298Z"
+                }
+            ]
+        }
+    }
+]

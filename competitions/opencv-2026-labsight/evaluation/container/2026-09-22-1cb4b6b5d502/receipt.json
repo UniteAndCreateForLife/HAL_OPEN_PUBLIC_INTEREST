@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "captured_at_utc": "2026-09-22T23:23:56.455513+00:00",
+  "source_sha": "1cb4b6b5d502464ac42cc5c1240da8f3b9f1b4ed",
+  "purpose": "image_quality_control_only",
+  "diagnostic_claims": false,
+  "scope": "Local Docker Desktop Linux container; not AWS deployment evidence",
+  "aws_deployed": false,
+  "cloudwatch_evidence": false,
+  "local_image_id": "sha256:e52d85b40af67273d349eb45e637e5a474bc30248ed4800d130990f7e13e281a",
+  "image_user": "65532:65532",
+  "cpu_limit": 2,
+  "memory_limit_gib": 2,
+  "test_results": {
+    "tests": 75,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "http_canary_passed": true,
+  "synthetic": {
+    "samples": 100,
+    "decision_accuracy": 1.0,
+    "agent_action_accuracy": 1.0,
+    "latency_ms": {
+      "mean": 58.037,
+      "median": 47.688,
+      "p95": 94.023,
+      "max": 117.793
+    },
+    "runtime": {
+      "python": "3.12.14",
+      "opencv_distribution": "5.0.0.93",
+      "opencv_runtime": "5.0.0",
+      "expected_opencv_distribution": "5.0.0.93",
+      "expected_opencv_runtime": "5.0.0",
+      "opencv5_verified": true
+    },
+    "scope": "synthetic microscopy QC regression corpus; not diagnostic validation"
+  },
+  "real_corpus": {
+    "purpose": "image_quality_control_only",
+    "diagnostic_claims": false,
+    "manifest_sha256": "61da498c1a32abac15a462a861be0f8b7e3591384f4233d3b1222bb6515b36e6",
+    "evaluation_id": "d3fa8b01afc5e363b3dcd61c92717d3dcaad569b1d937d8dc9f065c09ef961db",
+    "samples": 20,
+    "scored_samples": 10,
+    "qc_agreement": 1.0,
+    "first_action_agreement": 0.6666666666666666,
+    "enhancement_agreement": 0.6666666666666666,
+    "combined_expectation_agreement": 0.6666666666666666,
+    "latency_ms": {
+      "median": 13.154,
+      "p95": 145.931,
+      "max": 148.326
+    },
+    "runtime": {
+      "opencv_distribution": "5.0.0.93",
+      "opencv_runtime": "5.0.0",
+      "expected_opencv_distribution": "5.0.0.93",
+      "expected_opencv_runtime": "5.0.0",
+      "opencv5_verified": true
+    },
+    "failure_analysis": {
+      "failure_count": 0,
+      "failure_rate": 0.0,
+      "failure_ids": [],
+      "confusion_matrix": {
+        "request_recapture_focus": {
+          "request_recapture_focus": 5
+        },
+        "request_recapture_exposure": {
+          "request_recapture_exposure": 5
+        }
+      },
+      "per_expected_status": {
+        "request_recapture_exposure": {
+          "samples": 5,
+          "correct": 5,
+          "recall": 1.0
+        },
+        "request_recapture_focus": {
+          "samples": 5,
+          "correct": 5,
+          "recall": 1.0
+        }
+      },
+      "safety": {
+        "unsafe_accept_count": 0,
+        "unsafe_accept_rate": 0.0,
+        "unsafe_accept_ids": [],
+        "false_rejection_count": 0,
+        "false_rejection_rate": 0.0,
+        "false_rejection_ids": [],
+        "risk_weighting": {
+          "unsafe_accept": 4,
+          "false_rejection": 1
+        },
+        "weighted_failure_points": 0,
+        "normalized_qc_risk": 0.0
+      },
+      "first_action": {
+        "failure_count": 5,
+        "failure_rate": 0.3333333333333333,
+        "failure_ids": [
+          "bbbc038-example-1__uneven_illumination",
+          "bbbc038-example-2__uneven_illumination",
+          "bbbc038-example-3__uneven_illumination",
+          "bbbc038-example-4__uneven_illumination",
+          "bbbc038-example-5__uneven_illumination"
+        ],
+        "confusion_matrix": {
+          "request_recapture_focus": {
+            "request_recapture_focus": 5
+          },
+          "request_recapture_exposure": {
+            "request_recapture_exposure": 5
+          },
+          "enhance_and_reanalyze": {
+            "request_recapture_focus": 5
+          }
+        },
+        "per_expected_status": {
+          "enhance_and_reanalyze": {
+            "samples": 5,
+            "correct": 0,
+            "recall": 0.0
+          },
+          "request_recapture_exposure": {
+            "samples": 5,
+            "correct": 5,
+            "recall": 1.0
+          },
+          "request_recapture_focus": {
+            "samples": 5,
+            "correct": 5,
+            "recall": 1.0
+          }
+        }
+      },
+      "enhancement": {
+        "failure_count": 5,
+        "failure_rate": 0.3333333333333333,
+        "failure_ids": [
+          "bbbc038-example-1__uneven_illumination",
+          "bbbc038-example-2__uneven_illumination",
+          "bbbc038-example-3__uneven_illumination",
+          "bbbc038-example-4__uneven_illumination",
+          "bbbc038-example-5__uneven_illumination"
+        ],
+        "confusion_matrix": {
+          "False": {
+            "False": 10
+          },
+          "True": {
+            "False": 5
+          }
+        },
+        "per_expected_status": {
+          "False": {
+            "samples": 10,
+            "correct": 10,
+            "recall": 1.0
+          },
+          "True": {
+            "samples": 5,
+            "correct": 0,
+            "recall": 0.0
+          }
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Five independent BBBC038 example sources; 20 native/derived items, not 20 independent captures.",
+    "Only 10 samples have final-action expectations; five native images are unscored.",
+    "Five of 15 first-action/enhancement expectations fail; no thresholds or labels were changed to conceal them.",
+    "No ECR digest, App Runner deployment, AWS identity, or CloudWatch proof is asserted."
+  ],
+  "raw_artifact_sha256": {
+    "http-probe.json": "fe2318b849c496634e0eea1bdb4b6ab63844d057d8e918ec3752a7f2c9b7ba49",
+    "real-corpus.json": "e2404334127eb374905ea1e99449212bead29844ae576ce06cee17f8898b22d4",
+    "synthetic-summary.json": "b00b8499197a5bdec0146bffd25b5cd1806306fa5c88e915d30605001509592c",
+    "synthetic-samples.csv": "01f30d936fdd6a5fc2ec0718c3105a5c2bbd28aacf5df5ec74698699d053e5bd",
+    "pip-freeze.txt": "2426f7b198eda6be7ae8bc058a5aa23e769b77a4db06ec9ec7ed22cb893b2f5f",
+    "os-packages.txt": "0e9eeef95da57dc43310ac89ce40b474d86e9b0cc482deda6aaf122703feccb7",
+    "final-container-tests.xml": "90357d243ce26b5aa2ec1569be3c596c5fe1571bafd46366b98f0816fc7d3424",
+    "service.log": "79a71543f7c0b137b6be12a0692a058f7075f5b14c7177da18cc842681de19c3"
+  },
+  "versioned_text_normalization": "LF; SHA256SUMS covers repository blob bytes, not CRLF-expanded Windows checkouts"
+}

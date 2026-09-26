@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from hal_public_interest import AuditLedger, LocalRoutePolicy, RouteCandidate
@@ -32,3 +33,28 @@ def test_ledger_writes_hash_linked_record(tmp_path: Path):
     assert records[0]["event_hash"] == first
     assert records[1]["previous_hash"] == first
     assert records[1]["event_hash"] == second
+
+
+def test_ledger_verify_detects_tampering(tmp_path: Path):
+    assert AuditLedger(tmp_path / "missing.jsonl").verify() is None
+
+    ledger_path = tmp_path / "events.jsonl"
+    ledger = AuditLedger(ledger_path)
+    first = ledger.append("route_selected", {"route_id": "local"})
+    second = ledger.append("work_completed", {"result": "verified"}, previous_hash=first)
+    third = ledger.append("receipt_written", {"receipt": "r-1"}, previous_hash=second)
+    assert ledger.verify() is None
+
+    lines = ledger_path.read_text(encoding="utf-8").splitlines()
+
+    rec1 = json.loads(lines[1])
+    rec1["payload"] = {"result": "tampered"}
+    edited_line1 = json.dumps(rec1, sort_keys=True)
+    ledger_path.write_text("\n".join([lines[0], edited_line1, lines[2]]) + "\n", encoding="utf-8")
+    assert ledger.verify() == 1
+
+    ledger_path.write_text("\n".join([lines[0], lines[2]]) + "\n", encoding="utf-8")
+    assert ledger.verify() == 1
+
+    ledger_path.write_text("\n".join([lines[1], lines[2]]) + "\n", encoding="utf-8")
+    assert ledger.verify() == 0

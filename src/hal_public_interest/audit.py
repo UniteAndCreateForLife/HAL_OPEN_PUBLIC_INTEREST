@@ -80,3 +80,26 @@ class AuditLedger:
         if not self.path.exists():
             return []
         return [json.loads(line) for line in self.path.read_text(encoding="utf-8").splitlines() if line]
+
+    def verify(self) -> int | None:
+        """Verify the ledger's integrity and hash chain.
+
+        Detects edited, inserted, deleted, and reordered records, but not
+        removed trailing records. Is not a signature (whoever can rewrite
+        the file can recompute every hash).
+        """
+        records = self.read()
+        expected_prev_hash = ""
+        for i, record in enumerate(records):
+            if not isinstance(record, dict):
+                return i
+            if record.get("previous_hash") != expected_prev_hash:
+                return i
+            body = {k: v for k, v in record.items() if k != "event_hash"}
+            canonical = json.dumps(body, sort_keys=True, separators=(",", ":"))
+            recomputed_hash = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+            stored_hash = record.get("event_hash")
+            if not stored_hash or stored_hash != recomputed_hash:
+                return i
+            expected_prev_hash = stored_hash
+        return None

@@ -1,0 +1,78 @@
+# HAL Open Public Interest: GitLab for Open Source CI lane (mirrors .github/workflows/public-interest-ci.yml).
+#
+# Zero-spend gate, all of it binding:
+# - GitLab-hosted standard runners only: saas-linux-small-amd64, saas-linux-small-arm64,
+#   saas-windows-medium-amd64 and, once the Open Source program grants Ultimate, saas-macos-medium-m1.
+#   Never larger, GPU or self-hosted runners. Never buy compute minutes.
+# - Keep CI/CD disabled on the GitLab project until the GitLab for Open Source coupon is active:
+#   ordinary shared runners can ask a Free account for card verification. Do not add a card.
+# - No secrets, no credential CI/CD variables, no model or provider calls.
+# See docs/GITLAB_OPEN_SOURCE_LANE.md.
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+variables:
+  SOURCE_SHA: $CI_COMMIT_SHA
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+default:
+  interruptible: true
+  timeout: 15m
+
+stages:
+  - test
+
+.suite:
+  stage: test
+  script:
+    - python -m pip install -e . pytest
+    - python -m pytest -q
+    - python -m compileall -q src tests
+    - python tools/ci_runner_receipt.py --output "evidence/ci-runners/$RUNNER_LABEL.json" --label "$RUNNER_LABEL" --schema "hal.public-interest-runner.v1"
+  artifacts:
+    paths:
+      - evidence/ci-runners/
+    expire_in: 7 days
+
+linux-x64:
+  extends: .suite
+  image: python:3.12-slim
+  tags: [saas-linux-small-amd64]
+  variables:
+    RUNNER_LABEL: linux-x64
+
+linux-arm64:
+  extends: .suite
+  image: python:3.12-slim
+  tags: [saas-linux-small-arm64]
+  variables:
+    RUNNER_LABEL: linux-arm64
+
+# Windows and macOS runners are beta on GitLab. Run them by hand first; make them automatic
+# only after one green manual run confirms the image's Python setup.
+windows-x64:
+  extends: .suite
+  tags: [saas-windows-medium-amd64]
+  variables:
+    RUNNER_LABEL: windows-x64
+  before_script:
+    - python --version
+  when: manual
+  allow_failure: true
+
+macos-arm64:
+  extends: .suite
+  tags: [saas-macos-medium-m1]
+  image: macos-15-xcode-16
+  variables:
+    RUNNER_LABEL: macos-arm64
+  before_script:
+    - python3 --version
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+  when: manual
+  allow_failure: true

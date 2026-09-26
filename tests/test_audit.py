@@ -23,6 +23,45 @@ def test_policy_fails_closed_without_local_route():
     assert decision.route_id is None
 
 
+def test_policy_requires_exact_loopback_host():
+    policy = LocalRoutePolicy()
+    refuse_endpoints = [
+        "http://127.0.0.1.evil.example",
+        "http://localhost@evil.example",
+        "http://localhost.evil.example:11434",
+        "http://127.0.0.1:11434@evil.example",
+        "http://localhost:11434.evil.example",
+        "http://user@localhost:11434",
+        "http://localhost.:11434",
+        "http://0.0.0.0:11434",
+        "http://[::1",
+    ]
+    for endpoint in refuse_endpoints:
+        decision = policy.choose([RouteCandidate("route", endpoint, "local", "model")])
+        assert decision.allowed is False
+        assert decision.route_id is None
+
+    allow_endpoints = [
+        "http://127.0.0.1:11434",
+        "http://localhost:11434",
+        "http://[::1]:11434",
+        "http://LOCALHOST:11434",
+    ]
+    for endpoint in allow_endpoints:
+        decision = policy.choose([RouteCandidate("route", endpoint, "local", "model")])
+        assert decision.allowed is True
+        assert decision.route_id == "route"
+
+    mixed_candidates = [
+        RouteCandidate("r1", "http://[::1", "local", "model"),
+        RouteCandidate("r2", "http://localhost.evil.example:11434", "local", "model"),
+        RouteCandidate("r3", "http://localhost:11434", "local", "model"),
+    ]
+    decision = policy.choose(mixed_candidates)
+    assert decision.allowed is True
+    assert decision.route_id == "r3"
+
+
 def test_ledger_writes_hash_linked_record(tmp_path: Path):
     ledger = AuditLedger(tmp_path / "events.jsonl")
     first = ledger.append("route_selected", {"route_id": "local"})

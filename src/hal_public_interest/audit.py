@@ -12,6 +12,7 @@ import hashlib
 import json
 from pathlib import Path
 from typing import Iterable
+from urllib.parse import urlsplit
 
 
 @dataclass(frozen=True)
@@ -38,12 +39,18 @@ class LocalRoutePolicy:
 
     @staticmethod
     def _is_local(candidate: RouteCandidate) -> bool:
-        endpoint = candidate.endpoint.lower().rstrip("/")
-        return candidate.data_residency.lower() == "local" and (
-            endpoint.startswith("http://127.0.0.1")
-            or endpoint.startswith("http://localhost")
-            or endpoint.startswith("http://[::1]")
-        )
+        if candidate.data_residency.lower() != "local":
+            return False
+        try:
+            parsed = urlsplit(candidate.endpoint)
+            if parsed.scheme != "http":
+                return False
+            if "@" in parsed.netloc:
+                return False
+            _ = parsed.port
+            return parsed.hostname in ("127.0.0.1", "localhost", "::1")
+        except ValueError:
+            return False
 
     def choose(self, candidates: Iterable[RouteCandidate]) -> RouteDecision:
         for candidate in candidates:

@@ -7,7 +7,7 @@ loads credentials, or sends network traffic.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Iterable
 
 from .audit import LocalRoutePolicy, RouteCandidate
@@ -47,11 +47,24 @@ def _normalize_models(models: Iterable[str]) -> tuple[str, ...]:
 
 
 def _portable_audit_path(value: str | Path) -> str:
-    path = Path(value)
-    if path.is_absolute() or ".." in path.parts:
-        raise NodePlanError("audit ledger path must be relative and stay inside the node root")
-    text = path.as_posix().strip()
-    if not text or text in {".", "/"}:
+    raw = str(value).strip()
+    if not raw:
+        raise NodePlanError("audit ledger path is required")
+
+    posix = PurePosixPath(raw.replace("\\", "/"))
+    windows = PureWindowsPath(raw)
+    if (
+        posix.is_absolute()
+        or windows.is_absolute()
+        or bool(windows.drive)
+        or ".." in posix.parts
+        or ".." in windows.parts
+    ):
+        raise NodePlanError(
+            "audit ledger path must be portable, relative, and stay inside the node root"
+        )
+    text = posix.as_posix().strip()
+    if text in {".", "/"}:
         raise NodePlanError("audit ledger path is required")
     return text
 

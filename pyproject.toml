@@ -11,6 +11,9 @@ license = {file = "LICENSE"}
 authors = [{name = "HAL public-interest contributors"}]
 dependencies = []
 
+[project.scripts]
+hal-open-node = "hal_public_interest.node:main"
+
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]

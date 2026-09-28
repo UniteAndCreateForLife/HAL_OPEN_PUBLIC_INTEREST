@@ -13,6 +13,12 @@ The first code slice demonstrates two bounded ideas:
    available; and
 2. a dependency-free JSONL audit ledger with hash-linked provenance records.
 
+A separate **HAL Node installer alpha** now composes those primitives into a
+portable local-only node plan. The Windows script checks local prerequisites
+and writes configuration only; it does not download packages, pull models,
+start services, read credentials, open firewall ports, or contact a cloud route.
+See [docs/HAL_NODE_INSTALLER_ALPHA.md](docs/HAL_NODE_INSTALLER_ALPHA.md).
+
 It does not call an LLM, access secrets, start services, send network traffic,
 publish anything, or claim parity with the HAL SUPREME runtime.
 

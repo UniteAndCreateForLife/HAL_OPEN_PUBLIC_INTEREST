@@ -3,6 +3,10 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
 
 from hal_public_interest.node import build_node_plan
 

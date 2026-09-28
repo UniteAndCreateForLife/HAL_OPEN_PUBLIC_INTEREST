@@ -1,0 +1,49 @@
+name: hal-node-installer-alpha
+
+on:
+  push:
+    paths:
+      - "src/hal_public_interest/node.py"
+      - "tools/plan_node.py"
+      - "scripts/install_hal_node.ps1"
+      - "tests/test_node_plan.py"
+      - "docs/HAL_NODE_INSTALLER_ALPHA.md"
+      - ".github/workflows/hal-node-installer-alpha.yml"
+  pull_request:
+    paths:
+      - "src/hal_public_interest/node.py"
+      - "tools/plan_node.py"
+      - "scripts/install_hal_node.ps1"
+      - "tests/test_node_plan.py"
+      - "docs/HAL_NODE_INSTALLER_ALPHA.md"
+      - ".github/workflows/hal-node-installer-alpha.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e . pytest
+      - run: python -m pytest -q tests/test_node_plan.py
+      - run: python -m py_compile src/hal_public_interest/node.py tools/plan_node.py
+
+  powershell-parse:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse installer without executing it
+        shell: powershell
+        run: |
+          $text = Get-Content -Raw scripts/install_hal_node.ps1
+          [void][scriptblock]::Create($text)

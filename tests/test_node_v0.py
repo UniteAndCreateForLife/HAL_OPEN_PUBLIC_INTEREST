@@ -102,7 +102,7 @@ def test_runtime_calls_only_local_ollama_and_audits_hashes_not_prompt(
     records = runtime.ledger.read()
     serialized = json.dumps(records)
     assert "PRIVATE PROMPT" not in serialized
-    assert "prompt_sha256" in serialized
+    assert "prompt_hmac_sha256" in serialized
     assert [r["event_type"] for r in records] == [
         "chat_requested",
         "chat_completed",

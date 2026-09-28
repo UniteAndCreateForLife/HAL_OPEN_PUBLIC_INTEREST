@@ -71,6 +71,22 @@ runner. The library itself uses only the Python standard library.
   and an integrity-verified portable evidence bundle. Publication is not a
   final competition submission, selection, award, or payment claim.
 
+
+## HAL Node v0 alpha
+
+A new bounded alpha in [docs/HAL_NODE_V0.md](docs/HAL_NODE_V0.md) turns the
+existing local-route policy and audit ledger into a loopback-only node backed
+by local Ollama.
+
+The alpha exposes an OpenAI-shaped local chat endpoint, records hashes and
+operational metadata rather than prompt/response text, has no cloud fallback,
+and binds only to `127.0.0.1`.
+
+The Windows bootstrap defaults to plan mode. Installing Ollama or pulling a
+model requires explicit switches. This is not yet evidence of non-expert
+deployment; the required next proof is a second-machine installation and a
+separate-person setup trial.
+
 ## License
 
 The code and documentation in this repository are published under Apache-2.0,

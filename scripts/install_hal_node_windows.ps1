@@ -1,1 +1,133 @@
-[CmdletBinding()]\nparam(\n    [switch]$Apply,\n    [switch]$InstallOllama,\n    [switch]$PullModel,\n    [string]$Model = "qwen2.5:3b",\n    [int]$Port = 8844,\n    [string]$Python = "python"\n)\n\n$ErrorActionPreference = "Stop"\nSet-StrictMode -Version Latest\n$Root = Split-Path -Parent $PSScriptRoot\n$ConfigDir = Join-Path $HOME ".hal-open-local-ai"\n$ConfigPath = Join-Path $ConfigDir "node.json"\n$ReceiptPath = Join-Path $ConfigDir "install-receipt.json"\n$OllamaInstallerUrl = "https://ollama.com/install.ps1"\n\nfunction Command-Exists([string]$Name) {\n    return $null -ne (Get-Command $Name -ErrorAction SilentlyContinue)\n}\n\nfunction Python-Version {\n    try {\n        $value = & $Python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}')"\n        if ($LASTEXITCODE -ne 0) { return $null }\n        return [string]$value\n    } catch {\n        return $null\n    }\n}\n\nfunction Python-Supported([string]$Version) {\n    if (-not $Version) { return $false }\n    $parts = @($Version.Split(".") | ForEach-Object { [int]$_ })\n    return $parts.Count -ge 2 -and (($parts[0] -gt 3) -or ($parts[0] -eq 3 -and $parts[1] -ge 11))\n}\n\n$pythonVersion = Python-Version\n$ollamaPresent = Command-Exists "ollama"\n$networkActions = @()\nif (-not $ollamaPresent -and $InstallOllama) { $networkActions += "download official Ollama Windows installer script" }\nif ($PullModel) { $networkActions += "ollama pull $Model" }\n$plan = [ordered]@{\n    schema = "hal.open_local_node.install_plan.v0"\n    apply = [bool]$Apply\n    root = $Root\n    python = $Python\n    python_version = $pythonVersion\n    python_supported = (Python-Supported $pythonVersion)\n    ollama_present = $ollamaPresent\n    install_ollama_requested = [bool]$InstallOllama\n    pull_model_requested = [bool]$PullModel\n    model = $Model\n    bind = "http://127.0.0.1:$Port"\n    config = $ConfigPath\n    network_actions = $networkActions\n}\n\nif (-not $Apply) {\n    $plan | ConvertTo-Json -Depth 8\n    Write-Host ""\n    Write-Host "Plan only. Re-run with -Apply after review."\n    Write-Host "Use -InstallOllama only to download/run Ollama's official Windows installer."\n    Write-Host "Use -PullModel only to download the configured model."\n    exit 0\n}\n\nif (-not (Python-Supported $pythonVersion)) { throw "Python 3.11+ is required. Observed: $pythonVersion" }\nif ($Port -lt 1024 -or $Port -gt 65535) { throw "Port must be between 1024 and 65535." }\n\n$ollamaInstallerSha256 = $null\nif (-not $ollamaPresent) {\n    if (-not $InstallOllama) {\n        throw "Ollama is not installed. Install from https://ollama.com/download/windows or re-run with -InstallOllama."\n    }\n    $temporaryInstaller = Join-Path ([System.IO.Path]::GetTempPath()) ("ollama-install-" + [Guid]::NewGuid().ToString("N") + ".ps1")\n    try {\n        Invoke-WebRequest -Uri $OllamaInstallerUrl -OutFile $temporaryInstaller -UseBasicParsing\n        $ollamaInstallerSha256 = (Get-FileHash -LiteralPath $temporaryInstaller -Algorithm SHA256).Hash\n        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $temporaryInstaller\n        if ($LASTEXITCODE -ne 0) { throw "Ollama installer exited $LASTEXITCODE" }\n    } finally {\n        Remove-Item -LiteralPath $temporaryInstaller -Force -ErrorAction SilentlyContinue\n    }\n    $ollamaPresent = Command-Exists "ollama"\n    if (-not $ollamaPresent) { throw "Ollama installed but its command is not visible in this shell. Open a new terminal and re-run." }\n}\n\n& $Python -m pip install $Root\nif ($LASTEXITCODE -ne 0) { throw "Local HAL Open Local AI package install failed" }\n\nNew-Item -ItemType Directory -Force -Path $ConfigDir | Out-Null\n& $Python -m hal_public_interest.node --config $ConfigPath init-config --model $Model --port $Port --ollama-url "http://127.0.0.1:11434" --force\nif ($LASTEXITCODE -ne 0) { throw "HAL Node config creation failed" }\n\nif ($PullModel) {\n    & ollama pull $Model\n    if ($LASTEXITCODE -ne 0) { throw "ollama pull failed for $Model" }\n}\n\n$ollamaVersion = $null\ntry { $ollamaVersion = (& ollama --version 2>&1 | Out-String).Trim() } catch {}\n& $Python -m hal_public_interest.node --config $ConfigPath doctor\n$doctorExit = $LASTEXITCODE\n\n$receipt = [ordered]@{\n    schema = "hal.open_local_node.install_receipt.v0"\n    completed_at_utc = [DateTimeOffset]::UtcNow.ToString("o")\n    root = $Root\n    config = $ConfigPath\n    model = $Model\n    bind = "http://127.0.0.1:$Port"\n    python_version = $pythonVersion\n    ollama_version = $ollamaVersion\n    ollama_installer_url = $(if ($InstallOllama) { $OllamaInstallerUrl } else { $null })\n    ollama_installer_sha256 = $ollamaInstallerSha256\n    model_pull_requested = [bool]$PullModel\n    doctor_passed = ($doctorExit -eq 0)\n    cloud_fallback = $false\n    credentials_written = $false\n    public_listener = $false\n}\n$receipt | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ReceiptPath -Encoding UTF8\n\nif ($doctorExit -ne 0) {\n    Write-Warning "Files/config installed, but local Ollama readiness did not pass. Start Ollama and run the doctor command in docs/HAL_NODE_V0.md."\n    exit 2\n}\n\nWrite-Host "HAL Node v0 local-only bootstrap passed."\nWrite-Host ("Start: hal-open-node --config \"" + $ConfigPath + "\" serve")\nWrite-Host ("Endpoint: http://127.0.0.1:" + $Port + "/v1/chat/completions")\n
+[CmdletBinding()]
+param(
+    [switch]$Apply,
+    [switch]$InstallOllama,
+    [switch]$PullModel,
+    [string]$Model = "qwen2.5:3b",
+    [int]$Port = 8844,
+    [string]$Python = "python"
+)
+
+$ErrorActionPreference = "Stop"
+Set-StrictMode -Version Latest
+$Root = Split-Path -Parent $PSScriptRoot
+$ConfigDir = Join-Path $HOME ".hal-open-local-ai"
+$ConfigPath = Join-Path $ConfigDir "node.json"
+$ReceiptPath = Join-Path $ConfigDir "install-receipt.json"
+$OllamaInstallerUrl = "https://ollama.com/install.ps1"
+
+function Command-Exists([string]$Name) {
+    return $null -ne (Get-Command $Name -ErrorAction SilentlyContinue)
+}
+
+function Python-Version {
+    try {
+        $value = & $Python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}')"
+        if ($LASTEXITCODE -ne 0) { return $null }
+        return [string]$value
+    } catch {
+        return $null
+    }
+}
+
+function Python-Supported([string]$Version) {
+    if (-not $Version) { return $false }
+    $parts = @($Version.Split(".") | ForEach-Object { [int]$_ })
+    return $parts.Count -ge 2 -and (($parts[0] -gt 3) -or ($parts[0] -eq 3 -and $parts[1] -ge 11))
+}
+
+$pythonVersion = Python-Version
+$ollamaPresent = Command-Exists "ollama"
+$networkActions = @()
+if (-not $ollamaPresent -and $InstallOllama) { $networkActions += "download official Ollama Windows installer script" }
+if ($PullModel) { $networkActions += "ollama pull $Model" }
+$plan = [ordered]@{
+    schema = "hal.open_local_node.install_plan.v0"
+    apply = [bool]$Apply
+    root = $Root
+    python = $Python
+    python_version = $pythonVersion
+    python_supported = (Python-Supported $pythonVersion)
+    ollama_present = $ollamaPresent
+    install_ollama_requested = [bool]$InstallOllama
+    pull_model_requested = [bool]$PullModel
+    model = $Model
+    bind = "http://127.0.0.1:$Port"
+    config = $ConfigPath
+    network_actions = $networkActions
+}
+
+if (-not $Apply) {
+    $plan | ConvertTo-Json -Depth 8
+    Write-Host ""
+    Write-Host "Plan only. Re-run with -Apply after review."
+    Write-Host "Use -InstallOllama only to download/run Ollama's official Windows installer."
+    Write-Host "Use -PullModel only to download the configured model."
+    exit 0
+}
+
+if (-not (Python-Supported $pythonVersion)) { throw "Python 3.11+ is required. Observed: $pythonVersion" }
+if ($Port -lt 1024 -or $Port -gt 65535) { throw "Port must be between 1024 and 65535." }
+
+$ollamaInstallerSha256 = $null
+if (-not $ollamaPresent) {
+    if (-not $InstallOllama) {
+        throw "Ollama is not installed. Install from https://ollama.com/download/windows or re-run with -InstallOllama."
+    }
+    $temporaryInstaller = Join-Path ([System.IO.Path]::GetTempPath()) ("ollama-install-" + [Guid]::NewGuid().ToString("N") + ".ps1")
+    try {
+        Invoke-WebRequest -Uri $OllamaInstallerUrl -OutFile $temporaryInstaller -UseBasicParsing
+        $ollamaInstallerSha256 = (Get-FileHash -LiteralPath $temporaryInstaller -Algorithm SHA256).Hash
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $temporaryInstaller
+        if ($LASTEXITCODE -ne 0) { throw "Ollama installer exited $LASTEXITCODE" }
+    } finally {
+        Remove-Item -LiteralPath $temporaryInstaller -Force -ErrorAction SilentlyContinue
+    }
+    $ollamaPresent = Command-Exists "ollama"
+    if (-not $ollamaPresent) { throw "Ollama installed but its command is not visible in this shell. Open a new terminal and re-run." }
+}
+
+& $Python -m pip install $Root
+if ($LASTEXITCODE -ne 0) { throw "Local HAL Open Local AI package install failed" }
+
+New-Item -ItemType Directory -Force -Path $ConfigDir | Out-Null
+& $Python -m hal_public_interest.node --config $ConfigPath init-config --model $Model --port $Port --ollama-url "http://127.0.0.1:11434" --force
+if ($LASTEXITCODE -ne 0) { throw "HAL Node config creation failed" }
+
+if ($PullModel) {
+    & ollama pull $Model
+    if ($LASTEXITCODE -ne 0) { throw "ollama pull failed for $Model" }
+}
+
+$ollamaVersion = $null
+try { $ollamaVersion = (& ollama --version 2>&1 | Out-String).Trim() } catch {}
+& $Python -m hal_public_interest.node --config $ConfigPath doctor
+$doctorExit = $LASTEXITCODE
+
+$receipt = [ordered]@{
+    schema = "hal.open_local_node.install_receipt.v0"
+    completed_at_utc = [DateTimeOffset]::UtcNow.ToString("o")
+    root = $Root
+    config = $ConfigPath
+    model = $Model
+    bind = "http://127.0.0.1:$Port"
+    python_version = $pythonVersion
+    ollama_version = $ollamaVersion
+    ollama_installer_url = $(if ($InstallOllama) { $OllamaInstallerUrl } else { $null })
+    ollama_installer_sha256 = $ollamaInstallerSha256
+    model_pull_requested = [bool]$PullModel
+    doctor_passed = ($doctorExit -eq 0)
+    cloud_fallback = $false
+    credentials_written = $false
+    public_listener = $false
+}
+$receipt | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ReceiptPath -Encoding UTF8
+
+if ($doctorExit -ne 0) {
+    Write-Warning "Files/config installed, but local Ollama readiness did not pass. Start Ollama and run the doctor command in docs/HAL_NODE_V0.md."
+    exit 2
+}
+
+Write-Host "HAL Node v0 local-only bootstrap passed."
+Write-Host ("Start: hal-open-node --config " + [char]34 + $ConfigPath + [char]34 + " serve")
+Write-Host ("Endpoint: http://127.0.0.1:" + $Port + "/v1/chat/completions")

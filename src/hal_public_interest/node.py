@@ -122,10 +122,23 @@ class LocalNodeRuntime:
             )
         self._audit_lock = threading.Lock()
 
-    def _keyed_digest(self, value: bytes) -> str:
+    def _keyed_digest(
+        self,
+        value: bytes,
+        *,
+        request_id: str,
+        label: str,
+    ) -> str:
+        envelope = (
+            label.encode("utf-8")
+            + b"\x00"
+            + request_id.encode("ascii")
+            + b"\x00"
+            + value
+        )
         return hmac.new(
             self.config.audit_key.encode("utf-8"),
-            value,
+            envelope,
             hashlib.sha256,
         ).hexdigest()
 
@@ -214,7 +227,11 @@ class LocalNodeRuntime:
             separators=(",", ":"),
         ).encode("utf-8")
         request_id = uuid.uuid4().hex
-        prompt_digest = self._keyed_digest(canonical)
+        prompt_digest = self._keyed_digest(
+            canonical,
+            request_id=request_id,
+            label="prompt",
+        )
         started = time.perf_counter()
         self._audit(
             "chat_requested",
@@ -243,7 +260,11 @@ class LocalNodeRuntime:
                 raise RuntimeError(
                     "Ollama response did not contain assistant text"
                 )
-            response_digest = self._keyed_digest(content.encode("utf-8"))
+            response_digest = self._keyed_digest(
+                content.encode("utf-8"),
+                request_id=request_id,
+                label="response",
+            )
             elapsed_ms = round(
                 (time.perf_counter() - started) * 1000,
                 2,

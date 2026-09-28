@@ -2,12 +2,19 @@
 
 ## Current guarantees of the minimal slice
 
+Core Python library:
 - no network requests;
 - no credential reads;
 - no subprocess execution;
 - no model loading;
 - explicit loopback/local route requirement;
 - JSONL audit records are hash-linked for basic tamper evidence.
+
+Opt-in Windows installer alpha:
+- invokes only the already-installed local Python interpreter to create a node plan;
+- checks for an already-installed Ollama command but does not invoke it;
+- performs no package download, model pull, service change, firewall change, credential read, or remote request;
+- writes only the user-selected configuration directory when not in dry-run mode.
 
 ## Threats to address before a hosted release
 

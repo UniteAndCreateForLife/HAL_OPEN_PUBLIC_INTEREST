@@ -7,6 +7,9 @@ INSTALLER = ROOT / "scripts" / "install_hal_node_windows.ps1"
 
 def test_installer_defaults_to_plan_mode_and_explicit_network_switches():
     text = INSTALLER.read_text(encoding="utf-8")
+    # Regression: generated PowerShell must contain real newlines, not a one-line \\n artifact.
+    assert text.startswith("[CmdletBinding()]\\nparam(")
+    assert "\\\\nparam" not in text
     assert "[switch]$Apply" in text
     assert "[switch]$InstallOllama" in text
     assert "[switch]$PullModel" in text

@@ -1,0 +1,17 @@
+Package: ragentledger
+Type: Package
+Title: Portable Provenance Receipts for AI-Assisted R Workflows
+Version: 0.0.0.9000
+Authors@R: person("Jakob", "Hedrich", role = c("aut", "cre"))
+Description: Prototype R-native JSONL provenance receipts for model and tool
+    calls in AI-assisted R workflows. Records are hash-linked so edits,
+    insertions, and reordering can be detected. This prototype is intentionally
+    small and does not claim cryptographic signing or proof of external truth.
+License: Apache License (>= 2)
+Encoding: UTF-8
+Imports:
+    digest,
+    jsonlite
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
